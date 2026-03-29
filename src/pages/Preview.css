@@ -1,0 +1,319 @@
+@font-face {
+    font-family: 'Open Sans';
+    font-weight: 400;
+    font-style: normal;
+    src: url('/fonts/OpenSans-Regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Open Sans';
+    font-weight: 600;
+    font-style: normal;
+    src: url('/fonts/OpenSans-SemiBold.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Open Sans';
+    font-weight: 700;
+    font-style: normal;
+    src: url('/fonts/OpenSans-Bold.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Open Sans';
+    font-weight: 800;
+    font-style: normal;
+    src: url('/fonts/OpenSans-ExtraBold.ttf') format('truetype');
+}
+
+:root {
+    --color-text: #323232;
+    --color-text-name: #1A5C71;
+    --color-accent: #2a7f9e;
+    --color-bg: #ffffff;
+    --font-main: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.page, .page *, .page *::before, .page *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+@page {
+    size: letter;
+    margin: 0;
+}
+
+.preview-wrapper {
+    background: #e8e8e8;
+    min-height: 100vh;
+    padding: 1rem 0;
+}
+
+.page {
+    width: 8.5in;
+    min-height: 11in;
+    max-height: 11in;
+    margin: 0.5in auto;
+    padding: 0.55in 0.5in 0.5in 0.5in;
+    background: var(--color-bg);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.12);
+    overflow: hidden;
+    font-family: var(--font-main);
+    color: var(--color-text);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+        height: 0;
+        min-height: 0;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+    }
+    body { background: white; margin: 0; }
+    .page, .page * {
+        visibility: visible;
+        height: auto;
+        overflow: visible;
+    }
+    .page {
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: 0;
+        padding: 0.55in 0.5in 0.5in 0.5in;
+        box-shadow: none;
+        width: 100%;
+        min-height: auto;
+        max-height: none;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .bullet-controls,
+    .add-bullet-controls {
+        visibility: hidden;
+    }
+    .page textarea.editable,
+    .page input.editable {
+        border: none;
+        outline: none;
+        resize: none;
+    }
+    .page textarea.editable:focus,
+    .page textarea.editable:hover {
+        border: none;
+    }
+}
+
+/* ── Header ── */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2.5px solid var(--color-accent);
+    padding-bottom: 0.08in;
+    margin-bottom: 0.18in;
+}
+
+.header h1 {
+    font-family: var(--font-main);
+    font-size: 1.85rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-text-name);
+    line-height: 1.1;
+}
+
+.contact-info {
+    text-align: right;
+    font-size: 0.72rem;
+    color: var(--color-text-name);
+}
+
+.contact-info a {
+    color: var(--color-text-name);
+    text-decoration: none;
+}
+
+/* ── Section ── */
+.section {
+    margin-bottom: 0.12in;
+}
+
+.section-title {
+    font-family: var(--font-main);
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-accent);
+    margin-bottom: 0.06in;
+}
+
+/* ── Summary ── */
+.summary p {
+    font-size: 0.72rem;
+    line-height: 1.55;
+    color: var(--color-text);
+}
+.page textarea.editable {
+    font-size: 0.72rem;
+    line-height: 1.55;
+    color: var(--color-text);
+    min-width: 7.5in;
+    overflow: hidden;
+    display: block;
+}
+.page textarea.editable:focus,
+.page textarea.editable:hover {
+    border: 2px solid var(--color-accent);
+    border-radius: 6px;
+    outline: none;
+}
+
+/* ── Skills ── */
+.skills-list {
+    font-size: 0.72rem;
+    line-height: 1.65;
+}
+
+.skills-list .skill-line {
+    margin-bottom: 0.01in;
+}
+
+.skill-category {
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.skill-values {
+    color: var(--color-text);
+}
+
+/* ── Education ── */
+.edu-entry {
+    margin-bottom: 0.06in;
+}
+
+.edu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.72rem;
+}
+
+.edu-school {
+    font-weight: 700;
+    color: var(--color-accent);
+}
+
+.edu-degree {
+    font-weight: 700;
+    color: var(--color-accent);
+}
+
+.edu-details {
+    font-size: 0.72rem;
+    color: var(--color-text);
+    line-height: 1.55;
+    margin-top: 0.02in;
+}
+
+.edu-details p {
+    margin-bottom: 0.04in;
+}
+
+/* ── Experience ── */
+.job {
+    margin-bottom: 0.1in;
+    position: relative;
+}
+
+.job:last-child {
+    margin-bottom: 0;
+}
+
+.job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    font-size: 0.72rem;
+    margin-bottom: 0.01in;
+}
+
+.job-title-line {
+    font-weight: 700;
+    color: var(--color-accent);
+}
+
+.job-date {
+    font-weight: 700;
+    color: var(--color-accent);
+}
+
+.job-bullets {
+    list-style: disc;
+    margin-top: 0.03in;
+    padding-left: 1em;
+}
+
+.job-bullets li {
+    font-size: 0.72rem;
+    line-height: 1.55;
+    color: var(--color-text);
+    margin-bottom: 0.05in;
+    list-style-position: outside;
+}
+.job-bullets input.editable{
+    font-size: 0.72rem;
+    line-height: 1.55;
+    color: var(--color-text);
+    margin-bottom: 0.05in;
+    min-width: 7.5in;
+}
+
+.job-bullets li:last-child {
+    margin-bottom: 0;
+}
+
+/* ── Bullet edit controls ── */
+.bullet-row {
+    position: relative;
+}
+
+.bullet-controls {
+    opacity: 0;
+    transition: opacity 0.15s;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.7rem;
+    color: #e53e3e;
+    padding: 0;
+    position: absolute;
+    right: -1.2em;
+    top: 0;
+}
+
+.add-bullet-controls {
+    opacity: 0;
+    transition: opacity 0.15s;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.7rem;
+    color: #068112;
+    padding: 0;
+    position: absolute;
+    bottom: -0.8em;
+    left: 1em;
+}
+
+.job:hover .bullet-controls,
+.job:hover .add-bullet-controls {
+    opacity: 1;
+}
