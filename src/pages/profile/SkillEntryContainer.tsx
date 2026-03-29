@@ -8,6 +8,7 @@ export function SkillEntryContainer() {
     const handleAddSkill = () => {
         const blank: SkillEntry = {
             id: crypto.randomUUID(),
+            title: '',
             text: '',
         }
         newSkill(blank);
@@ -25,7 +26,7 @@ export function SkillEntryContainer() {
                     onClick={handleAddSkill}
                 >+ Add</button>
             </div>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,180px),1fr))] gap-4">
                 {skillList.map((skill: SkillEntry) => (
                     <SkillEntryForm key={skill.id} skill={skill} handleUpdate={updateSkill} handleDelete={removeSkill} />
                 ))}

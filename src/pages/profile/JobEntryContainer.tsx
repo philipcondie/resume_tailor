@@ -30,7 +30,7 @@ export function JobEntryContainer() {
                     onClick={handleAddJob}
                 >+ Add</button>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4">
                 {jobHistory.map((job: JobEntry) => (
                     <JobEntryForm key={job.id} job={job} handleUpdate={updateJob} handleDelete={removeJob} />
                 ))}

@@ -28,7 +28,7 @@ export function EducationEntryContainer() {
                     onClick={handleAddEducation}
                 >+ Add</button>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4">
                 {educationHistory.map((education: EducationEntry) => (
                     <EducationEntryForm key={education.id} education={education} handleUpdate={updateEducation} handleDelete={removeEducation} />
                 ))}
