@@ -28,7 +28,7 @@ export function Prompt() {
                     placeholder="Add custom instructions for how your resume should be tailored..."
                     value={draft}
                     onChange={e => setDraft(e.target.value)}
-                    rows={10}
+                    rows={25}
                 />
             </div>
             <div className="flex gap-3 pt-2 border-t border-gray-100 items-center justify-end">

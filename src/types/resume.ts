@@ -6,7 +6,7 @@ export const JobEntrySchema = z.object({
     role: z.string(),
     startDate: z.string(),
     endDate: z.string(),
-    location: z.string(),
+    location: z.string().optional(),
     bullets: z.array(z.string()),
 });
 

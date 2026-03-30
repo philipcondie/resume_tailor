@@ -116,7 +116,28 @@ export function Preview() {
                     <EditableTextArea className='editable' content={draft.summary} handleChange={handleSummaryChange}/>
                 </section>
             }
-            
+
+            {/* ══ WORK EXPERIENCE ══ */}
+            <section className="section">
+            <h2 className="section-title">Work Experience</h2>
+            {draft.jobs.map((job : JobEntry) => (
+                <div className="job" key={job.id}>
+                    <div className="job-header">
+                        <span className="job-title-line">{job.role} — {job.company}{job.location && <> — {job.location}</>}</span>
+                        <span className="job-date">{job.startDate} - {job.endDate}</span>
+                    </div>
+                    <ul className="job-bullets">
+                        {job.bullets.map((bullet, i) => (
+                            <li key={i} className="bullet-row">
+                                <EditableTextArea className='editable' content={bullet} handleChange={(text) => updateJobBullet(job.id,i,text)}/>
+                                <button className='bullet-controls' onClick={() => deleteJobBullet(job.id,i)}>×</button>
+                            </li>
+                        ))}
+                    </ul>
+                    <button className='add-bullet-controls' onClick={() => addJobBullet(job.id)}>+</button>
+                </div>
+            ))}
+            </section>
 
             {/* ══ EDUCATION ══ */}
             <section className="section">
@@ -134,28 +155,6 @@ export function Preview() {
                     </div>
                 ))}
             </div>
-            ))}
-            </section>
-
-            {/* ══ WORK EXPERIENCE ══ */}
-            <section className="section">
-            <h2 className="section-title">Work Experience</h2>
-            {draft.jobs.map((job : JobEntry) => (
-                <div className="job" key={job.id}>
-                    <div className="job-header">
-                        <span className="job-title-line">{job.role} — {job.company} — {job.location}</span>
-                        <span className="job-date">{job.startDate} - {job.endDate}</span>
-                    </div>
-                    <ul className="job-bullets">
-                        {job.bullets.map((bullet, i) => (
-                            <li key={i} className="bullet-row">
-                                <EditableTextArea className='editable' content={bullet} handleChange={(text) => updateJobBullet(job.id,i,text)}/>
-                                <button className='bullet-controls' onClick={() => deleteJobBullet(job.id,i)}>×</button>
-                            </li>
-                        ))}
-                    </ul>
-                    <button className='add-bullet-controls' onClick={() => addJobBullet(job.id)}>+</button>
-                </div>
             ))}
             </section>
 
