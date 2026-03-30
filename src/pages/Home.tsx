@@ -10,7 +10,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 export function Home() {
     return (
             <div className="flex min-h-screen bg-gray-50">
-                <aside className="w-52 shrink-0 border-r border-gray-200 bg-white pt-10 px-4">
+                <aside className="w-52 shrink-0 border-r border-gray-200 bg-white pt-10 px-4 sticky top-0 h-screen">
                     <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 px-4 mb-4">Resume Builder</p>
                     <nav className="flex flex-col">
                         <NavLink to="profile/personal" className={navLinkClass}>Personal Info</NavLink>
