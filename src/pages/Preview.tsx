@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ResumeData, EducationEntry, JobEntry, ProjectEntry, SkillEntry } from '../types/resume';
 import { EditableTextArea, EditableInline } from '../components/EditableFields';
+import { SummaryComponent } from '../components/SummaryComponent';
 import './Preview.css';
 import { useResumeData } from '../hooks/dataHooks';
 
@@ -232,10 +233,7 @@ export function Preview() {
 
                 {/* ══ SUMMARY ══ */}
                 {showSummary && 
-                    <section className="section summary">
-                        <h2 className="section-title">Summary</h2>
-                        <EditableTextArea className='editable' content={draft.summary} handleChange={handleSummaryChange}/>
-                    </section>
+                    <SummaryComponent draft={draft.summary} onChange={handleSummaryChange}/>
                 }
 
                 {/* ══ WORK EXPERIENCE ══ */}
