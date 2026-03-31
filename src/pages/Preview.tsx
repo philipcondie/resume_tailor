@@ -194,132 +194,132 @@ export function Preview() {
     }
     return (
         <div className="min-h-screen bg-gray-50">
-        <div className="edit-toolbar flex items-center gap-3 px-6 py-3 bg-white border-b border-gray-200">
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mr-auto">Preview</p>
-            {isOverflowing && <p className="text-xs font-medium text-red-500">Content exceeds one page</p>}
-            <label className="flex items-center gap-1.5 text-xs font-medium text-gray-600 cursor-pointer select-none hover:text-gray-800 transition-colors">
-                <input type='checkbox' checked={showSummary} onChange={()=>setShowSummary(!showSummary)} className="accent-slate-700 w-3.5 h-3.5 cursor-pointer rounded"/>
-                Show Summary
-            </label>
-            <button
-                className="px-4 py-1.5 text-xs font-medium border border-gray-300 text-gray-600 bg-white rounded hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    onClick={() => setDraft(data)}
-                    disabled={!isEditing}
-            >Reset</button>
-            <button
+            <div className="edit-toolbar flex items-center gap-3 px-6 py-3 bg-white border-b border-gray-200">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mr-auto">Preview</p>
+                {isOverflowing && <p className="text-xs font-medium text-red-500">Content exceeds one page</p>}
+                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-600 cursor-pointer select-none hover:text-gray-800 transition-colors">
+                    <input type='checkbox' checked={showSummary} onChange={()=>setShowSummary(!showSummary)} className="accent-slate-700 w-3.5 h-3.5 cursor-pointer rounded"/>
+                    Show Summary
+                </label>
+                <button
+                    className="px-4 py-1.5 text-xs font-medium border border-gray-300 text-gray-600 bg-white rounded hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        onClick={() => setDraft(data)}
+                        disabled={!isEditing}
+                >Reset</button>
+                <button
+                        className="px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        onClick={()=> saveResumeData(draft)}
+                        disabled={!isEditing}
+                >Save</button>
+                <button
                     className="px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    onClick={()=> saveResumeData(draft)}
-                    disabled={!isEditing}
-            >Save</button>
-            <button
-                className="px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                onClick={()=> window.print()}
-                disabled={isEditing || isOverflowing}
-            >Print</button>
-        </div>
-        <div className="preview-wrapper">
-            
-        <div ref={pageRef} className="page" >
-            {/* == HEADER == */}
-            <header className="header">
-            <h1><EditableInline className='editable' content={draft.personalInfo.name} handleChange={(text) => updatePersonalInfoField('name', text)}/></h1>
-            <div className="contact-info">
-                <EditableInline className='editable' content={draft.personalInfo.email} handleChange={(text) => updatePersonalInfoField('email', text)}/> &nbsp;|&nbsp; <EditableInline className='editable' content={draft.personalInfo.phonenumber} handleChange={(text) => updatePersonalInfoField('phonenumber', text)}/>{draft.personalInfo.extras?.map((extra:string,i:number) => (
-                    <span key={i}>&nbsp;|&nbsp; <EditableInline className='editable' content={extra} handleChange={(text) => updatePersonalInfoExtra(i, text)}/></span>
-                ))}
+                    onClick={()=> window.print()}
+                    disabled={isEditing || isOverflowing}
+                >Print</button>
             </div>
-            </header>
-
-            {/* ══ SUMMARY ══ */}
-            {showSummary && 
-                <section className="section summary">
-                    <h2 className="section-title">Summary</h2>
-                    <EditableTextArea className='editable' content={draft.summary} handleChange={handleSummaryChange}/>
-                </section>
-            }
-
-            {/* ══ WORK EXPERIENCE ══ */}
-            <section className="section">
-            <h2 className="section-title">Work Experience</h2>
-            {draft.jobs.map((job : JobEntry) => (
-                <div className="job" key={job.id}>
-                    <div className="job-header">
-                        <span className="job-title-line"><EditableInline className='editable' content={job.role} handleChange={(text)=>updateJobField(job.id,'role',text)} /> — <EditableInline className='editable' content={job.company} handleChange={(text)=>updateJobField(job.id,'company',text)} />{job.location && <> — <EditableInline className='editable' content={job.location} handleChange={(text)=>updateJobField(job.id,'location',text)} /></>}</span>
-                        <span className="job-date"><EditableInline className='editable' content={job.startDate} handleChange={(text)=>updateJobField(job.id,'startDate',text)} /> - <EditableInline className='editable' content={job.endDate} handleChange={(text)=>updateJobField(job.id,'endDate',text)} /></span>
-                    </div>
-                    <ul className="job-bullets">
-                        {job.bullets.map((bullet, i) => (
-                            <li key={i} className="bullet-row">
-                                <EditableTextArea className='editable' content={bullet} handleChange={(text) => updateJobBullet(job.id,i,text)}/>
-                                <button className='bullet-controls' onClick={() => deleteJobBullet(job.id,i)}>×</button>
-                            </li>
-                        ))}
-                    </ul>
-                    <button className='add-bullet-controls' onClick={() => addJobBullet(job.id)}>+</button>
-                </div>
-            ))}
-            </section>
-
-            {/* ══ EDUCATION ══ */}
-            <section className="section">
-            <h2 className="section-title">Education</h2>
-            {/* map education entries */}
-            {draft.educations.map((education: EducationEntry) => (
-                <div className="edu-entry" key={education.id}>
-                    <div className="edu-header">
-                        <span className="edu-school"><EditableInline className='editable' content={education.school} handleChange={(text) => updateEducationField(education.id,'school',text)}/></span>
-                        <span className="edu-degree"><EditableInline className='editable' content={education.degree} handleChange={(text) => updateEducationField(education.id,'degree',text)}/></span>
-                    </div>
-                    {education.bullets?.map((bullet, i) => (
-                        <div className="edu-details bullet-row" key={i}>
-                            <EditableTextArea className='editable' content={bullet} handleChange={(text) => updateEducationBullet(education.id,i,text)} />
-                            <button className='bullet-controls' onClick={() => deleteEducationBullet(education.id,i)}>×</button>
-                        </div>
+            <div className="preview-wrapper">
+                
+            <div ref={pageRef} className="page" >
+                {/* == HEADER == */}
+                <header className="header">
+                <h1><EditableInline className='editable' content={draft.personalInfo.name} handleChange={(text) => updatePersonalInfoField('name', text)}/></h1>
+                <div className="contact-info">
+                    <EditableInline className='editable' content={draft.personalInfo.email} handleChange={(text) => updatePersonalInfoField('email', text)}/> &nbsp;|&nbsp; <EditableInline className='editable' content={draft.personalInfo.phonenumber} handleChange={(text) => updatePersonalInfoField('phonenumber', text)}/>{draft.personalInfo.extras?.map((extra:string,i:number) => (
+                        <span key={i}>&nbsp;|&nbsp; <EditableInline className='editable' content={extra} handleChange={(text) => updatePersonalInfoExtra(i, text)}/></span>
                     ))}
-                    <button className='add-bullet-controls' onClick={() => addEducationBullet(education.id)}>+</button>
                 </div>
-            ))}
-            </section>
+                </header>
 
-            {/* ══ PROJECTS ══ */}
-            {draft.projects && draft.projects.length > 0 && 
+                {/* ══ SUMMARY ══ */}
+                {showSummary && 
+                    <section className="section summary">
+                        <h2 className="section-title">Summary</h2>
+                        <EditableTextArea className='editable' content={draft.summary} handleChange={handleSummaryChange}/>
+                    </section>
+                }
+
+                {/* ══ WORK EXPERIENCE ══ */}
                 <section className="section">
-                <h2 className="section-title">Projects</h2>
-                {draft.projects.map((project: ProjectEntry) => (
-                    <div className="job" key={project.id}>
+                <h2 className="section-title">Work Experience</h2>
+                {draft.jobs.map((job : JobEntry) => (
+                    <div className="job" key={job.id}>
                         <div className="job-header">
-                            <span className="job-title-line"><EditableInline className='editable' content={project.title} handleChange={(text) => updateProjectField(project.id,'title',text)}/></span>
+                            <span className="job-title-line"><EditableInline className='editable' content={job.role} handleChange={(text)=>updateJobField(job.id,'role',text)} /> — <EditableInline className='editable' content={job.company} handleChange={(text)=>updateJobField(job.id,'company',text)} />{job.location && <> — <EditableInline className='editable' content={job.location} handleChange={(text)=>updateJobField(job.id,'location',text)} /></>}</span>
+                            <span className="job-date"><EditableInline className='editable' content={job.startDate} handleChange={(text)=>updateJobField(job.id,'startDate',text)} /> - <EditableInline className='editable' content={job.endDate} handleChange={(text)=>updateJobField(job.id,'endDate',text)} /></span>
                         </div>
                         <ul className="job-bullets">
-                            {project.bullets.map((bullet, i) => (
+                            {job.bullets.map((bullet, i) => (
                                 <li key={i} className="bullet-row">
-                                    <EditableTextArea className='editable' content={bullet} handleChange={(text) => updateProjectBullet(project.id,i,text)}/>
-                                    <button className='bullet-controls' onClick={() => deleteProjectBullet(project.id,i)}>×</button>
+                                    <EditableTextArea className='editable' content={bullet} handleChange={(text) => updateJobBullet(job.id,i,text)}/>
+                                    <button className='bullet-controls' onClick={() => deleteJobBullet(job.id,i)}>×</button>
                                 </li>
                             ))}
                         </ul>
-                        <button className='add-bullet-controls' onClick={() => addProjectBullet(project.id)}>+</button>
+                        <button className='add-bullet-controls' onClick={() => addJobBullet(job.id)}>+</button>
                     </div>
                 ))}
                 </section>
-            }
 
-            {/* ══ SKILLS ══ */}
-            {draft.skills && draft.skills.length > 0 && 
-                <section className='section'>
-                    <h2 className="section-title">Technical Skills</h2>
-                    <div className="skills-list">
-                        {draft.skills.map((skill: SkillEntry) => (
-                            <div className="skill-line" key={skill.id}>
-                                <span className="skill-category"><EditableInline content={skill.title} handleChange={(text)=>updateSkillField(skill.id,'title',text)}/>: </span>
-                                <span className="skill-values"><EditableInline content={skill.text} handleChange={(text)=>updateSkillField(skill.id,'text',text)}/></span></div>    
+                {/* ══ EDUCATION ══ */}
+                <section className="section">
+                <h2 className="section-title">Education</h2>
+                {/* map education entries */}
+                {draft.educations.map((education: EducationEntry) => (
+                    <div className="edu-entry" key={education.id}>
+                        <div className="edu-header">
+                            <span className="edu-school"><EditableInline className='editable' content={education.school} handleChange={(text) => updateEducationField(education.id,'school',text)}/></span>
+                            <span className="edu-degree"><EditableInline className='editable' content={education.degree} handleChange={(text) => updateEducationField(education.id,'degree',text)}/></span>
+                        </div>
+                        {education.bullets?.map((bullet, i) => (
+                            <div className="edu-details bullet-row" key={i}>
+                                <EditableTextArea className='editable' content={bullet} handleChange={(text) => updateEducationBullet(education.id,i,text)} />
+                                <button className='bullet-controls' onClick={() => deleteEducationBullet(education.id,i)}>×</button>
+                            </div>
                         ))}
+                        <button className='add-bullet-controls' onClick={() => addEducationBullet(education.id)}>+</button>
                     </div>
+                ))}
                 </section>
-            }            
 
-        </div>
-        </div>
+                {/* ══ PROJECTS ══ */}
+                {draft.projects && draft.projects.length > 0 && 
+                    <section className="section">
+                    <h2 className="section-title">Projects</h2>
+                    {draft.projects.map((project: ProjectEntry) => (
+                        <div className="job" key={project.id}>
+                            <div className="job-header">
+                                <span className="job-title-line"><EditableInline className='editable' content={project.title} handleChange={(text) => updateProjectField(project.id,'title',text)}/></span>
+                            </div>
+                            <ul className="job-bullets">
+                                {project.bullets.map((bullet, i) => (
+                                    <li key={i} className="bullet-row">
+                                        <EditableTextArea className='editable' content={bullet} handleChange={(text) => updateProjectBullet(project.id,i,text)}/>
+                                        <button className='bullet-controls' onClick={() => deleteProjectBullet(project.id,i)}>×</button>
+                                    </li>
+                                ))}
+                            </ul>
+                            <button className='add-bullet-controls' onClick={() => addProjectBullet(project.id)}>+</button>
+                        </div>
+                    ))}
+                    </section>
+                }
+
+                {/* ══ SKILLS ══ */}
+                {draft.skills && draft.skills.length > 0 && 
+                    <section className='section'>
+                        <h2 className="section-title">Technical Skills</h2>
+                        <div className="skills-list">
+                            {draft.skills.map((skill: SkillEntry) => (
+                                <div className="skill-line" key={skill.id}>
+                                    <span className="skill-category"><EditableInline content={skill.title} handleChange={(text)=>updateSkillField(skill.id,'title',text)}/>: </span>
+                                    <span className="skill-values"><EditableInline content={skill.text} handleChange={(text)=>updateSkillField(skill.id,'text',text)}/></span></div>    
+                            ))}
+                        </div>
+                    </section>
+                }            
+
+            </div>
+            </div>
         </div>
     )
 }
