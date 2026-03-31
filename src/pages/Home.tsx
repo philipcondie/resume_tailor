@@ -20,6 +20,7 @@ export function Home() {
                         <NavLink to="profile/skills" className={navLinkClass}>Skills</NavLink>
                         <NavLink to="prompt" className={navLinkClass}>Prompt</NavLink>
                         <NavLink to="generate" className={navLinkClass}>Generate</NavLink>
+                        <NavLink to="preview" className={navLinkClass}>Preview</NavLink>
                     </nav>
                 </aside>
                 <main className="flex-1 p-10">
