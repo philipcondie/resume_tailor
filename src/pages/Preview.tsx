@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ResumeData, EducationEntry, JobEntry, ProjectEntry, SkillEntry } from '../types/resume';
+import { ResumeData, EducationEntry, JobEntry, ProjectEntry, SkillEntry, PersonalInfoEntry } from '../types/resume';
 import { EditableTextArea, EditableInline } from '../components/EditableFields';
 import { SummaryComponent } from '../components/SummaryComponent';
 import './Preview.css';
@@ -80,6 +80,13 @@ export function Preview() {
         setDraft(prev => ({
             ...prev,
             personalInfo: { ...prev.personalInfo, [key]: value }
+        }));
+    };
+
+    const updatePersonalInfoFieldDraft = (draft: PersonalInfoEntry) => {
+        setDraft(prev => ({
+            ...prev,
+            personalInfo: draft
         }));
     };
 
