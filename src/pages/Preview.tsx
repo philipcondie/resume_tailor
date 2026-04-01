@@ -5,6 +5,7 @@ import { EditableTextArea, EditableInline } from '../components/EditableFields';
 import { SummaryComponent } from '../components/SummaryComponent';
 import './Preview.css';
 import { useResumeData } from '../hooks/dataHooks';
+import { PersonalInfoComponent } from '../components/PersonalInfoComponent';
 
 export function Preview() {
     const location = useLocation();
@@ -76,27 +77,10 @@ export function Preview() {
         }));
     };
 
-    const updatePersonalInfoField = (key: string, value: string) => {
-        setDraft(prev => ({
-            ...prev,
-            personalInfo: { ...prev.personalInfo, [key]: value }
-        }));
-    };
-
-    const updatePersonalInfoFieldDraft = (draft: PersonalInfoEntry) => {
+    const updatePersonalInfo = (draft: PersonalInfoEntry) => {
         setDraft(prev => ({
             ...prev,
             personalInfo: draft
-        }));
-    };
-
-    const updatePersonalInfoExtra = (index: number, value: string) => {
-        setDraft(prev => ({
-            ...prev,
-            personalInfo: {
-                ...prev.personalInfo,
-                extras: prev.personalInfo.extras?.map((e, i) => i === index ? value : e)
-            }
         }));
     };
 
@@ -228,15 +212,9 @@ export function Preview() {
             <div className="preview-wrapper">
                 
             <div ref={pageRef} className="page" >
-                {/* == HEADER == */}
-                <header className="header">
-                <h1><EditableInline className='editable' content={draft.personalInfo.name} handleChange={(text) => updatePersonalInfoField('name', text)}/></h1>
-                <div className="contact-info">
-                    <EditableInline className='editable' content={draft.personalInfo.email} handleChange={(text) => updatePersonalInfoField('email', text)}/> &nbsp;|&nbsp; <EditableInline className='editable' content={draft.personalInfo.phonenumber} handleChange={(text) => updatePersonalInfoField('phonenumber', text)}/>{draft.personalInfo.extras?.map((extra:string,i:number) => (
-                        <span key={i}>&nbsp;|&nbsp; <EditableInline className='editable' content={extra} handleChange={(text) => updatePersonalInfoExtra(i, text)}/></span>
-                    ))}
-                </div>
-                </header>
+                {
+                    <PersonalInfoComponent draft={draft.personalInfo} onChange={updatePersonalInfo}/>
+                }
 
                 {/* ══ SUMMARY ══ */}
                 {showSummary && 
