@@ -6,6 +6,7 @@ import { SummaryComponent } from '../components/SummaryComponent';
 import './Preview.css';
 import { useResumeData } from '../hooks/dataHooks';
 import { PersonalInfoComponent } from '../components/PersonalInfoComponent';
+import { JobSection } from '../components/JobSection';
 
 export function Preview() {
     const location = useLocation();
@@ -33,49 +34,12 @@ export function Preview() {
         }))
     };
 
-    const updateJobBullet = (jobId:string, bulletIndex:number, content:string) => {
+    const handleJobChange = (jobs: JobEntry[]) => {
         setDraft(prev => ({
             ...prev,
-            jobs: prev.jobs.map( job => 
-                job.id === jobId 
-                ? {...job, bullets: job.bullets.map((b,i) => i === bulletIndex ? content : b )} 
-                : job
-            )
-        }));
+            'jobs': jobs
+        }))
     }
-
-    const addJobBullet = (jobId:string) => {
-        setDraft(prev => ({
-            ...prev,
-            jobs: prev.jobs.map(job => 
-                job.id === jobId
-                ? {...job, bullets: [...job.bullets, '']}
-                : job
-            )
-        }));
-    };
-
-    const deleteJobBullet = (jobId:string, bulletIndex:number) => {
-        setDraft(prev => ({
-            ...prev,
-            jobs: prev.jobs.map( job =>
-                job.id === jobId
-                ? {...job, bullets: job.bullets.filter((_,i) => i !== bulletIndex )}
-                : job
-            )
-        }));
-    }
-
-    const updateJobField = (jobId:string, key:string, value:string) => {
-        setDraft(prev => ({
-            ...prev,
-            jobs: prev.jobs.map(job => 
-                job.id === jobId
-                ? {...job, [key]:value}
-                : job
-            )
-        }));
-    };
 
     const updatePersonalInfo = (draft: PersonalInfoEntry) => {
         setDraft(prev => ({
@@ -212,36 +176,15 @@ export function Preview() {
             <div className="preview-wrapper">
                 
             <div ref={pageRef} className="page" >
-                {
-                    <PersonalInfoComponent draft={draft.personalInfo} onChange={updatePersonalInfo}/>
-                }
+                <PersonalInfoComponent draft={draft.personalInfo} onChange={updatePersonalInfo} />
 
                 {/* ══ SUMMARY ══ */}
                 {showSummary && 
-                    <SummaryComponent draft={draft.summary} onChange={handleSummaryChange}/>
+                    <SummaryComponent draft={draft.summary} onChange={handleSummaryChange} />
                 }
 
                 {/* ══ WORK EXPERIENCE ══ */}
-                <section className="section">
-                <h2 className="section-title">Work Experience</h2>
-                {draft.jobs.map((job : JobEntry) => (
-                    <div className="job" key={job.id}>
-                        <div className="job-header">
-                            <span className="job-title-line"><EditableInline className='editable' content={job.role} handleChange={(text)=>updateJobField(job.id,'role',text)} /> — <EditableInline className='editable' content={job.company} handleChange={(text)=>updateJobField(job.id,'company',text)} />{job.location && <> — <EditableInline className='editable' content={job.location} handleChange={(text)=>updateJobField(job.id,'location',text)} /></>}</span>
-                            <span className="job-date"><EditableInline className='editable' content={job.startDate} handleChange={(text)=>updateJobField(job.id,'startDate',text)} /> - <EditableInline className='editable' content={job.endDate} handleChange={(text)=>updateJobField(job.id,'endDate',text)} /></span>
-                        </div>
-                        <ul className="job-bullets">
-                            {job.bullets.map((bullet, i) => (
-                                <li key={i} className="bullet-row">
-                                    <EditableTextArea className='editable' content={bullet} handleChange={(text) => updateJobBullet(job.id,i,text)}/>
-                                    <button className='bullet-controls' onClick={() => deleteJobBullet(job.id,i)}>×</button>
-                                </li>
-                            ))}
-                        </ul>
-                        <button className='add-bullet-controls' onClick={() => addJobBullet(job.id)}>+</button>
-                    </div>
-                ))}
-                </section>
+                <JobSection jobs={draft.jobs} onChange={handleJobChange} />
 
                 {/* ══ EDUCATION ══ */}
                 <section className="section">
