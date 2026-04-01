@@ -4,6 +4,7 @@ import { ResumeData, EducationEntry, JobEntry, ProjectEntry, SkillEntry } from '
 import { EditableTextArea, EditableInline } from '../components/EditableFields';
 import './Preview.css';
 import { useResumeData } from '../hooks/dataHooks';
+import { EducationSection } from '../components/EducationSection';
 
 export function Preview() {
     const location = useLocation();
@@ -92,48 +93,12 @@ export function Preview() {
         }));
     };
 
-    const updateEducationField = (id: string, key: string, value: string) => {
+    const updateEduction = (educations: EducationEntry[]) => {
         setDraft(prev => ({
             ...prev,
-            educations: prev.educations.map(edu =>
-                edu.id === id ? { ...edu, [key]: value } : edu
-            )
+            educations: educations
         }));
     };
-
-    const addEducationBullet = (id:string) => {
-        setDraft(prev => ({
-            ...prev,
-            educations: prev.educations.map(edu =>
-                edu.id === id
-                ? { ...edu, bullets: [...(edu.bullets ?? []), '']}
-                : edu
-            )
-        }));
-    };
-
-    const updateEducationBullet = (id: string, bulletIndex: number, content: string) => {
-        setDraft(prev => ({
-            ...prev,
-            educations: prev.educations.map(edu =>
-                edu.id === id
-                    ? { ...edu, bullets: edu.bullets?.map((b, i) => i === bulletIndex ? content : b) }
-                    : edu
-            )
-        }));
-    };
-
-    const deleteEducationBullet = (id: string, bulletIndex: number) => {
-        setDraft(prev => ({
-            ...prev,
-            educations: prev.educations.map(edu => 
-                edu.id === id
-                ? { ...edu, bullets: edu.bullets?.filter((_,i) => i !== bulletIndex)}
-                : edu
-            )
-        }));
-    };
-
     const updateProjectField = (id: string, key: string, value: string) => {
         setDraft(prev => ({
             ...prev,
@@ -261,25 +226,7 @@ export function Preview() {
                 </section>
 
                 {/* ══ EDUCATION ══ */}
-                <section className="section">
-                <h2 className="section-title">Education</h2>
-                {/* map education entries */}
-                {draft.educations.map((education: EducationEntry) => (
-                    <div className="edu-entry" key={education.id}>
-                        <div className="edu-header">
-                            <span className="edu-school"><EditableInline className='editable' content={education.school} handleChange={(text) => updateEducationField(education.id,'school',text)}/></span>
-                            <span className="edu-degree"><EditableInline className='editable' content={education.degree} handleChange={(text) => updateEducationField(education.id,'degree',text)}/></span>
-                        </div>
-                        {education.bullets?.map((bullet, i) => (
-                            <div className="edu-details bullet-row" key={i}>
-                                <EditableTextArea className='editable' content={bullet} handleChange={(text) => updateEducationBullet(education.id,i,text)} />
-                                <button className='bullet-controls' onClick={() => deleteEducationBullet(education.id,i)}>×</button>
-                            </div>
-                        ))}
-                        <button className='add-bullet-controls' onClick={() => addEducationBullet(education.id)}>+</button>
-                    </div>
-                ))}
-                </section>
+                <EducationSection educations={draft.educations} onChange={updateEduction} />
 
                 {/* ══ PROJECTS ══ */}
                 {draft.projects && draft.projects.length > 0 && 
