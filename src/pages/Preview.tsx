@@ -8,6 +8,8 @@ import { useResumeData } from '../hooks/dataHooks';
 import { PersonalInfoComponent } from '../components/PersonalInfoComponent';
 import { JobSection } from '../components/JobSection';
 import { EducationSection } from '../components/EducationSection';
+import { ProjectSection } from '../components/ProjectSection';
+import { SkillSection } from '../components/SkillsSection';
 
 export function Preview() {
     const location = useLocation();
@@ -35,74 +37,38 @@ export function Preview() {
         }))
     };
 
-    const handleJobChange = (jobs: JobEntry[]) => {
+    const handleJobsChange = (jobs: JobEntry[]) => {
         setDraft(prev => ({
             ...prev,
             'jobs': jobs
         }))
     }
 
-    const updatePersonalInfo = (draft: PersonalInfoEntry) => {
+    const handlePersonalInfoChange = (draft: PersonalInfoEntry) => {
         setDraft(prev => ({
             ...prev,
             personalInfo: draft
         }));
     };
 
-    const updateEduction = (educations: EducationEntry[]) => {
+    const handleEductionsChange = (educations: EducationEntry[]) => {
         setDraft(prev => ({
             ...prev,
             educations: educations
         }));
     };
-    const updateProjectField = (id: string, key: string, value: string) => {
+    
+    const handleProjectsChange = (projects: ProjectEntry[]) => {
         setDraft(prev => ({
             ...prev,
-            projects: prev.projects?.map(project =>
-                project.id === id ? { ...project, [key]: value } : project
-            )
-        }));
-    };
+            projects: projects
+        }))
+    }
 
-    const updateProjectBullet = (projectId: string, bulletIndex: number, content: string) => {
+    const handleSkillsChange = (skills: SkillEntry[]) => {
         setDraft(prev => ({
             ...prev,
-            projects: prev.projects?.map(project =>
-                project.id === projectId
-                    ? { ...project, bullets: project.bullets.map((b, i) => i === bulletIndex ? content : b) }
-                    : project
-            )
-        }));
-    };
-
-    const addProjectBullet = (projectId: string) => {
-        setDraft(prev => ({
-            ...prev,
-            projects: prev.projects?.map(project => 
-                project.id === projectId
-                ? {...project, bullets: [...project.bullets, '']}
-                : project
-            )
-        }));
-    };
-
-    const deleteProjectBullet = (projectId: string, bulletIndex: number) => {
-        setDraft(prev => ({
-            ...prev,
-            projects: prev.projects?.map(project =>
-                project.id === projectId
-                    ? { ...project, bullets: project.bullets.filter((_, i) => i !== bulletIndex) }
-                    : project
-            )
-        }));
-    };
-
-    const updateSkillField = (id: string, key: string, value: string) => {
-        setDraft(prev => ({
-            ...prev,
-            skills: prev.skills?.map(skill =>
-                skill.id === id ? { ...skill, [key]: value } : skill
-            )
+            skills: skills
         }));
     };
 
@@ -139,59 +105,30 @@ export function Preview() {
                 >Print</button>
             </div>
             <div className="preview-wrapper">
-                
-            <div ref={pageRef} className="page" >
-                <PersonalInfoComponent draft={draft.personalInfo} onChange={updatePersonalInfo} />
+                <div ref={pageRef} className="page" >
+                    <PersonalInfoComponent draft={draft.personalInfo} onChange={handlePersonalInfoChange} />
 
-                {/* ══ SUMMARY ══ */}
-                {showSummary && 
-                    <SummaryComponent draft={draft.summary} onChange={handleSummaryChange} />
-                }
+                    {/* ══ SUMMARY ══ */}
+                    {showSummary && 
+                        <SummaryComponent draft={draft.summary} onChange={handleSummaryChange} />
+                    }
 
-                {/* ══ WORK EXPERIENCE ══ */}
-                <JobSection jobs={draft.jobs} onChange={handleJobChange} />
+                    {/* ══ WORK EXPERIENCE ══ */}
+                    <JobSection jobs={draft.jobs} onChange={handleJobsChange} />
 
-                {/* ══ EDUCATION ══ */}
-                <EducationSection educations={draft.educations} onChange={updateEduction} />
+                    {/* ══ EDUCATION ══ */}
+                    <EducationSection educations={draft.educations} onChange={handleEductionsChange} />
 
-                {/* ══ PROJECTS ══ */}
-                {draft.projects && draft.projects.length > 0 && 
-                    <section className="section">
-                    <h2 className="section-title">Projects</h2>
-                    {draft.projects.map((project: ProjectEntry) => (
-                        <div className="job" key={project.id}>
-                            <div className="job-header">
-                                <span className="job-title-line"><EditableInline className='editable' content={project.title} handleChange={(text) => updateProjectField(project.id,'title',text)}/></span>
-                            </div>
-                            <ul className="job-bullets">
-                                {project.bullets.map((bullet, i) => (
-                                    <li key={i} className="bullet-row">
-                                        <EditableTextArea className='editable' content={bullet} handleChange={(text) => updateProjectBullet(project.id,i,text)}/>
-                                        <button className='bullet-controls' onClick={() => deleteProjectBullet(project.id,i)}>×</button>
-                                    </li>
-                                ))}
-                            </ul>
-                            <button className='add-bullet-controls' onClick={() => addProjectBullet(project.id)}>+</button>
-                        </div>
-                    ))}
-                    </section>
-                }
+                    {/* ══ PROJECTS ══ */}
+                    {draft.projects && draft.projects.length > 0 && 
+                        <ProjectSection projects={draft.projects} onChange={handleProjectsChange} />
+                    }
 
-                {/* ══ SKILLS ══ */}
-                {draft.skills && draft.skills.length > 0 && 
-                    <section className='section'>
-                        <h2 className="section-title">Technical Skills</h2>
-                        <div className="skills-list">
-                            {draft.skills.map((skill: SkillEntry) => (
-                                <div className="skill-line" key={skill.id}>
-                                    <span className="skill-category"><EditableInline content={skill.title} handleChange={(text)=>updateSkillField(skill.id,'title',text)}/>: </span>
-                                    <span className="skill-values"><EditableInline content={skill.text} handleChange={(text)=>updateSkillField(skill.id,'text',text)}/></span></div>    
-                            ))}
-                        </div>
-                    </section>
-                }            
-
-            </div>
+                    {/* ══ SKILLS ══ */}
+                    {draft.skills && draft.skills.length > 0 && 
+                        <SkillSection skills={draft.skills} onChange={handleSkillsChange} />
+                    }
+                </div>
             </div>
         </div>
     )
