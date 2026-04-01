@@ -34,13 +34,15 @@ export function EditableInline({className, content, handleChange}: EditableTextA
     const autoWidth = () => {
         if (!mirrorRef.current || !inputRef.current) return;
         const style = window.getComputedStyle(inputRef.current);
+        mirrorRef.current.style.font = style.font;
+        mirrorRef.current.style.letterSpacing = style.letterSpacing;
         const padding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
         const border = parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth);
-        inputRef.current.style.width = mirrorRef.current.getBoundingClientRect().width + padding + border + 'px';
+        inputRef.current.style.width = Math.ceil(mirrorRef.current.getBoundingClientRect().width) + padding + border + 'px';
     };
 
     useEffect(() => {
-        autoWidth();
+        document.fonts.ready.then(autoWidth);
     }, [content]);
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
