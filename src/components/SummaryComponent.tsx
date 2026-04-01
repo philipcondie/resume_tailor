@@ -1,15 +1,14 @@
-import { SetStateAction } from "react";
 import { EditableTextArea } from "./EditableFields";
 
 type SummaryProps = {
-    draft: string,
-    onChange: (draft: string) => void,
+    summary: string,
+    onChange: (summary: string) => void,
 }
-export function SummaryComponent({draft, onChange}:SummaryProps) {
+export function SummaryComponent({summary, onChange}:SummaryProps) {
     return (
         <section className="section summary">
             <h2 className="section-title">Summary</h2>
-            <EditableTextArea className='editable' content={draft} handleChange={onChange}/>
+            <EditableTextArea className='editable' content={summary} handleChange={onChange}/>
         </section>
     )
 }

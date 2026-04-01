@@ -16,7 +16,7 @@ export interface EducationEntry {
     id: string,
     school: string,
     degree: string,
-    bullets?: string[]
+    bullets: string[]
 }
 
 export interface ProjectEntry {
