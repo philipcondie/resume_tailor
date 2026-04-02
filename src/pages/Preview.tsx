@@ -1,16 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ResumeData, EducationEntry, JobEntry, ProjectEntry, SkillEntry, PersonalInfoEntry } from '../types/resume';
-import { EditableTextArea, EditableInline } from '../components/EditableFields';
+
+import { ResumeData } from '../types/resume';
+import { EditableInline } from '../components/EditableFields';
 import { SummaryComponent } from '../components/SummaryComponent';
 import './Preview.css';
 import { useResumeData } from '../hooks/dataHooks';
 import { PersonalInfoComponent } from '../components/PersonalInfoComponent';
-import { JobSection } from '../components/JobSection';
-import { EducationSection } from '../components/EducationSection';
-import { ProjectSection } from '../components/ProjectSection';
 import { SkillSection } from '../components/SkillsSection';
 import { BulletSection } from '../components/BulletSection';
+import { EducationSection} from '../components/EducationSection';
+import { JobSection } from '../components/JobSection';
+import { ProjectSection } from '../components/ProjectSection';
 
 export function Preview() {
     const location = useLocation();
@@ -31,12 +32,9 @@ export function Preview() {
         })
     },[draft,showSummary])
 
-    const updateField = <K extends keyof ResumeData>(key:K, value:ResumeData[K]) => {
-        setDraft(prev => ({
-            ...prev,
-            [key]: value,
-        }))
-    }
+    const updateSection = <K extends keyof ResumeData>(key:K, value:ResumeData[K]) => {
+        setDraft((prev) => ({...prev, [key]:value}));
+    };  
 
     if (!data) {
         return (
@@ -72,51 +70,27 @@ export function Preview() {
             </div>
             <div className="preview-wrapper">
                 <div ref={pageRef} className="page" >
-                    <PersonalInfoComponent personalInfo={draft.personalInfo} onChange={(personalInfo) => updateField('personalInfo',personalInfo)} />
+                    <PersonalInfoComponent draft={draft} updateSection={updateSection} />
 
                     {/* ══ SUMMARY ══ */}
                     {showSummary && 
-                        <SummaryComponent summary={draft.summary} onChange={(summary) => updateField('summary',summary)} />
+                        <SummaryComponent draft={draft} updateSection={updateSection} />
                     }
 
                     {/* ══ WORK EXPERIENCE ══ */}
-                    <BulletSection 
-                        items={draft.jobs} 
-                        onChange={(jobs) => updateField('jobs',jobs)} 
-                        renderHeader={(job,updateField) => (
-                            <div className="job-header">
-                                <span className="job-title-line"><EditableInline className='editable' content={job.role} handleChange={(text)=>updateField('role',text)} /> — <EditableInline className='editable' content={job.company} handleChange={(text)=>updateField('company',text)} />{job.location && <> — <EditableInline className='editable' content={job.location} handleChange={(text)=>updateField('location',text)} /></>}</span>
-                                <span className="job-date"><EditableInline className='editable' content={job.startDate} handleChange={(text)=>updateField('startDate',text)} /> - <EditableInline className='editable' content={job.endDate} handleChange={(text)=>updateField('endDate',text)} /></span>
-                            </div>
-                        )
-                    }/>
+                    <JobSection draft={draft} updateSection={updateSection} />
 
                     {/* ══ EDUCATION ══ */}
-                    <BulletSection items={draft.educations} onChange={(educations) => updateField('educations',educations)}
-                        renderHeader={(education,updateField) => (
-                            <div className="edu-header">
-                                <span className="edu-school"><EditableInline className='editable' content={education.school} handleChange={(text) => updateField('school',text)}/></span>
-                                <span className="edu-degree"><EditableInline className='editable' content={education.degree} handleChange={(text) => updateField('degree',text)}/></span>
-                            </div>
-                        )}
-                    />
+                    <EducationSection draft={draft} updateSection={updateSection} />
 
                     {/* ══ PROJECTS ══ */}
-                    {draft.projects && draft.projects.length > 0 && 
-                        <BulletSection 
-                            items={draft.projects} 
-                            onChange={(projects) => updateField('projects',projects)}
-                            renderHeader={(project,updateField) => (
-                                <div className="job-header">
-                                    <span className="job-title-line"><EditableInline className='editable' content={project.title} handleChange={(text) => updateField('title',text)}/></span>
-                                </div>
-                            )}
-                        />
+                    {draft.projects.length > 0 &&
+                        <ProjectSection draft={draft} updateSection={updateSection}/>
                     }
 
                     {/* ══ SKILLS ══ */}
                     {draft.skills && draft.skills.length > 0 && 
-                        <SkillSection skills={draft.skills} onChange={(skills) => updateField('skills',skills)} />
+                        <SkillSection draft={draft} updateSection={updateSection} />
                     }
                 </div>
             </div>

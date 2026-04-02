@@ -1,14 +1,11 @@
+import { SectionProps } from "../types/resume";
 import { EditableTextArea } from "./EditableFields";
 
-type SummaryProps = {
-    summary: string,
-    onChange: (summary: string) => void,
-}
-export function SummaryComponent({summary, onChange}:SummaryProps) {
+export function SummaryComponent({draft, updateSection}:SectionProps) {
     return (
         <section className="section summary">
             <h2 className="section-title">Summary</h2>
-            <EditableTextArea className='editable' content={summary} handleChange={onChange}/>
+            <EditableTextArea className='editable' content={draft.summary} handleChange={(text) => updateSection('summary', text)}/>
         </section>
     )
 }

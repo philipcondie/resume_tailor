@@ -8,12 +8,12 @@ type BulletItem = {
 
 type BulletSectionProps<T extends BulletItem> = {
     items: T[],
-    renderHeader: (item:T, updateField: (key: keyof T, value: string) => void) => ReactNode,
-    onChange: (items:T[]) => void,
+    renderHeader: (item:T, updateItemField: (key: keyof T, value: string) => void) => ReactNode,
+    onItemsChange: (items:T[]) => void,
 }
-export function BulletSection<T extends BulletItem>({items,renderHeader,onChange}:BulletSectionProps<T>) {
+export function BulletSection<T extends BulletItem>({items,renderHeader,onItemsChange}:BulletSectionProps<T>) {
     const updateBullet = (id:string, bulletIndex:number, content:string) => {
-        onChange(items.map(item => (
+        onItemsChange(items.map(item => (
             item.id === id 
             ? {...item, bullets: item.bullets.map((b,i) => i === bulletIndex ? content : b )} 
             : item
@@ -21,7 +21,7 @@ export function BulletSection<T extends BulletItem>({items,renderHeader,onChange
     };
 
     const addBullet = (id:string) => {
-        onChange(items.map(item => (
+        onItemsChange(items.map(item => (
             item.id === id
             ? {...item, bullets: [...item.bullets, '']}
             : item
@@ -29,7 +29,7 @@ export function BulletSection<T extends BulletItem>({items,renderHeader,onChange
     };
 
     const deleteBullet = (id:string, bulletIndex:number) => {
-        onChange(items.map(item =>(
+        onItemsChange(items.map(item =>(
             item.id === id
             ? {...item, bullets: item.bullets.filter((_,i) => i !== bulletIndex )}
             : item
@@ -38,13 +38,13 @@ export function BulletSection<T extends BulletItem>({items,renderHeader,onChange
     
     return (
         items.map((item:T)=> {
-            const updateField = (key: keyof T, value: string) => {
-                onChange(items.map(i => i.id === item.id ? {...i, [key]: value} : i));
+            const updateItemField = (key: keyof T, value: string) => {
+                onItemsChange(items.map(i => i.id === item.id ? {...i, [key]: value} : i));
             };
             return (
-            <div className="job" key={item.id}>
-                {renderHeader(item, updateField)}
-                <ul className="job-bullets">
+            <div className="section-item" key={item.id}>
+                {renderHeader(item, updateItemField)}
+                <ul className="section-item-bullets">
                     {item.bullets.map((bullet,i) => (
                         <li key={i} className="bullet-row">
                             <EditableTextArea className='editable' content={bullet} handleChange={(text) => updateBullet(item.id, i, text)}/>

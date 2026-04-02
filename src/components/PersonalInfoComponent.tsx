@@ -1,23 +1,18 @@
 import { PersonalInfoEntry } from "../types/resume";
 import { EditableInline } from "./EditableFields";
+import { SectionProps } from "../types/resume";
 
-type PersonalInfoProps = {
-    personalInfo: PersonalInfoEntry,
-    onChange: (personalInfo:PersonalInfoEntry) => void,
-}
 
-export function PersonalInfoComponent({personalInfo, onChange}:PersonalInfoProps) {
+export function PersonalInfoComponent({draft, updateSection}:SectionProps) {
     const handleExtraChange = (index:number, text:string) => {
-        onChange({...personalInfo,
-            extras: personalInfo.extras?.map((e,i) => i === index ? text: e)
-        });
+        updateSection('personalInfo', { ...draft.personalInfo, extras: draft.personalInfo.extras?.map((e, i) => i === index ? text : e) })
     };
 
     return (
         <header className="header">
-            <h1><EditableInline className='editable' content={personalInfo.name} handleChange={(text) => onChange({...personalInfo, name:text})}/></h1>
+            <h1><EditableInline className='editable' content={draft.personalInfo.name} handleChange={(text) => updateSection('personalInfo',{...draft.personalInfo, name:text})}/></h1>
             <div className="contact-info">
-                <EditableInline className='editable' content={personalInfo.email} handleChange={(text) => onChange({...personalInfo,email:text})}/> &nbsp;|&nbsp; <EditableInline className='editable' content={personalInfo.phonenumber} handleChange={(text) => onChange({...personalInfo,phonenumber:text})}/>{personalInfo.extras?.map((extra:string,i:number) => (
+                <EditableInline className='editable' content={draft.personalInfo.email} handleChange={(text) => updateSection('personalInfo', { ...draft.personalInfo, email: text })} /> &nbsp;|&nbsp; <EditableInline className='editable' content={draft.personalInfo.phonenumber} handleChange={(text) => updateSection('personalInfo', { ...draft.personalInfo,phonenumber:text})}/>{draft.personalInfo.extras?.map((extra:string,i:number) => (
                     <span key={i}>&nbsp;|&nbsp; <EditableInline className='editable' content={extra} handleChange={(text) => handleExtraChange(i,text)}/></span>
                 ))}
             </div>
