@@ -4,7 +4,7 @@ import { EducationEntry } from "../../types/resume";
 
 
 export function EducationEntryContainer() {
-    const {educationHistory, newEducation, updateEducation, removeEducation, clearEducationHistory} = useEducationHistory();
+    const {educationHistory, newEducation, updateEducation, removeEducation} = useEducationHistory();
 
     const handleAddEducation = () => {
         const blank: EducationEntry = {

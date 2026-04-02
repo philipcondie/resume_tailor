@@ -23,7 +23,7 @@ export function Generate() {
     const [userInstructions, setUserInstructions] = useState<string>('');
 
     const [jobDescription, setJobDescription] = useState<string>('');
-    const { apiKey, saveApiKey, clearApiKey } = useApiKey();
+    const { apiKey, saveApiKey } = useApiKey();
     const { jobHistory } = useJobHistory();
     const { personalInfo } = usePersonalInfo();
     const { educationHistory } = useEducationHistory();

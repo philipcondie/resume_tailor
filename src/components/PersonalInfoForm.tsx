@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PersonalInfoEntry } from "../types/resume"
 type PersonalInfoProps = {
     info : PersonalInfoEntry,
@@ -13,33 +13,30 @@ export function PersonalInfoForm({info, handleUpdate, handleClear}:PersonalInfoP
             ...prev,
             extras: prev.extras?.map((extra,i) => i === index ? value : extra)
         }));
-    }
+    };
 
     const handleExtraAdd = () => {
         setDraft((prev:PersonalInfoEntry) => ({
             ...prev,
             extras: [...(prev.extras ?? []), ''],
         }))
-    }
+    };
 
     const handleExtraDelete = (index: number) => {
         setDraft((prev:PersonalInfoEntry) => ({
             ...prev,
             extras: prev.extras?.filter((_,i) => i !== index)
         }))
-    }
+    };
 
     const updateField = (field: keyof PersonalInfoEntry, value: string) => {
         setDraft(prev => ({...prev, [field]: value}));
-    }
+    };
 
     const onSave = () => {
         handleUpdate(draft)
-    }
-    useEffect(()=> {
-        setDraft({...info});
-    },[info])
-    
+    };
+
     const isEditing = JSON.stringify(draft) !== JSON.stringify(info);
 
     return (
