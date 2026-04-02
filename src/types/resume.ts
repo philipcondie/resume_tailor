@@ -16,7 +16,7 @@ export interface EducationEntry {
     id: string,
     school: string,
     degree: string,
-    bullets?: string[]
+    bullets: string[]
 }
 
 export interface ProjectEntry {
@@ -44,7 +44,7 @@ export interface ResumeData {
     summary: string,
     educations: EducationEntry[],
     jobs: JobEntry[],
-    projects?: ProjectEntry[],
+    projects: ProjectEntry[],
     skills?: SkillEntry[]
 }
 
@@ -64,3 +64,14 @@ export const LLMOutputSchema = z.object({
 });
 
 export type LLMOutput = z.infer<typeof LLMOutputSchema>
+
+export interface SectionData {
+    name:keyof ResumeData,
+    enabled:boolean,
+    ordering:number,
+}
+
+export type SectionProps = {
+    draft: ResumeData,
+    updateSection: <K extends keyof ResumeData>(key:K, value:ResumeData[K]) => void,
+}

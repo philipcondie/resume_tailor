@@ -1,10 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ResumeData, EducationEntry, JobEntry, ProjectEntry, SkillEntry } from '../types/resume';
-import { EditableTextArea, EditableInline } from '../components/EditableFields';
+
+import { ResumeData, SectionProps } from '../types/resume';
+
 import './Preview.css';
 import { useResumeData } from '../hooks/dataHooks';
-import { EducationSection } from '../components/EducationSection';
+import { PersonalInfoSection } from '../components/PersonalInfoSection';
+import { useLayoutConfig } from '../hooks/useLayoutConfig';
+import { sectionRegistry } from '../types/SectionRegistry';
+import { SectionSelector } from '../components/SectionSelector';
 
 export function Preview() {
     const location = useLocation();
@@ -15,139 +19,23 @@ export function Preview() {
     const [draft, setDraft] = useState<ResumeData>(data);
     const isEditing = JSON.stringify(draft) !== JSON.stringify(data);
 
-    const [showSummary, setShowSummary] = useState<boolean>(true);
+    const {layoutConfig, setLayoutConfig} = useLayoutConfig();
+    const sortedConfig = useMemo(
+        () => [...layoutConfig].sort((a,b) => a.ordering - b.ordering),
+        [layoutConfig]
+    )
 
     const pageRef = useRef<HTMLDivElement>(null);
     const [isOverflowing, setIsOverflowing] = useState<boolean>(false);
+
     useEffect(() => {
         requestAnimationFrame(() => {
             setIsOverflowing(!!pageRef.current && pageRef.current.scrollHeight > pageRef.current.clientHeight);
         })
-    },[draft,showSummary])
+    },[draft,layoutConfig])
 
-    const handleSummaryChange = (text: string) => {
-        setDraft(prev => ({
-            ...prev,
-            'summary': text,
-        }))
-    };
-
-    const updateJobBullet = (jobId:string, bulletIndex:number, content:string) => {
-        setDraft(prev => ({
-            ...prev,
-            jobs: prev.jobs.map( job => 
-                job.id === jobId 
-                ? {...job, bullets: job.bullets.map((b,i) => i === bulletIndex ? content : b )} 
-                : job
-            )
-        }));
-    }
-
-    const addJobBullet = (jobId:string) => {
-        setDraft(prev => ({
-            ...prev,
-            jobs: prev.jobs.map(job => 
-                job.id === jobId
-                ? {...job, bullets: [...job.bullets, '']}
-                : job
-            )
-        }));
-    };
-
-    const deleteJobBullet = (jobId:string, bulletIndex:number) => {
-        setDraft(prev => ({
-            ...prev,
-            jobs: prev.jobs.map( job =>
-                job.id === jobId
-                ? {...job, bullets: job.bullets.filter((_,i) => i !== bulletIndex )}
-                : job
-            )
-        }));
-    }
-
-    const updateJobField = (jobId:string, key:string, value:string) => {
-        setDraft(prev => ({
-            ...prev,
-            jobs: prev.jobs.map(job => 
-                job.id === jobId
-                ? {...job, [key]:value}
-                : job
-            )
-        }));
-    };
-
-    const updatePersonalInfoField = (key: string, value: string) => {
-        setDraft(prev => ({
-            ...prev,
-            personalInfo: { ...prev.personalInfo, [key]: value }
-        }));
-    };
-
-    const updatePersonalInfoExtra = (index: number, value: string) => {
-        setDraft(prev => ({
-            ...prev,
-            personalInfo: {
-                ...prev.personalInfo,
-                extras: prev.personalInfo.extras?.map((e, i) => i === index ? value : e)
-            }
-        }));
-    };
-
-    const updateEduction = (educations: EducationEntry[]) => {
-        setDraft(prev => ({
-            ...prev,
-            educations: educations
-        }));
-    };
-    const updateProjectField = (id: string, key: string, value: string) => {
-        setDraft(prev => ({
-            ...prev,
-            projects: prev.projects?.map(project =>
-                project.id === id ? { ...project, [key]: value } : project
-            )
-        }));
-    };
-
-    const updateProjectBullet = (projectId: string, bulletIndex: number, content: string) => {
-        setDraft(prev => ({
-            ...prev,
-            projects: prev.projects?.map(project =>
-                project.id === projectId
-                    ? { ...project, bullets: project.bullets.map((b, i) => i === bulletIndex ? content : b) }
-                    : project
-            )
-        }));
-    };
-
-    const addProjectBullet = (projectId: string) => {
-        setDraft(prev => ({
-            ...prev,
-            projects: prev.projects?.map(project => 
-                project.id === projectId
-                ? {...project, bullets: [...project.bullets, '']}
-                : project
-            )
-        }));
-    };
-
-    const deleteProjectBullet = (projectId: string, bulletIndex: number) => {
-        setDraft(prev => ({
-            ...prev,
-            projects: prev.projects?.map(project =>
-                project.id === projectId
-                    ? { ...project, bullets: project.bullets.filter((_, i) => i !== bulletIndex) }
-                    : project
-            )
-        }));
-    };
-
-    const updateSkillField = (id: string, key: string, value: string) => {
-        setDraft(prev => ({
-            ...prev,
-            skills: prev.skills?.map(skill =>
-                skill.id === id ? { ...skill, [key]: value } : skill
-            )
-        }));
+    const updateSection = <K extends keyof ResumeData>(key:K, value:ResumeData[K]) => {
+        setDraft((prev) => ({...prev, [key]:value}));
     };
 
     if (!data) {
@@ -157,15 +45,13 @@ export function Preview() {
             </div>
         )
     }
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="edit-toolbar flex items-center gap-3 px-6 py-3 bg-white border-b border-gray-200">
                 <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mr-auto">Preview</p>
                 {isOverflowing && <p className="text-xs font-medium text-red-500">Content exceeds one page</p>}
-                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-600 cursor-pointer select-none hover:text-gray-800 transition-colors">
-                    <input type='checkbox' checked={showSummary} onChange={()=>setShowSummary(!showSummary)} className="accent-slate-700 w-3.5 h-3.5 cursor-pointer rounded"/>
-                    Show Summary
-                </label>
+               <SectionSelector layoutConfig={layoutConfig} setLayoutConfig={setLayoutConfig}/>
                 <button
                     className="px-4 py-1.5 text-xs font-medium border border-gray-300 text-gray-600 bg-white rounded hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         onClick={() => setDraft(data)}
@@ -183,89 +69,15 @@ export function Preview() {
                 >Print</button>
             </div>
             <div className="preview-wrapper">
-                
-            <div ref={pageRef} className="page" >
-                {/* == HEADER == */}
-                <header className="header">
-                <h1><EditableInline className='editable' content={draft.personalInfo.name} handleChange={(text) => updatePersonalInfoField('name', text)}/></h1>
-                <div className="contact-info">
-                    <EditableInline className='editable' content={draft.personalInfo.email} handleChange={(text) => updatePersonalInfoField('email', text)}/> &nbsp;|&nbsp; <EditableInline className='editable' content={draft.personalInfo.phonenumber} handleChange={(text) => updatePersonalInfoField('phonenumber', text)}/>{draft.personalInfo.extras?.map((extra:string,i:number) => (
-                        <span key={i}>&nbsp;|&nbsp; <EditableInline className='editable' content={extra} handleChange={(text) => updatePersonalInfoExtra(i, text)}/></span>
-                    ))}
+                <div ref={pageRef} className="page">
+                    <PersonalInfoSection draft={draft} updateSection={updateSection} />
+                    {sortedConfig.map(section => {
+                        if (section.enabled) {
+                            const Component = sectionRegistry[section.name];
+                            return <Component key={section.name} draft={draft} updateSection={updateSection} />
+                        }
+                    })}
                 </div>
-                </header>
-
-                {/* ══ SUMMARY ══ */}
-                {showSummary && 
-                    <section className="section summary">
-                        <h2 className="section-title">Summary</h2>
-                        <EditableTextArea className='editable' content={draft.summary} handleChange={handleSummaryChange}/>
-                    </section>
-                }
-
-                {/* ══ WORK EXPERIENCE ══ */}
-                <section className="section">
-                <h2 className="section-title">Work Experience</h2>
-                {draft.jobs.map((job : JobEntry) => (
-                    <div className="job" key={job.id}>
-                        <div className="job-header">
-                            <span className="job-title-line"><EditableInline className='editable' content={job.role} handleChange={(text)=>updateJobField(job.id,'role',text)} /> — <EditableInline className='editable' content={job.company} handleChange={(text)=>updateJobField(job.id,'company',text)} />{job.location && <> — <EditableInline className='editable' content={job.location} handleChange={(text)=>updateJobField(job.id,'location',text)} /></>}</span>
-                            <span className="job-date"><EditableInline className='editable' content={job.startDate} handleChange={(text)=>updateJobField(job.id,'startDate',text)} /> - <EditableInline className='editable' content={job.endDate} handleChange={(text)=>updateJobField(job.id,'endDate',text)} /></span>
-                        </div>
-                        <ul className="job-bullets">
-                            {job.bullets.map((bullet, i) => (
-                                <li key={i} className="bullet-row">
-                                    <EditableTextArea className='editable' content={bullet} handleChange={(text) => updateJobBullet(job.id,i,text)}/>
-                                    <button className='bullet-controls' onClick={() => deleteJobBullet(job.id,i)}>×</button>
-                                </li>
-                            ))}
-                        </ul>
-                        <button className='add-bullet-controls' onClick={() => addJobBullet(job.id)}>+</button>
-                    </div>
-                ))}
-                </section>
-
-                {/* ══ EDUCATION ══ */}
-                <EducationSection educations={draft.educations} onChange={updateEduction} />
-
-                {/* ══ PROJECTS ══ */}
-                {draft.projects && draft.projects.length > 0 && 
-                    <section className="section">
-                    <h2 className="section-title">Projects</h2>
-                    {draft.projects.map((project: ProjectEntry) => (
-                        <div className="job" key={project.id}>
-                            <div className="job-header">
-                                <span className="job-title-line"><EditableInline className='editable' content={project.title} handleChange={(text) => updateProjectField(project.id,'title',text)}/></span>
-                            </div>
-                            <ul className="job-bullets">
-                                {project.bullets.map((bullet, i) => (
-                                    <li key={i} className="bullet-row">
-                                        <EditableTextArea className='editable' content={bullet} handleChange={(text) => updateProjectBullet(project.id,i,text)}/>
-                                        <button className='bullet-controls' onClick={() => deleteProjectBullet(project.id,i)}>×</button>
-                                    </li>
-                                ))}
-                            </ul>
-                            <button className='add-bullet-controls' onClick={() => addProjectBullet(project.id)}>+</button>
-                        </div>
-                    ))}
-                    </section>
-                }
-
-                {/* ══ SKILLS ══ */}
-                {draft.skills && draft.skills.length > 0 && 
-                    <section className='section'>
-                        <h2 className="section-title">Technical Skills</h2>
-                        <div className="skills-list">
-                            {draft.skills.map((skill: SkillEntry) => (
-                                <div className="skill-line" key={skill.id}>
-                                    <span className="skill-category"><EditableInline content={skill.title} handleChange={(text)=>updateSkillField(skill.id,'title',text)}/>: </span>
-                                    <span className="skill-values"><EditableInline content={skill.text} handleChange={(text)=>updateSkillField(skill.id,'text',text)}/></span></div>    
-                            ))}
-                        </div>
-                    </section>
-                }            
-
-            </div>
             </div>
         </div>
     )

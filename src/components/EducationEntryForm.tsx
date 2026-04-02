@@ -15,21 +15,21 @@ export function EducationEntryForm({education, handleUpdate, handleDelete}: Educ
      const handleBulletChange = (index:number, value: string) => {
         setDraft((prev:EducationEntry) => ({
             ...prev,
-            bullets: prev.bullets?.map((bullet,i) => i === index ? value : bullet)
+            bullets: prev.bullets.map((bullet,i) => i === index ? value : bullet)
         }))
     };
 
     const handleBulletAdd = () => {
         setDraft((prev: EducationEntry) => ({
             ...prev,
-            bullets: [...(prev.bullets ?? []), '']
+            bullets: [...prev.bullets, '']
         }))
     };
 
     const handleBulletDelete = (index: number) => {
         setDraft((prev:EducationEntry) => ({
             ...prev,
-            bullets: prev.bullets?.filter((_, i) => i !== index)
+            bullets: prev.bullets.filter((_, i) => i !== index)
         }))
     };
 
@@ -63,7 +63,7 @@ export function EducationEntryForm({education, handleUpdate, handleDelete}: Educ
             </div>
             <div className="flex flex-col gap-2">
                 <label className="text-xs font-medium uppercase tracking-wide text-gray-600">Bullets</label>
-                {draft.bullets?.map((bullet, index) => (
+                {draft.bullets.map((bullet, index) => (
                     <div key={index} className="flex gap-2 items-center">
                         <EditableTextArea
                             className="flex-1 border-b border-gray-400 bg-transparent px-0 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-gray-900 transition-colors overflow-hidden"
