@@ -1,9 +1,8 @@
-import { PersonalInfoEntry } from "../types/resume";
 import { EditableInline } from "./EditableFields";
 import { SectionProps } from "../types/resume";
 
 
-export function PersonalInfoComponent({draft, updateSection}:SectionProps) {
+export function PersonalInfoSection({draft, updateSection}:SectionProps) {
     const handleExtraChange = (index:number, text:string) => {
         updateSection('personalInfo', { ...draft.personalInfo, extras: draft.personalInfo.extras?.map((e, i) => i === index ? text : e) })
     };

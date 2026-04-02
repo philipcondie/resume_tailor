@@ -66,7 +66,7 @@ export const LLMOutputSchema = z.object({
 export type LLMOutput = z.infer<typeof LLMOutputSchema>
 
 export interface SectionData {
-    name:string,
+    name:keyof ResumeData,
     enabled:boolean,
     ordering:number,
 }
