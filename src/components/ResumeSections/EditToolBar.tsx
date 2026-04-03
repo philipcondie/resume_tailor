@@ -89,7 +89,7 @@ export function EditToolBar({isOverflowing, isEditing, canUndo, onUndo, canRedo,
                     </svg>
                 </button>
                 {moreOpen && (
-                    <div className="absolute top-full right-0 mt-1 bg-white rounded-lg border border-gray-200 shadow-lg z-50 min-w-[160px] py-1">
+                    <div className="absolute top-full right-0 mt-1 bg-white rounded-lg border border-gray-200 shadow-lg z-50 min-w-40 py-1">
                         <button
                             onClick={() => { onReset(); setMoreOpen(false); }}
                             disabled={!isEditing}
