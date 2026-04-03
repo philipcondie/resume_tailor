@@ -6,6 +6,7 @@ import { useJobHistory, usePersonalInfo, useEducationHistory, useProjectHistory,
 import { tailorResume } from "../lib/claude";
 import { useApiKey } from "../hooks/useApiKey";
 import { Spinner } from "../components/Spinner";
+import { useEditHistory } from "../hooks/useEditHistory";
 /**
  * 
  * generate button to kick off process X
@@ -30,6 +31,7 @@ export function Generate() {
     const { projectHistory } = useProjectHistory();
     const { skillList} = useSkillList();
     const { saveResumeData } = useResumeData();
+    const { clearHistory } = useEditHistory();
 
 
     const handleGenerate = async () => {
@@ -58,6 +60,7 @@ export function Generate() {
             }
             // save data to local storage
             saveResumeData(resumeData);
+            clearHistory();
 
             // navigate to preview START HERE
             navigate("/preview", {

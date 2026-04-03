@@ -1,26 +1,30 @@
-import { useState, useRef, useEffect } from "react";
-import { SectionData } from "../types/resume";
+import { useRef, useEffect, useMemo } from 'react';
+import { SectionData } from '../types/resume';
 
-type SectionSelectorProps = {
-    layoutConfig: SectionData[],
-    setLayoutConfig: (config: SectionData[]) => void,
-}
+type SectionPanelProps = {
+    open: boolean;
+    onClose: () => void;
+    layoutConfig: SectionData[];
+    setLayoutConfig: (config: SectionData[]) => void;
+};
 
-export function SectionSelector({ layoutConfig, setLayoutConfig }: SectionSelectorProps) {
-    const [open, setOpen] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
+export function SectionPanel({ open, onClose, layoutConfig, setLayoutConfig }: SectionPanelProps) {
+    const panelRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
-            if (ref.current && !ref.current.contains(e.target as Node)) {
-                setOpen(false);
+            if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+                onClose();
             }
         };
         if (open) document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [open]);
+    }, [open, onClose]);
 
-    const sorted = [...layoutConfig].sort((a, b) => a.ordering - b.ordering);
+    const sorted = useMemo(
+        () => [...layoutConfig].sort((a, b) => a.ordering - b.ordering),
+        [layoutConfig]
+    );
 
     const toggleSection = (name: string) => {
         setLayoutConfig(layoutConfig.map(s =>
@@ -32,7 +36,6 @@ export function SectionSelector({ layoutConfig, setLayoutConfig }: SectionSelect
         const index = sorted.findIndex(s => s.name === name);
         const swapIndex = index + direction;
         if (swapIndex < 0 || swapIndex >= sorted.length) return;
-
         const updated = layoutConfig.map(s => {
             if (s.name === sorted[index].name) return { ...s, ordering: sorted[swapIndex].ordering };
             if (s.name === sorted[swapIndex].name) return { ...s, ordering: sorted[index].ordering };
@@ -42,24 +45,34 @@ export function SectionSelector({ layoutConfig, setLayoutConfig }: SectionSelect
     };
 
     return (
-        <div ref={ref} className="relative">
-            <button
-                onClick={() => setOpen(!open)}
-                className="px-4 py-1.5 text-xs font-medium border border-gray-300 text-gray-600 bg-white rounded hover:bg-gray-50 transition-colors"
-            >Sections</button>
-            {open && (
-                <div className="absolute top-full right-0 mt-2 bg-white rounded-xl border border-gray-200 shadow-xl z-50 w-64 overflow-hidden">
-                    <div className="px-4 py-3 border-b border-gray-100">
-                        <p className="text-xs font-semibold text-gray-900">Manage Sections</p>
-                        <p className="text-[10px] text-gray-400 mt-0.5">Toggle visibility and reorder</p>
+        <div className={`fixed inset-0 z-40 transition-opacity duration-200 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+            <div className="absolute inset-0 bg-black/10" />
+            <div className="absolute top-0 right-0 h-full flex items-start pt-14">
+                <div
+                    ref={panelRef}
+                    className={`w-72 bg-white rounded-bl-xl border-l border-b border-gray-200 shadow-xl transition-transform duration-200 ${open ? 'translate-x-0' : 'translate-x-full'}`}
+                >
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                        <div>
+                            <p className="text-sm font-semibold text-gray-900">Sections</p>
+                            <p className="text-[10px] text-gray-400 mt-0.5">Toggle visibility and reorder</p>
+                        </div>
+                        <button
+                            onClick={onClose}
+                            className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
                     </div>
-                    <div className="p-2 flex flex-col gap-0.5">
+                    <div className="p-3 flex flex-col gap-1">
                         {sorted.map((section, i) => (
                             <div
                                 key={section.name}
-                                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
                             >
-                                {/* Toggle switch */}
                                 <label className="relative inline-flex cursor-pointer shrink-0">
                                     <input
                                         type="checkbox"
@@ -70,13 +83,9 @@ export function SectionSelector({ layoutConfig, setLayoutConfig }: SectionSelect
                                     <div className="w-8 h-[18px] bg-gray-200 rounded-full peer-checked:bg-slate-700 transition-colors" />
                                     <div className="absolute top-[2px] left-[2px] w-[14px] h-[14px] bg-white rounded-full shadow-sm transition-transform peer-checked:translate-x-[14px]" />
                                 </label>
-
-                                {/* Label */}
                                 <span className={`flex-1 text-xs capitalize ${section.enabled ? 'text-gray-800 font-medium' : 'text-gray-400'}`}>
                                     {section.name}
                                 </span>
-
-                                {/* Reorder arrows */}
                                 <div className="flex flex-col -space-y-1">
                                     <button
                                         onClick={() => moveSection(section.name, -1)}
@@ -93,7 +102,7 @@ export function SectionSelector({ layoutConfig, setLayoutConfig }: SectionSelect
                         ))}
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }
