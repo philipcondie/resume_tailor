@@ -5,7 +5,7 @@ import { LLMInput, LLMOutput, ResumeData } from "../types/resume";
 import { useJobHistory, usePersonalInfo, useEducationHistory, useProjectHistory, useSkillList, useResumeData } from "../hooks/dataHooks";
 import { tailorResume } from "../lib/claude";
 import { useApiKey } from "../hooks/useApiKey";
-import { Spinner } from "../components/Spinner";
+import { Spinner } from "../components/utils/Spinner";
 import { useEditHistory } from "../hooks/useEditHistory";
 /**
  * 

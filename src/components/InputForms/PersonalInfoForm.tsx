@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PersonalInfoEntry } from "../types/resume"
+import { PersonalInfoEntry } from "../../types/resume"
 type PersonalInfoProps = {
     info : PersonalInfoEntry,
     handleUpdate: (info: PersonalInfoEntry) => void,

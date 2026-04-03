@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { JobEntry } from "../types/resume";
-import { EditableTextArea } from "./EditableFields";
+import { JobEntry } from "../../types/resume";
+import { EditableTextArea } from "../utils/EditableFields";
 
 type JobEntryProps = {
     job: JobEntry,

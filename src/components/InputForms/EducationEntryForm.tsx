@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { EducationEntry } from "../types/resume"
-import { EditableTextArea } from './EditableFields';
+import { EducationEntry } from "../../types/resume"
+import { EditableTextArea } from '../utils/EditableFields';
 
 type EducationEntryProps = {
     education: EducationEntry,

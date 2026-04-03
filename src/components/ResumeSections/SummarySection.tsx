@@ -1,5 +1,5 @@
-import { SectionProps } from "../types/resume";
-import { EditableTextArea } from "./EditableFields";
+import { SectionProps } from "../../types/resume";
+import { EditableTextArea } from "../utils/EditableFields";
 
 export function SummarySection({draft, updateSection}:SectionProps) {
     return (

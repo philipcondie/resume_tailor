@@ -1,6 +1,6 @@
-import { SectionProps } from "../types/resume";
+import { SectionProps } from "../../types/resume";
 import { BulletSection } from "./BulletSection";
-import { EditableInline } from "./EditableFields";
+import { EditableInline } from "../utils/EditableFields";
 
 export function ProjectSection({draft,updateSection}:SectionProps) {
     return (

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SkillEntry } from "../types/resume";
+import { SkillEntry } from "../../types/resume";
 
 type SkillEntryProps = {
     skill: SkillEntry,
