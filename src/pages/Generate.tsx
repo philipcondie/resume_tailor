@@ -17,21 +17,24 @@ import { useEditHistory } from "../hooks/useEditHistory";
  */
 
 export function Generate() {
-
     const navigate = useNavigate();
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<Error | null>(null);
-    const [userInstructions, setUserInstructions] = useState<string>('');
-
-    const [jobDescription, setJobDescription] = useState<string>('');
-    const { apiKey, saveApiKey } = useApiKey();
     const { jobHistory } = useJobHistory();
     const { personalInfo } = usePersonalInfo();
     const { educationHistory } = useEducationHistory();
     const { projectHistory } = useProjectHistory();
-    const { skillList} = useSkillList();
+    const { skillList } = useSkillList();
     const { saveResumeData } = useResumeData();
     const { clearHistory } = useEditHistory();
+    const { apiKey, saveApiKey } = useApiKey();
+
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<Error | null>(null);
+    const [jobDescription, setJobDescription] = useState<string>('');
+    const [userInstructions, setUserInstructions] = useState<string>('');
+    const [enabledJobIds, setEnabledJobIds] = useState<Set<string>>(
+        () => new Set(jobHistory.map(job => job.id))
+    );
+    
 
 
     const handleGenerate = async () => {
@@ -44,11 +47,12 @@ export function Generate() {
                 info: {
                     generalInfo: ''
                 },
-                jobs: jobHistory,
+                jobs: jobHistory.filter(j => enabledJobIds.has(j.id)),
                 userInstructions: userInstructions,
+                jobDescription: jobDescription,
             }
             // do api call
-            const response : LLMOutput = await tailorResume(apiKey,jobDescription,input);
+            const response: LLMOutput = await tailorResume(apiKey, input);
             // assemble resume data
             const resumeData : ResumeData = {
                 personalInfo: personalInfo,
@@ -62,7 +66,7 @@ export function Generate() {
             saveResumeData(resumeData);
             clearHistory();
 
-            // navigate to preview START HERE
+            // navigate to preview
             navigate("/preview", {
                 state: {'resumeData': resumeData}
             })
@@ -72,6 +76,16 @@ export function Generate() {
             setIsLoading(false);
         }
     }
+
+    const onEnabledChange = (targetId:string) => {
+        const next = new Set(enabledJobIds);
+        if (next.has(targetId)) {
+            next.delete(targetId);
+        } else {
+            next.add(targetId);
+        }
+        setEnabledJobIds(next);
+    }
     
     return (
         <div className="flex flex-col gap-6 max-w-xxl bg-white rounded-xl border border-gray-200 p-8">
@@ -79,6 +93,17 @@ export function Generate() {
                 <h2 className="text-lg font-semibold text-gray-900">Generate Resume</h2>
                 <p className="text-sm text-gray-500 mt-0.5">Paste a job description and generate a tailored resume.</p>
             </div>
+            <fieldset className="flex flex-col gap-1">
+                <legend className="text-xs font-medium uppercase tracking-wide text-gray-600">Jobs to include</legend>
+                <div className="flex flex-col gap-1.5 mt-1">
+                    {jobHistory.map((job) => (
+                        <label key={job.id} className="flex items-center gap-2.5 px-3 py-2 rounded border border-gray-200 text-sm text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors has-checked:border-slate-400 has-checked:bg-slate-50">
+                            <input type="checkbox" className="accent-slate-700" checked={enabledJobIds.has(job.id)} onChange={() => onEnabledChange(job.id)}/>
+                            <span>{job.role} <span className="text-gray-400">—</span> {job.company}</span>
+                        </label>
+                    ))}
+                </div>
+            </fieldset>
             <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium uppercase tracking-wide text-gray-600">Anthropic API Key</label>
                 <input

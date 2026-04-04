@@ -3,7 +3,7 @@ import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { LLMInput, LLMOutputSchema, LLMOutput } from "../types/resume";
 import { systemPrompt } from "./prompts";
 
-export async function tailorResume(apiKey:string, jobDescription: string, input: LLMInput): Promise<LLMOutput>{
+export async function tailorResume(apiKey:string, input: LLMInput): Promise<LLMOutput>{
     
     // create prompt
     const prompt: string = `
@@ -12,7 +12,7 @@ export async function tailorResume(apiKey:string, jobDescription: string, input:
             ${input.userInstructions}
         </user_instructions>`}   
         <job_description>
-            ${jobDescription}
+            ${input.jobDescription}
         </job_description>
 
         <general_information>

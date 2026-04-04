@@ -55,7 +55,8 @@ export interface CandidateInfo {
 export interface LLMInput {
     info: CandidateInfo,
     jobs: JobEntry[],
-    userInstructions?: string,
+    jobDescription: string,
+    userInstructions: string,
 }
 
 export const LLMOutputSchema = z.object({
