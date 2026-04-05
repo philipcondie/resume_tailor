@@ -9,6 +9,7 @@ import { EducationEntryContainer } from "./pages/profile/EducationEntryContainer
 import { ProjectEntryContainer } from "./pages/profile/ProjectEntryContainer";
 import { SkillEntryContainer } from "./pages/profile/SkillEntryContainer";
 import { PasswordGate } from "./components/PasswordGate";
+import { Data } from "./pages/Data";
 
 export default function App() {
     return (
@@ -17,6 +18,7 @@ export default function App() {
             <Routes>
                 <Route path="/" element={<Home />}>
                     <Route index element={<Navigate to="profile/personal" replace />} />
+                    <Route path="profile/data" element={<Data />} />
                     <Route path="profile/personal" element={<PersonalInfoContainer />} />
                     <Route path="profile/work" element={<JobEntryContainer />} />
                     <Route path="profile/education" element={<EducationEntryContainer />} />

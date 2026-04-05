@@ -16,21 +16,11 @@ export function useJobHistory() {
         setJobHistory(prev => prev.filter(job => job.id !== id))
     }
 
-    const clearJobHistory = () => setJobHistory([])
+    const clearJobHistory = () => setJobHistory([]);
 
-    return { jobHistory, newJob, updateJob, removeJob, clearJobHistory }
-}
+    const bulkAddJobs = (jobs: JobEntry[]) => setJobHistory(jobs);
 
-export function useCandidateInfo() {
-    const [candidateInfo, setCandidateInfo] = useLocalStorage<CandidateInfo>('candidate-info', {'generalInfo': ''})
-
-    const updateCandidateInfo = (key:string, value:string) => {
-        setCandidateInfo(prev => ({ ...prev, [key] : value}))
-    }
-
-    const clearCandidateInfo = () => setCandidateInfo({'generalInfo': ''})
-
-    return { candidateInfo, updateCandidateInfo, clearCandidateInfo }
+    return { jobHistory, newJob, updateJob, removeJob, clearJobHistory, bulkAddJobs }
 }
 
 export function usePersonalInfo() {
@@ -73,8 +63,11 @@ export function useProjectHistory() {
 
     const clearProjectHistory = () => {
         setProjectHistory([])
-    }
-    return {projectHistory, newProject, updateProject, removeProject, clearProjectHistory}
+    };
+
+    const bulkAddProjects = (projects:ProjectEntry[]) => setProjectHistory(projectHistory);
+
+    return {projectHistory, newProject, updateProject, removeProject, clearProjectHistory, bulkAddProjects}
 }
 
 export function useEducationHistory() {
@@ -96,7 +89,9 @@ export function useEducationHistory() {
         setEducationHistory([])
     }
 
-    return { educationHistory, newEducation, updateEducation, removeEducation, clearEducationHistory}
+    const bulkAddEducation = (educations:EducationEntry[]) => setEducationHistory(educations);
+
+    return { educationHistory, newEducation, updateEducation, removeEducation, clearEducationHistory, bulkAddEducation}
 }
 
 export function useSkillList() {
@@ -118,7 +113,9 @@ export function useSkillList() {
         setSkillList([])
     }
 
-    return {skillList, newSkill, updateSkill, removeSkill, clearSkillList}
+    const bulkAddSkills = (skills: SkillEntry[]) => setSkillList(skillList);
+
+    return {skillList, newSkill, updateSkill, removeSkill, clearSkillList, bulkAddSkills}
 }
 
 export function useResumeData() {
