@@ -1,6 +1,6 @@
 import { useSkillList } from "../../hooks/dataHooks";
 import { SkillEntry } from "../../types/resume";
-import { SkillEntryForm } from "../../components/SkillEntryForm";
+import { SkillEntryForm } from "../../components/InputForms/SkillEntryForm";
 
 export function SkillEntryContainer() {
     const {skillList, newSkill, updateSkill, removeSkill} = useSkillList();

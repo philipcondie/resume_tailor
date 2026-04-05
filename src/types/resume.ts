@@ -12,32 +12,56 @@ export const JobEntrySchema = z.object({
 
 export type JobEntry = z.infer<typeof JobEntrySchema>;
 
-export interface EducationEntry {
-    id: string,
-    school: string,
-    degree: string,
-    bullets: string[]
-}
+export const EducationEntrySchema = z.object({
+    id: z.string(),
+    school: z.string(),
+    degree: z.string(),
+    bullets: z.array(z.string()),
+});
 
-export interface ProjectEntry {
-    id: string,
-    title: string,
-    bullets: string[]
-}
+export type EducationEntry = z.infer<typeof EducationEntrySchema>;
 
-export interface SkillEntry {
-    id: string,
-    title: string,
-    text: string
-}
+export const ProjectEntrySchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    bullets: z.array(z.string()),
+});
 
-export interface PersonalInfoEntry {
-    name: string,
-    email: string,
-    phonenumber: string,
-    extras?: string []
-    // summary: string
-}
+export type ProjectEntry = z.infer<typeof ProjectEntrySchema>;
+
+export const SkillEntrySchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    text: z.string(),
+});
+
+export type SkillEntry = z.infer<typeof SkillEntrySchema>;
+
+export const PersonalInfoEntrySchema = z.object({
+    name: z.string(),
+    email: z.string(),
+    phonenumber: z.string(),
+    extras: z.array(z.string()).optional(),
+});
+
+export type PersonalInfoEntry = z.infer<typeof PersonalInfoEntrySchema>;
+
+export const ProfileDataSchema = z.object({
+    personalInfo: PersonalInfoEntrySchema,
+    educations: z.array(EducationEntrySchema),
+    jobs: z.array(JobEntrySchema),
+    projects: z.array(ProjectEntrySchema),
+    skills: z.array(SkillEntrySchema),
+});
+
+export type ProfileData = z.infer<typeof ProfileDataSchema>;
+
+export const ProfileExportDataSchema = z.object({
+    exportedAt: z.string(),
+    profile: ProfileDataSchema,
+});
+
+export type ProfileExportData = z.infer<typeof ProfileExportDataSchema>;
 
 export interface ResumeData {
     personalInfo: PersonalInfoEntry,
@@ -55,7 +79,8 @@ export interface CandidateInfo {
 export interface LLMInput {
     info: CandidateInfo,
     jobs: JobEntry[],
-    userInstructions?: string,
+    jobDescription: string,
+    userInstructions: string,
 }
 
 export const LLMOutputSchema = z.object({

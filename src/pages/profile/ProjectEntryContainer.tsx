@@ -1,5 +1,5 @@
 import { ProjectEntry } from "../../types/resume";
-import { ProjectEntryForm } from "../../components/ProjectEntryForm";
+import { ProjectEntryForm } from "../../components/InputForms/ProjectEntryForm";
 import { useProjectHistory } from "../../hooks/dataHooks";
 
 export function ProjectEntryContainer() {

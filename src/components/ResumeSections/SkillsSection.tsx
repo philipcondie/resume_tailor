@@ -1,5 +1,5 @@
-import { EditableInline } from "./EditableFields";
-import { SectionProps } from "../types/resume";
+import { EditableInline } from "../utils/EditableFields";
+import { SectionProps } from "../../types/resume";
 
 export function SkillSection({draft, updateSection}:SectionProps) {
     const updateSkillField = (id: string, key: string, value: string) => {

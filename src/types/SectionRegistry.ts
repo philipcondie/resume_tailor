@@ -1,9 +1,9 @@
-import { PersonalInfoSection } from '../components/PersonalInfoSection';
-import { SkillSection } from '../components/SkillsSection';
-import { EducationSection } from '../components/EducationSection';
-import { JobSection } from '../components/JobSection';
-import { ProjectSection } from '../components/ProjectSection';
-import { SummarySection } from '../components/SummarySection';
+import { PersonalInfoSection } from '../components/ResumeSections/PersonalInfoSection';
+import { SkillSection } from '../components/ResumeSections/SkillsSection';
+import { EducationSection } from '../components/ResumeSections/EducationSection';
+import { JobSection } from '../components/ResumeSections/JobSection';
+import { ProjectSection } from '../components/ResumeSections/ProjectSection';
+import { SummarySection } from '../components/ResumeSections/SummarySection';
 import { ResumeData, SectionProps } from './resume';
 
 

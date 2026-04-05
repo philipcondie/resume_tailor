@@ -1,4 +1,4 @@
-import { JobEntryForm } from "../../components/JobEntryForm";
+import { JobEntryForm } from "../../components/InputForms/JobEntryForm";
 import { JobEntry } from "../../types/resume";
 import { useJobHistory } from "../../hooks/dataHooks";
 

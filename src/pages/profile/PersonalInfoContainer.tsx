@@ -1,5 +1,5 @@
 import { usePersonalInfo } from "../../hooks/dataHooks";
-import { PersonalInfoForm } from "../../components/PersonalInfoForm";
+import { PersonalInfoForm } from "../../components/InputForms/PersonalInfoForm";
 
 export function PersonalInfoContainer() {
     const {personalInfo, updatePersonalInfo, clearPersonalInfo} = usePersonalInfo();

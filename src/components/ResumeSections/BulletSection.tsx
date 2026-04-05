@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { EditableInline, EditableTextArea } from "./EditableFields";
+import { EditableTextArea } from "../utils/EditableFields";
 
 type BulletItem = {
     id: string,

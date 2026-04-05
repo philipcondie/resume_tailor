@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { ProjectEntry } from "../types/resume";
-import { EditableTextArea } from "./EditableFields";
+import { ProjectEntry } from "../../types/resume";
+import { EditableTextArea } from "../utils/EditableFields";
 
 type ProjectEntryProps = {
     project: ProjectEntry,
