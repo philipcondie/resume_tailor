@@ -65,7 +65,7 @@ export function useProjectHistory() {
         setProjectHistory([])
     };
 
-    const bulkAddProjects = (projects:ProjectEntry[]) => setProjectHistory(projectHistory);
+    const bulkAddProjects = (projects:ProjectEntry[]) => setProjectHistory(projects);
 
     return {projectHistory, newProject, updateProject, removeProject, clearProjectHistory, bulkAddProjects}
 }
@@ -113,7 +113,7 @@ export function useSkillList() {
         setSkillList([])
     }
 
-    const bulkAddSkills = (skills: SkillEntry[]) => setSkillList(skillList);
+    const bulkAddSkills = (skills: SkillEntry[]) => setSkillList(skills);
 
     return {skillList, newSkill, updateSkill, removeSkill, clearSkillList, bulkAddSkills}
 }
