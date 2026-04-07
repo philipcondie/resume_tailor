@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { JobEntry, LLMInput, LLMOutput, ResumeData } from "../types/resume";
 import { useJobHistory, usePersonalInfo, useEducationHistory, useProjectHistory, useSkillList, useResumeData } from "../hooks/dataHooks";
+import { usePrompts } from "../hooks/usePrompts";
 import { tailorResume } from "../lib/claude";
 import { useApiKey } from "../hooks/useApiKey";
 import { Spinner } from "../components/utils/Spinner";
@@ -26,6 +27,7 @@ export function Generate() {
     const { saveResumeData } = useResumeData();
     const { clearHistory } = useEditHistory();
     const { apiKey, saveApiKey } = useApiKey();
+    const { systemPrompt, userPrompt} = usePrompts();
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<Error | null>(null);
@@ -53,12 +55,10 @@ export function Generate() {
         try {
             // assemble llm input
             const input: LLMInput = {
-                info: {
-                    generalInfo: ''
-                },
                 jobs: jobHistory
                     .filter(j => isJobEnabled(j))
                     .map(j => ({...j, bullets: j.bullets.filter(b => enabledBullets.has(formBulletId(j.id,b)))})),
+                systemPrompt: systemPrompt + "\n\n" + userPrompt,
                 userInstructions: userInstructions,
                 jobDescription: jobDescription,
             }

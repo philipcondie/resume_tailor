@@ -1,7 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { LLMInput, LLMOutputSchema, LLMOutput } from "../types/resume";
-import { systemPrompt } from "./prompts";
 
 export async function tailorResume(apiKey:string, input: LLMInput): Promise<LLMOutput>{
     
@@ -14,10 +13,6 @@ export async function tailorResume(apiKey:string, input: LLMInput): Promise<LLMO
         <job_description>
             ${input.jobDescription}
         </job_description>
-
-        <general_information>
-            ${input.info.generalInfo}
-        </general_information>
 
         <job_history>
             ${input.jobs.map(job => (
@@ -43,7 +38,7 @@ export async function tailorResume(apiKey:string, input: LLMInput): Promise<LLMO
     const response = await client.messages.parse({
         model: "claude-opus-4-6",
         max_tokens:5096,
-        system: systemPrompt,
+        system: input.systemPrompt,
         thinking: {type: "adaptive"},
         messages: [
             {

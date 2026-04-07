@@ -77,9 +77,9 @@ export interface CandidateInfo {
 }
 
 export interface LLMInput {
-    info: CandidateInfo,
     jobs: JobEntry[],
     jobDescription: string,
+    systemPrompt: string,
     userInstructions: string,
 }
 
