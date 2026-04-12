@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { JobEntry, LLMInput, LLMOutput, ResumeData } from "../types/resume";
+import { JobEntry, LLMInput, ResumeMetadata } from "../types/resume";
 import { useJobHistory, usePersonalInfo, useEducationHistory, useProjectHistory, useSkillList, useResumeData } from "../hooks/dataHooks";
 import { usePrompts } from "../hooks/usePrompts";
-import { tailorResume } from "../lib/claude";
+import { resumeApi } from "../lib/api";
 import { useApiKey } from "../hooks/useApiKey";
 import { Spinner } from "../components/utils/Spinner";
 import { useEditHistory } from "../hooks/useEditHistory";
@@ -20,11 +20,6 @@ import { useEditHistory } from "../hooks/useEditHistory";
 export function Generate() {
     const navigate = useNavigate();
     const { jobHistory } = useJobHistory();
-    const { personalInfo } = usePersonalInfo();
-    const { educationHistory } = useEducationHistory();
-    const { projectHistory } = useProjectHistory();
-    const { skillList } = useSkillList();
-    const { saveResumeData } = useResumeData();
     const { clearHistory } = useEditHistory();
     const { apiKey, saveApiKey } = useApiKey();
     const { systemPrompt, userPrompt} = usePrompts();
@@ -63,24 +58,12 @@ export function Generate() {
                 jobDescription: jobDescription,
             }
             // do api call
-            const response: LLMOutput = await tailorResume(apiKey, input);
-            // assemble resume data
-            const resumeData : ResumeData = {
-                personalInfo: personalInfo,
-                educations: educationHistory,
-                projects: projectHistory,
-                skills: skillList,
-                jobs: response.jobs,
-                summary: response.summary
-            }
-            // save data to local storage
-            saveResumeData(resumeData);
+            const response: ResumeMetadata = await resumeApi.generate(input);
+            
             clearHistory();
 
             // navigate to preview
-            navigate("/preview", {
-                state: {'resumeData': resumeData}
-            })
+            navigate(`/preview/${response.id}`)
         } catch(err) {
             setError(err instanceof Error ? err : new Error(String(err)));
         } finally {

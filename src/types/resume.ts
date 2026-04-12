@@ -72,6 +72,13 @@ export interface ResumeData {
     skills?: SkillEntry[]
 }
 
+export interface ResumeMetadata {
+    id: number,
+    filename: string,
+    createdAt: string,
+    updatedAt: string,
+}
+
 export interface CandidateInfo {
     generalInfo: string,
 }

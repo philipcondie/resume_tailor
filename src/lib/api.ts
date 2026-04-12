@@ -1,4 +1,4 @@
-import { EducationEntry, JobEntry, PersonalInfoEntry, ProjectEntry, SkillEntry } from "../types/resume";
+import { EducationEntry, JobEntry, PersonalInfoEntry, ProjectEntry, SkillEntry, LLMInput, ResumeMetadata, ResumeData } from "../types/resume";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 const TOKEN_KEY = 'jwt_token';
@@ -101,3 +101,24 @@ export const jobsApi = createProfileApi<JobEntry[]>('job_history');
 export const educationApi = createProfileApi<EducationEntry[]>('education_history');
 export const projectsApi = createProfileApi<ProjectEntry[]>('project_history');
 export const skillsApi = createProfileApi<SkillEntry[]>('skills');
+
+
+export async function tailorResume(input: LLMInput): Promise<ResumeMetadata> {
+    return fetchApi(`/resume/new`, {
+        method: "POST",
+        body: JSON.stringify(input)
+    });
+}
+
+export const resumeApi = {
+    generate: (input: LLMInput) => fetchApi(`/resume/new`, {
+        method: "POST",
+        body: JSON.stringify(input)
+    }),
+    get: (id:string) => fetchApi(`resume/${id}`),
+    update: (id:string, input: ResumeData) => fetchApi(`/resume/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(input)
+    }),
+    list: () => fetchApi(`resume`),
+}

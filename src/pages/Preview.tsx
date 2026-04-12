@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
-import { useResumeData } from '../hooks/dataHooks';
 import { useEditHistory } from '../hooks/useEditHistory';
 import { ResumeData } from '../types/resume';
 import './Preview.css';
@@ -10,22 +9,34 @@ import { SectionPanel } from '../components/SectionPanel';
 import { useLayoutConfig } from '../hooks/useLayoutConfig';
 import { sectionRegistry } from '../types/SectionRegistry';
 import { EditToolBar } from '../components/ResumeSections/EditToolBar';
+import { resumeApi } from '../lib/api';
+import { Spinner } from '../components/utils/Spinner';
 
 export function Preview() {
-    const location = useLocation();
-
-    const {resumeData: savedResumeData, saveResumeData } = useResumeData();
-    const data = location.state?.['resume-data'] ?? savedResumeData;
-
-    const [draft, setDraft] = useState<ResumeData>(data);
-    const isEditing = JSON.stringify(draft) !== JSON.stringify(data);
+    const {resumeId} = useParams();
+    const [resume, setResume] = useState<ResumeData | null>(null);
+    const [draft, setDraft] = useState<ResumeData | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [error, setError] = useState<Error | null>(null)
+    const isEditing = JSON.stringify(draft) !== JSON.stringify(resume);
 
     const {layoutConfig, setLayoutConfig} = useLayoutConfig();
     const { save, canUndo, undo, canRedo, redo } = useEditHistory();
     const [sectionsOpen, setSectionsOpen] = useState(false);
 
     const pageRef = useRef<HTMLDivElement>(null);
-    const [isOverflowing, setIsOverflowing] = useState(false);
+    const [isOverflowing, setIsOverflowing] = useState(true);
+
+    useEffect(() => {
+        if (!resumeId) return;
+        resumeApi.get(resumeId)
+            .then((data) => {
+                setResume(data);
+                setDraft(data);
+            })
+            .catch(setError)
+            .finally(() => setIsLoading(false))
+    }, [resumeId]);
 
     useEffect(() => {
         requestAnimationFrame(() => {
@@ -38,8 +49,12 @@ export function Preview() {
         [layoutConfig]
     );
 
+    if (isLoading) return <Spinner />;
+    if (error) return <div>{error.message}</div>;
+    if (!draft || !resume) return <div>No resume data found</div>;
+
     const updateSection = <K extends keyof ResumeData>(key:K, value:ResumeData[K]) => {
-        setDraft((prev) => ({...prev, [key]:value}));
+        setDraft((prev) => prev ? ({...prev, [key]:value}) : prev);
     };
 
     const onRedo = () => {
@@ -50,21 +65,16 @@ export function Preview() {
         const next = undo(draft);
         if (next) setDraft(next);
     };
-    const onSave = () => {
-        save(data); saveResumeData(draft);
+    const onSave = async () => {
+        if (!draft || !resumeId) return; 
+        await resumeApi.update(resumeId,draft);
+        save(resume);
+        setResume(draft);
     };
     const onReset = () => {
-        setDraft(data);
+        setDraft(resume);
     };
     const onOpenSections = () => {setSectionsOpen(true)};
-
-    if (!data) {
-        return (
-            <div>
-                No resume data found
-            </div>
-        )
-    }
 
     return (
         <div className="min-h-screen bg-gray-50">

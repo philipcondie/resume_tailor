@@ -25,7 +25,7 @@ export default function App() {
                     <Route path="profile/projects" element={<ProjectEntryContainer />} />
                     <Route path="profile/skills" element={<SkillEntryContainer />} />
                     <Route path="/generate" element={<Generate />} />
-                    <Route path="/preview" element={<Preview />} />
+                    <Route path="/preview/:resumeId" element={<Preview />} />
                     <Route path="/prompt" element={<Prompt />} />
                 </Route>
             </Routes>
