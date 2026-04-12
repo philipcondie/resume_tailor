@@ -79,6 +79,10 @@ export interface ResumeMetadata {
     updatedAt: string,
 }
 
+export interface PromptData {
+    prompt: string
+}
+
 export interface CandidateInfo {
     generalInfo: string,
 }

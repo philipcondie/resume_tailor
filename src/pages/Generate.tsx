@@ -144,7 +144,7 @@ export function Generate() {
                             </div>
                             {/* Bullet list (collapsible) */}
                             {expandedJobs.has(job.id) && (
-                                <div className="flex flex-col gap-0.5 px-3 pb-2 ml-[42px]">
+                                <div className="flex flex-col gap-0.5 px-3 pb-2 ml-10.5">
                                     {job.bullets.map((bullet, i) => (
                                         <label key={i} className="flex items-start gap-2 py-1 text-xs text-gray-600 cursor-pointer hover:text-gray-900 transition-colors">
                                             <input

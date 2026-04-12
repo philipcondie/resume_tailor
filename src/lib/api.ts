@@ -1,4 +1,4 @@
-import { EducationEntry, JobEntry, PersonalInfoEntry, ProjectEntry, SkillEntry, LLMInput, ResumeMetadata, ResumeData } from "../types/resume";
+import { EducationEntry, JobEntry, PersonalInfoEntry, ProjectEntry, SkillEntry, LLMInput, ResumeMetadata, ResumeData, PromptData } from "../types/resume";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 const TOKEN_KEY = 'jwt_token';
@@ -121,4 +121,12 @@ export const resumeApi = {
         body: JSON.stringify(input)
     }),
     list: (): Promise<ResumeMetadata[]> => fetchApi(`/resume`),
+}
+
+export const promptApi = {
+    get: (): Promise<PromptData> => fetchApi(`/prompt`),
+    update: (data: PromptData): Promise<PromptData> => fetchApi(`/prompt/update`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    }),
 }
