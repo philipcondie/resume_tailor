@@ -2,10 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { JobEntry, LLMInput, ResumeMetadata } from "../types/resume";
-import { useJobHistory, usePersonalInfo, useEducationHistory, useProjectHistory, useSkillList, useResumeData } from "../hooks/dataHooks";
 import { usePrompts } from "../hooks/usePrompts";
 import { resumeApi } from "../lib/api";
-import { useApiKey } from "../hooks/useApiKey";
 import { Spinner } from "../components/utils/Spinner";
 import { useEditHistory } from "../hooks/useEditHistory";
 /**

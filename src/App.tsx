@@ -2,7 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Home } from "./pages/Home";
 import { Prompt } from "./pages/Prompt";
 import { Preview } from "./pages/Preview";
-import { Generate } from "./pages/Generate"
+import { Generate } from "./pages/Generate";
+import { Resumes } from "./pages/Resumes";
 import { PersonalInfoContainer } from "./pages/profile/PersonalInfoContainer";
 import { JobEntryContainer } from "./pages/profile/JobEntryContainer";
 import { EducationEntryContainer } from "./pages/profile/EducationEntryContainer";
@@ -25,6 +26,7 @@ export default function App() {
                     <Route path="profile/projects" element={<ProjectEntryContainer />} />
                     <Route path="profile/skills" element={<SkillEntryContainer />} />
                     <Route path="/generate" element={<Generate />} />
+                    <Route path="/resumes" element={<Resumes />} />
                     <Route path="/preview/:resumeId" element={<Preview />} />
                     <Route path="/prompt" element={<Prompt />} />
                 </Route>

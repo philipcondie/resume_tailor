@@ -21,7 +21,7 @@ export function Home() {
                         <NavLink to="profile/data" className={navLinkClass}>Data</NavLink>
                         <NavLink to="prompt" className={navLinkClass}>Prompt</NavLink>
                         <NavLink to="generate" className={navLinkClass}>Generate</NavLink>
-                        <NavLink to="preview" className={navLinkClass}>Preview</NavLink>
+                        <NavLink to="resumes" className={navLinkClass}>Resumes</NavLink>
                     </nav>
                 </aside>
                 <main className="flex-1 p-10">

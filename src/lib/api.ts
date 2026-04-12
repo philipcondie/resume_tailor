@@ -111,14 +111,14 @@ export async function tailorResume(input: LLMInput): Promise<ResumeMetadata> {
 }
 
 export const resumeApi = {
-    generate: (input: LLMInput) => fetchApi(`/resume/new`, {
+    generate: (input: LLMInput): Promise<ResumeMetadata> => fetchApi(`/resume/new`, {
         method: "POST",
         body: JSON.stringify(input)
     }),
-    get: (id:string) => fetchApi(`resume/${id}`),
-    update: (id:string, input: ResumeData) => fetchApi(`/resume/${id}`, {
+    get: (id:string): Promise<ResumeData> => fetchApi(`/resume/${id}`),
+    update: (id:string, input: ResumeData): Promise<ResumeData> => fetchApi(`/resume/${id}`, {
         method: "PUT",
         body: JSON.stringify(input)
     }),
-    list: () => fetchApi(`resume`),
+    list: (): Promise<ResumeMetadata[]> => fetchApi(`/resume`),
 }
