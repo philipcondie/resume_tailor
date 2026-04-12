@@ -1,32 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { JobEntry, LLMInput, ResumeMetadata } from "../types/resume";
-import { usePrompts } from "../hooks/usePrompts";
-import { resumeApi } from "../lib/api";
+import { resumeApi, jobsApi, ApiError } from "../lib/api";
 import { Spinner } from "../components/utils/Spinner";
 import { useEditHistory } from "../hooks/useEditHistory";
-/**
- * 
- * generate button to kick off process X
- * overview of information to be sent
- * input for job description X
- * assemble info for api call
- * parse response then redirect with location state and local storage
- */
 
 export function Generate() {
     const navigate = useNavigate();
-    const { jobHistory } = useJobHistory();
     const { clearHistory } = useEditHistory();
-    const { apiKey, saveApiKey } = useApiKey();
-    const { systemPrompt, userPrompt} = usePrompts();
-
+    
+    const [jobHistory, setJobHistory] = useState<JobEntry[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<Error | null>(null);
     const [jobDescription, setJobDescription] = useState<string>('');
     const [userInstructions, setUserInstructions] = useState<string>('');
     const [expandedJobs, setExpandedJobs] = useState<Set<string>>(new Set());
+
+     useEffect(() => {
+            jobsApi.get()
+                .then((data) => setJobHistory(data))
+                .catch((error) => {
+                    if (error instanceof ApiError && error.status == 404) {
+                        setJobHistory([]);
+                    } else {
+                        setError(error);
+                    }
+                })
+                .finally(() => setIsLoading(false))
+        }, [])
 
     const formBulletId = (jobId: string, bullet: string) => {
         return `${jobId}::${bullet}`;
@@ -51,7 +53,6 @@ export function Generate() {
                 jobs: jobHistory
                     .filter(j => isJobEnabled(j))
                     .map(j => ({...j, bullets: j.bullets.filter(b => enabledBullets.has(formBulletId(j.id,b)))})),
-                systemPrompt: systemPrompt + "\n\n" + userPrompt,
                 userInstructions: userInstructions,
                 jobDescription: jobDescription,
             }
@@ -162,15 +163,6 @@ export function Generate() {
                 </div>
             </details>
             <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium uppercase tracking-wide text-gray-600">Anthropic API Key</label>
-                <input
-                    className="border-b border-gray-400 bg-transparent px-0 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-gray-900 transition-colors"
-                    type="password"
-                    value={apiKey}
-                    onChange={e => saveApiKey(e.target.value)}
-                />
-            </div>
-            <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium uppercase tracking-wide text-gray-600">Job Description</label>
                 <textarea
                     className="border border-gray-300 rounded bg-transparent px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-900 transition-colors resize-y"
@@ -197,7 +189,7 @@ export function Generate() {
                 <button
                     className="ml-auto px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     onClick={handleGenerate}
-                    disabled={jobDescription === '' || apiKey === '' || isLoading}
+                    disabled={jobDescription === '' || isLoading}
                 >
                     Generate Resume
                 </button>
