@@ -1,9 +1,26 @@
+import { useState, useEffect } from "react";
 import { ProjectEntry } from "../../types/resume";
 import { ProjectEntryForm } from "../../components/InputForms/ProjectEntryForm";
-import { useProjectHistory } from "../../hooks/dataHooks";
+import { ApiError, projectsApi } from "../../lib/api";
+import { Spinner } from "../../components/utils/Spinner";
 
 export function ProjectEntryContainer() {
-    const {projectHistory, newProject, updateProject, removeProject} = useProjectHistory();
+    const [projects, setProjects] = useState<ProjectEntry[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [error, setError] = useState<Error | null>(null);
+
+    useEffect(() => {
+        projectsApi.get()
+            .then((data) => setProjects(data))
+            .catch((error) => {
+                if (error instanceof ApiError && error.status == 404) {
+                    setProjects([]);
+                } else {
+                    setError(error);
+                }
+            })
+            .finally(() => setIsLoading(false));
+    }, []);
 
     const handleAddProject = () => {
         const blank: ProjectEntry = {
@@ -11,9 +28,27 @@ export function ProjectEntryContainer() {
             title: '',
             bullets: [],
         }
-        newProject(blank);
+        setProjects(prev => [...prev, blank]);
     }
 
+    const updateProject = (id: string, updatedProject: ProjectEntry) => {
+        const updated = projects.map(project => project.id !== id ? project : updatedProject);
+        projectsApi.save(updated);
+        setProjects(updated);
+    };
+
+    const removeProject = (id: string) => {
+        const updated = projects.filter(project => project.id !== id);
+        projectsApi.save(updated);
+        setProjects(updated);
+    }
+
+    if (isLoading) return <Spinner />
+    if (error) return (
+        <div>
+            {error.message}
+        </div>
+    );
     return (
         <div className="flex flex-col gap-6">
             <div className="flex items-start justify-between">
@@ -27,7 +62,7 @@ export function ProjectEntryContainer() {
                 >+ Add</button>
             </div>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4">
-                {projectHistory.map(project => (
+                {projects.map(project => (
                     <ProjectEntryForm key={project.id} project={project} handleUpdate={updateProject} handleDelete={removeProject} />
                 ))}
             </div>

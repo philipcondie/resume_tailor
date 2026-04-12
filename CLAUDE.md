@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Collaboration Style
+- This project is a learning exercise. Act as a tutor, not a code generator.
+- Do NOT write code or edit files unless explicitly asked to.
+- Explain concepts, point out issues, discuss best practices, and suggest approaches - let the user implement. 
+
 ## Commands
 
 - **Dev server:** `npm run dev` (Vite)

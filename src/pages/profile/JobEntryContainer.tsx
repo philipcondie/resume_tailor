@@ -1,9 +1,26 @@
+import { useState, useEffect } from "react";
 import { JobEntryForm } from "../../components/InputForms/JobEntryForm";
 import { JobEntry } from "../../types/resume";
-import { useJobHistory } from "../../hooks/dataHooks";
+import { ApiError, jobsApi } from "../../lib/api";
+import { Spinner } from "../../components/utils/Spinner";
 
 export function JobEntryContainer() {
-    const {jobHistory, newJob, updateJob, removeJob} = useJobHistory();
+    const [jobHistory, setJobHistory] = useState<JobEntry[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [error, setError] = useState<Error | null>(null);
+
+    useEffect(() => {
+        jobsApi.get()
+            .then((data) => setJobHistory(data))
+            .catch((error) => {
+                if (error instanceof ApiError && error.status == 404) {
+                    setJobHistory([]);
+                } else {
+                    setError(error);
+                }
+            })
+            .finally(() => setIsLoading(false))
+    }, [])
 
     const handleAddJob = () => {
         const blankJob: JobEntry = {
@@ -15,9 +32,27 @@ export function JobEntryContainer() {
             endDate: '',
             bullets: [],
         }
-        newJob(blankJob);
+        setJobHistory(prev => [...prev, blankJob]);
     }
 
+    const updateJob = (id: string, updatedJob: JobEntry) => {
+        const updated = jobHistory.map((job) => job.id !== id ? job : updatedJob);
+        jobsApi.save(updated);
+        setJobHistory(updated);
+    };
+
+    const removeJob = (id: string) => {
+        const updated = jobHistory.filter(job => job.id !== id);
+        jobsApi.save(updated);
+        setJobHistory(updated);
+    }
+
+    if (isLoading) return <Spinner />
+    if (error) return (
+        <div>
+            {error.message}
+        </div>
+    );
     return (
         <div className="flex flex-col gap-6">
             <div className="flex items-start justify-between">
