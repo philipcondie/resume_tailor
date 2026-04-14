@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { useAuth } from "../lib/auth";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `block px-4 py-2 text-sm border-l-2 transition-colors ${
@@ -8,6 +9,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     }`;
 
 export function Home() {
+    const {logout} = useAuth();
     return (
             <div className="flex min-h-screen bg-gray-50">
                 <aside className="w-52 shrink-0 border-r border-gray-200 bg-white pt-10 px-4 sticky top-0 h-screen">
@@ -22,6 +24,7 @@ export function Home() {
                         <NavLink to="generate" className={navLinkClass}>Generate</NavLink>
                         <NavLink to="resumes" className={navLinkClass}>Resumes</NavLink>
                     </nav>
+                    <button onClick={logout}>Log out</button>
                 </aside>
                 <main className="flex-1 p-10">
                     <Outlet />
