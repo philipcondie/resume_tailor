@@ -12,6 +12,7 @@ import { EducationEntryContainer } from "./pages/profile/EducationEntryContainer
 import { ProjectEntryContainer } from "./pages/profile/ProjectEntryContainer";
 import { SkillEntryContainer } from "./pages/profile/SkillEntryContainer";
 import { ProtectedRoute } from "./pages/ProtectedRoute";
+import { Signup } from "./pages/Signup";
 
 export default function App() {
     return (    
@@ -19,6 +20,7 @@ export default function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
                     <Route element={<ProtectedRoute />} >
                         <Route path="/" element={<Home />}>
                             <Route index element={<Navigate to="profile/personal" replace />} />

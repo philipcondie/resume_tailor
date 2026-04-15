@@ -8,6 +8,7 @@ type AuthContextValue = {
     isAuthenticated: boolean,
     login: (username: string, password: string) => Promise<void>;
     logout: () => void;
+    signup: (username: string, password: string, inviteCode: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -51,9 +52,35 @@ export function AuthProvider({ children } : {children: ReactNode}) {
         setAuthToken(null)
         window.location.href = '/login';
     }
+
+    const signup = async (email: string, password: string, inviteCode: string) => {
+        let response: Response
+        try {
+            response = await fetch (`${API_BASE_URL}/auth/signup`, {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email:email, password:password, inviteCode: inviteCode}),
+            });
+        } catch (error) {
+            throw new Error("Unable to connect to server")
+        }
+        if (response.status == 400) {
+            throw new Error('Invite code invalid.')
+        }
+        if (response.status == 409) {
+            throw new Error('Email already in use.')
+        }
+        if (!response.ok) {
+            throw new Error(`Error: ${response.statusText}`)
+        }
+        const { access_token } = (await response.json());
+        setToken(access_token);
+        setAuthToken(access_token);
+    }
+
     const isAuthenticated = authToken !== null;
     return (
-        <AuthContext.Provider value={{ authToken, isAuthenticated, login, logout }}>
+        <AuthContext.Provider value={{ authToken, isAuthenticated, login, logout, signup }}>
             {children}
         </AuthContext.Provider>
       );
