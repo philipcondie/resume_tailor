@@ -1,4 +1,4 @@
-import { EducationEntry, JobEntry, PersonalInfoEntry, ProjectEntry, SkillEntry, LLMInput, ResumeMetadata, ResumeData, PromptData } from "../types/resume";
+import { EducationEntry, JobEntry, PersonalInfoEntry, ProjectEntry, SkillEntry, LLMInput, ResumeMetadata, ResumeData, PromptData, ResumeRequest } from "../types/resume";
 
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -64,28 +64,24 @@ function createProfileApi<T>(field: string) {
 }
 
 export const personalInfoApi = createProfileApi<PersonalInfoEntry>('personal_info');
-export const jobsApi = createProfileApi<JobEntry[]>('job_history');
-export const educationApi = createProfileApi<EducationEntry[]>('education_history');
-export const projectsApi = createProfileApi<ProjectEntry[]>('project_history');
+export const jobsApi = createProfileApi<JobEntry[]>('jobs');
+export const educationApi = createProfileApi<EducationEntry[]>('education');
+export const projectsApi = createProfileApi<ProjectEntry[]>('projects');
 export const skillsApi = createProfileApi<SkillEntry[]>('skills');
 
 
-export async function tailorResume(input: LLMInput): Promise<ResumeMetadata> {
-    return fetchApi(`/resume/new`, {
-        method: "POST",
-        body: JSON.stringify(input)
-    });
-}
-
 export const resumeApi = {
-    generate: (input: LLMInput): Promise<ResumeMetadata> => fetchApi(`/resume/new`, {
+    generate: (request:ResumeRequest): Promise<ResumeMetadata> => fetchApi(`/resume/new`, {
         method: "POST",
-        body: JSON.stringify(input)
+        body: JSON.stringify(request)
     }),
     get: (id:string): Promise<ResumeData> => fetchApi(`/resume/${id}`),
     update: (id:string, input: ResumeData): Promise<ResumeData> => fetchApi(`/resume/${id}`, {
         method: "PUT",
         body: JSON.stringify(input)
+    }),
+    delete: (id:number): Promise<null> => fetchApi(`/resume/${id}`, {
+        method: "DELETE",
     }),
     list: (): Promise<ResumeMetadata[]> => fetchApi(`/resume`),
 }

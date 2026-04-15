@@ -100,10 +100,13 @@ export function Preview() {
                 <div ref={pageRef} className="page">
                     <PersonalInfoSection draft={draft} updateSection={updateSection} />
                     {sorted.map(section => {
-                        if (section.enabled) {
-                            const Component = sectionRegistry[section.name];
-                            return <Component key={section.name} draft={draft} updateSection={updateSection} />
-                        }
+                        if (!section.enabled) return null;
+                        const value = draft[section.name];
+                        if (Array.isArray(value) && value.length === 0) return null;
+                        if (typeof value === 'string' && value.trim() === '') return null;
+                        const Component = sectionRegistry[section.name];
+                        return <Component key={section.name} draft={draft} updateSection={updateSection} />
+                        
                     })}
                 </div>
             </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { JobEntry, LLMInput, ResumeMetadata } from "../types/resume";
+import { JobEntry, LLMInput, ResumeMetadata, ResumeRequest } from "../types/resume";
 import { resumeApi, jobsApi, ApiError } from "../lib/api";
 import { Spinner } from "../components/utils/Spinner";
 import { useEditHistory } from "../hooks/useEditHistory";
@@ -11,6 +11,7 @@ export function Generate() {
     const { clearHistory } = useEditHistory();
     
     const [jobHistory, setJobHistory] = useState<JobEntry[]>([]);
+    const [filename, setFilename] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<Error | null>(null);
     const [jobDescription, setJobDescription] = useState<string>('');
@@ -56,8 +57,12 @@ export function Generate() {
                 userInstructions: userInstructions,
                 jobDescription: jobDescription,
             }
+            const request: ResumeRequest = {
+                input: input,
+                filename: filename,
+            }
             // do api call
-            const response: ResumeMetadata = await resumeApi.generate(input);
+            const response: ResumeMetadata = await resumeApi.generate(request);
             
             clearHistory();
 
@@ -163,6 +168,15 @@ export function Generate() {
                 </div>
             </details>
             <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium uppercase tracking-wide text-gray-600">File Name</label>
+                <input
+                    className="border border-gray-300 rounded bg-transparent px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-900 transition-colors resize-y"
+                    value={filename}
+                    placeholder="Enter file name..."
+                    onChange={e => setFilename(e.target.value)}
+                />
+            </div>
+            <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium uppercase tracking-wide text-gray-600">Job Description</label>
                 <textarea
                     className="border border-gray-300 rounded bg-transparent px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-900 transition-colors resize-y"
@@ -189,7 +203,7 @@ export function Generate() {
                 <button
                     className="ml-auto px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     onClick={handleGenerate}
-                    disabled={jobDescription === '' || isLoading}
+                    disabled={jobDescription === '' || filename === '' || isLoading}
                 >
                     Generate Resume
                 </button>

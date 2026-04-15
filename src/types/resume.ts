@@ -48,7 +48,7 @@ export type PersonalInfoEntry = z.infer<typeof PersonalInfoEntrySchema>;
 
 export const ProfileDataSchema = z.object({
     personalInfo: PersonalInfoEntrySchema,
-    educations: z.array(EducationEntrySchema),
+    education: z.array(EducationEntrySchema),
     jobs: z.array(JobEntrySchema),
     projects: z.array(ProjectEntrySchema),
     skills: z.array(SkillEntrySchema),
@@ -66,7 +66,7 @@ export type ProfileExportData = z.infer<typeof ProfileExportDataSchema>;
 export interface ResumeData {
     personalInfo: PersonalInfoEntry,
     summary: string,
-    educations: EducationEntry[],
+    education: EducationEntry[],
     jobs: JobEntry[],
     projects: ProjectEntry[],
     skills?: SkillEntry[]
@@ -93,6 +93,11 @@ export interface LLMInput {
     userInstructions: string,
 }
 
+export interface ResumeRequest {
+    filename: string
+    input: LLMInput
+}
+
 export const LLMOutputSchema = z.object({
     jobs: z.array(JobEntrySchema),
     summary: z.string(),
@@ -100,11 +105,15 @@ export const LLMOutputSchema = z.object({
 
 export type LLMOutput = z.infer<typeof LLMOutputSchema>
 
-export interface SectionData {
-    name:keyof ResumeData,
-    enabled:boolean,
-    ordering:number,
-}
+export const SectionDataSchema = z.object({
+    name: z.enum(['summary', 'personalInfo', 'jobs', 'education', 'projects', 'skills']),
+    enabled: z.boolean(),
+    ordering: z.number().int().min(0)
+})
+
+export const SectionDataArraySchema = z.array(SectionDataSchema)
+
+export type SectionData = z.infer<typeof SectionDataSchema>
 
 export type SectionProps = {
     draft: ResumeData,
