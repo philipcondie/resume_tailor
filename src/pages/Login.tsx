@@ -1,10 +1,9 @@
 import { useState, FormEvent } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "../lib/auth";
 
 export function Login() {
     const { isAuthenticated, login} = useAuth();
-    const navigate = useNavigate()
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("")
     const [error, setError] = useState<string | null>(null);
@@ -42,7 +41,7 @@ export function Login() {
                     value={password}
                     onChange={(e) => { setPassword(e.target.value); setError(null); }}
                     placeholder="Password"
-                    className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
+                    className="mt-4 w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
                 />
                 {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
                 <button

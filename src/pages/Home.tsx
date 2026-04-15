@@ -24,7 +24,7 @@ export function Home() {
                         <NavLink to="generate" className={navLinkClass}>Generate</NavLink>
                         <NavLink to="resumes" className={navLinkClass}>Resumes</NavLink>
                     </nav>
-                    <button onClick={logout}>Log out</button>
+                <button className="block px-4 py-2 text-sm border-l-2 transition-colors border-transparent text-gray-600 hover:text-gray-700 hover:border-gray-300" onClick={logout}>Log out</button>
                 </aside>
                 <main className="flex-1 p-10">
                     <Outlet />

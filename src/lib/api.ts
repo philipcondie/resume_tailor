@@ -80,7 +80,7 @@ export const resumeApi = {
         method: "PUT",
         body: JSON.stringify(input)
     }),
-    delete: (id:number): Promise<null> => fetchApi(`/resume/${id}`, {
+    delete: (id:string): Promise<null> => fetchApi(`/resume/${id}`, {
         method: "DELETE",
     }),
     list: (): Promise<ResumeMetadata[]> => fetchApi(`/resume`),

@@ -35,14 +35,12 @@ export function Generate() {
         return `${jobId}::${bullet}`;
     };
 
-    const [enabledBullets, setEnabledBullets] = useState<Set<string>>(
-        () => new Set(jobHistory.flatMap(job => 
-            job.bullets.map(bullet => formBulletId(job.id,bullet))
-        ))
+    const [disabledBullets, setDisabledBullets] = useState<Set<string>>(
+        () => new Set()
     );
     
-    const isJobEnabled = (job:JobEntry) => job.bullets.some(b => enabledBullets.has(`${job.id}::${b}`));
-    const isJobFullyEnabled = (job:JobEntry) => job.bullets.every(b => enabledBullets.has(`${job.id}::${b}`));
+    const isJobEnabled = (job:JobEntry) => job.bullets.some(b => !disabledBullets.has(`${job.id}::${b}`));
+    const isJobFullyEnabled = (job:JobEntry) => job.bullets.every(b => !disabledBullets.has(`${job.id}::${b}`));
 
     const handleGenerate = async () => {
         setIsLoading(true);
@@ -53,7 +51,7 @@ export function Generate() {
             const input: LLMInput = {
                 jobs: jobHistory
                     .filter(j => isJobEnabled(j))
-                    .map(j => ({...j, bullets: j.bullets.filter(b => enabledBullets.has(formBulletId(j.id,b)))})),
+                    .map(j => ({...j, bullets: j.bullets.filter(b => !disabledBullets.has(formBulletId(j.id,b)))})),
                 userInstructions: userInstructions,
                 jobDescription: jobDescription,
             }
@@ -76,23 +74,23 @@ export function Generate() {
     }
 
     const onJobChange = (job: JobEntry) => {
-        const next = new Set(enabledBullets)
+        const next = new Set(disabledBullets)
         if (isJobFullyEnabled(job)) {
-            job.bullets.forEach(bullet => next.delete(formBulletId(job.id,bullet)));
-        } else {
             job.bullets.forEach(bullet => next.add(formBulletId(job.id,bullet)));
+        } else {
+            job.bullets.forEach(bullet => next.delete(formBulletId(job.id,bullet)));
         }
-        setEnabledBullets(next);
+        setDisabledBullets(next);
     };
 
     const onBulletChange = (targetId:string) => {
-        const next = new Set(enabledBullets);
+        const next = new Set(disabledBullets);
         if (next.has(targetId)) {
             next.delete(targetId);
         } else {
             next.add(targetId);
         }
-        setEnabledBullets(next);
+        setDisabledBullets(next);
     };
 
     const toggleExpanded = (jobId:string) => {
@@ -155,7 +153,7 @@ export function Generate() {
                                             <input
                                                 type="checkbox"
                                                 className="accent-slate-700 mt-0.5"
-                                                checked={enabledBullets.has(formBulletId(job.id, bullet))}
+                                                checked={!disabledBullets.has(formBulletId(job.id, bullet))}
                                                 onChange={() => onBulletChange(formBulletId(job.id, bullet))}
                                             />
                                             <span>{bullet}</span>

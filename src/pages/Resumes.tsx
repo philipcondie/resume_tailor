@@ -26,7 +26,7 @@ export function Resumes() {
     const handleDelete = async (id: string) => {
         if (!window.confirm("Delete this resume? This cannot be undone.")) return;
         await resumeApi.delete(id);
-        setResumes(prev => prev.filter(r => r.id !== id));
+        setResumes(prev => prev.filter(r => `${r.id}` !== id));
     };
 
     return (
@@ -67,7 +67,7 @@ export function Resumes() {
                             <div className="text-gray-600">{formatDate(r.createdAt)}</div>
                             <div className="text-gray-600">{formatDate(r.updatedAt)}</div>
                             <button
-                                onClick={() => handleDelete(r.id)}
+                                onClick={() => handleDelete(`${r.id}`)}
                                 aria-label="Delete resume"
                                 title="Delete"
                                 className="p-1 rounded text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
