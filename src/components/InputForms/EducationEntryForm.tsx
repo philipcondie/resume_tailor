@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import { EducationEntry } from "../../types/resume"
 import { EditableTextArea } from '../utils/EditableFields';
+import { useSortable } from '@dnd-kit/react/sortable';
 
 type EducationEntryProps = {
     education: EducationEntry,
+    index: number,
     handleUpdate: (id:string, education: EducationEntry) => void,
     handleDelete: (id:string) => void,
 }
 
-export function EducationEntryForm({education, handleUpdate, handleDelete}: EducationEntryProps) {
+export function EducationEntryForm({education, index, handleUpdate, handleDelete}: EducationEntryProps) {
     const [draft, setDraft] = useState<EducationEntry>(education);
+    const id = education.id;
+    const { ref, handleRef, isDragging } = useSortable({id,index})
     const isEditing = JSON.stringify(draft) !== JSON.stringify(education);
 
      const handleBulletChange = (index:number, value: string) => {
@@ -44,7 +48,7 @@ export function EducationEntryForm({education, handleUpdate, handleDelete}: Educ
     }
 
     return (
-        <div className="bg-white border border-gray-200 rounded-xl p-6 flex flex-col gap-6">
+        <div ref={ref} className="bg-white border border-gray-200 rounded-xl p-6 flex flex-col gap-6">
             <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                 <div className="flex flex-col gap-1">
                     <label className="text-xs font-medium uppercase tracking-wide text-gray-600">School</label>
@@ -85,6 +89,9 @@ export function EducationEntryForm({education, handleUpdate, handleDelete}: Educ
                     onClick={onSave}
                     disabled={!isEditing}
                 >Save</button>
+                <button ref={handleRef} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+                    ⠿
+                </button>
             </div>
         </div>
     )

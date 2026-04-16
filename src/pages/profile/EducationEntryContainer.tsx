@@ -3,6 +3,8 @@ import { Spinner } from "../../components/utils/Spinner";
 import { EducationEntryForm } from "../../components/InputForms/EducationEntryForm"
 import { EducationEntry } from "../../types/resume";
 import { ApiError, educationApi } from "../../lib/api";
+import { DragDropProvider, DragEndEvent } from '@dnd-kit/react';
+import { move } from '@dnd-kit/helpers';
 
 
 export function EducationEntryContainer() {
@@ -22,6 +24,14 @@ export function EducationEntryContainer() {
             })
             .finally(() => setIsLoading(false))
     }, [])
+
+    const handleDragEnd = (event:DragEndEvent) => {
+        setEducationHistory((prev) => {
+            const reorderd = move(prev,event);
+            educationApi.save(reorderd);
+            return reorderd;
+        })
+    }
 
     const handleAddEducation = () => {
         const blank: EducationEntry = {
@@ -63,16 +73,19 @@ export function EducationEntryContainer() {
                     onClick={handleAddEducation}
                 >+ Add</button>
             </div>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4">
-                {educationHistory.map((education: EducationEntry) => (
-                    <EducationEntryForm 
-                        key={education.id} 
-                        education={education} 
-                        handleUpdate={updateEducation} 
-                        handleDelete={removeEducation} 
-                    />
-                ))}
-            </div>
+            <DragDropProvider onDragEnd={handleDragEnd}>
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4 items-start">
+                    {educationHistory.map((education: EducationEntry, index: number) => (
+                        <EducationEntryForm 
+                            key={education.id}
+                            index={index}
+                            education={education} 
+                            handleUpdate={updateEducation} 
+                            handleDelete={removeEducation} 
+                        />
+                    ))}
+                </div>
+            </DragDropProvider>
         </div>
     )
 
