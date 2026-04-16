@@ -23,7 +23,7 @@ export default function App() {
                     <Route path="/signup" element={<Signup />} />
                     <Route element={<ProtectedRoute />} >
                         <Route path="/" element={<Home />}>
-                            <Route index element={<Navigate to="profile/personal" replace />} />
+                            <Route index element={<Navigate to="/resumes" replace />} />
                             <Route path="profile/personal" element={<PersonalInfoContainer />} />
                             <Route path="profile/work" element={<JobEntryContainer />} />
                             <Route path="profile/education" element={<EducationEntryContainer />} />

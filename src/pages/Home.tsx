@@ -15,6 +15,7 @@ export function Home() {
                 <aside className="w-52 shrink-0 border-r border-gray-200 bg-white pt-10 px-4 sticky top-0 h-screen">
                     <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 px-4 mb-4">Resume Builder</p>
                     <nav className="flex flex-col">
+                        <NavLink to="resumes" className={navLinkClass}>Resumes</NavLink>
                         <NavLink to="profile/personal" className={navLinkClass}>Personal Info</NavLink>
                         <NavLink to="profile/education" className={navLinkClass}>Education</NavLink>
                         <NavLink to="profile/work" className={navLinkClass}>Work</NavLink>
@@ -22,9 +23,8 @@ export function Home() {
                         <NavLink to="profile/skills" className={navLinkClass}>Skills</NavLink>
                         <NavLink to="prompt" className={navLinkClass}>Prompt</NavLink>
                         <NavLink to="generate" className={navLinkClass}>Generate</NavLink>
-                        <NavLink to="resumes" className={navLinkClass}>Resumes</NavLink>
                     </nav>
-                <button className="block px-4 py-2 text-sm border-l-2 transition-colors border-transparent text-gray-600 hover:text-gray-700 hover:border-gray-300" onClick={logout}>Log out</button>
+                <button className="block px-4 py-2 text-sm border-l-2 transition-colors border-transparent text-sky-850 hover:text-sky-950 hover:border-gray-300" onClick={logout}>Log out</button>
                 </aside>
                 <main className="flex-1 p-10">
                     <Outlet />

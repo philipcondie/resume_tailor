@@ -3,15 +3,27 @@ import { JobEntryForm } from "../../components/InputForms/JobEntryForm";
 import { JobEntry } from "../../types/resume";
 import { ApiError, jobsApi } from "../../lib/api";
 import { Spinner } from "../../components/utils/Spinner";
+import { DragDropProvider, DragEndEvent } from '@dnd-kit/react';
+import { move } from '@dnd-kit/helpers';
 
 export function JobEntryContainer() {
     const [jobHistory, setJobHistory] = useState<JobEntry[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<Error | null>(null);
 
+    function handleDragEnd(event:DragEndEvent) {
+        setJobHistory((prev) => {
+            const reorderd = move(prev,event);
+            jobsApi.save(reorderd);
+            return reorderd;
+        })
+    }
+
     useEffect(() => {
         jobsApi.get()
-            .then((data) => setJobHistory(data))
+            .then((data) => {
+                setJobHistory(data);
+            })
             .catch((error) => {
                 if (error instanceof ApiError && error.status == 404) {
                     setJobHistory([]);
@@ -65,11 +77,13 @@ export function JobEntryContainer() {
                     onClick={handleAddJob}
                 >+ Add</button>
             </div>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4">
-                {jobHistory.map((job: JobEntry) => (
-                    <JobEntryForm key={job.id} job={job} handleUpdate={updateJob} handleDelete={removeJob} />
-                ))}
-            </div>
+            <DragDropProvider onDragEnd={handleDragEnd} >
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4 items-start">
+                    {jobHistory.map((job: JobEntry, index:number) => (
+                        <JobEntryForm index={index} key={job.id} job={job} handleUpdate={updateJob} handleDelete={removeJob} />
+                    ))}
+                </div>
+            </DragDropProvider>
         </div>
     )
 }
