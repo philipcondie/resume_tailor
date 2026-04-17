@@ -284,9 +284,14 @@
 }
 
 .drag-handle {
-    right: -2.4em;
     color: #a0aec0;
     cursor: grab;
+    opacity: 1;
+}
+
+.bullet-delete {
+    right: auto;
+    left: -2.2em;
 }
 
 .drag-handle:active {

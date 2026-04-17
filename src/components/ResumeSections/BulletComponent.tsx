@@ -14,7 +14,7 @@ export function BulletComponent({bullet, index, updateBullet, deleteBullet}:Bull
     return (
         <li ref={ref} className="bullet-row">
             <EditableTextArea className='editable' content={bullet.text} handleChange={(text) => updateBullet(text)}/>
-            <button className='bullet-controls' onClick={deleteBullet}>×</button>
+            <button className='bullet-controls bullet-delete' onClick={deleteBullet}>×</button>
             <button ref={handleRef} className="bullet-controls drag-handle">⠿</button>
         </li>
     )
