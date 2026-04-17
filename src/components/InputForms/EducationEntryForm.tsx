@@ -13,7 +13,7 @@ type EducationEntryProps = {
 export function EducationEntryForm({education, index, handleUpdate, handleDelete}: EducationEntryProps) {
     const [draft, setDraft] = useState<EducationEntry>(education);
     const id = education.id;
-    const { ref, handleRef, isDragging } = useSortable({id,index})
+    const { ref, handleRef  } = useSortable({id,index})
     const isEditing = JSON.stringify(draft) !== JSON.stringify(education);
 
      const handleBulletChange = (index:number, value: string) => {

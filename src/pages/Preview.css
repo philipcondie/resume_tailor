@@ -283,6 +283,16 @@
     left: 1em;
 }
 
+.drag-handle {
+    right: -2.4em;
+    color: #a0aec0;
+    cursor: grab;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
 .section-item:hover .bullet-controls,
 .section-item:hover .add-bullet-controls {
     opacity: 1;

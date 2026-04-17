@@ -1,4 +1,16 @@
-import { EducationEntry, JobEntry, PersonalInfoEntry, ProjectEntry, SkillEntry, LLMInput, ResumeMetadata, ResumeData, PromptData, ResumeRequest } from "../types/resume";
+import { 
+    EducationEntry, 
+    JobEntry, 
+    PersonalInfoEntry, 
+    ProjectEntry, 
+    SkillEntry, 
+    ResumeMetadata, 
+    ResumeData, 
+    PromptData, 
+    ResumeRequest, 
+    ResumeDataRaw,
+    Bullet
+} from "../types/resume";
 
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -70,16 +82,45 @@ export const projectsApi = createProfileApi<ProjectEntry[]>('projects');
 export const skillsApi = createProfileApi<SkillEntry[]>('skills');
 
 
+function addBulletIds(raw:ResumeDataRaw): ResumeData {
+    const wrapBullets = <T extends { bullets: string[] }> (item: T) => ({
+        ...item,
+        bullets: item.bullets.map(text => ({id:crypto.randomUUID(), text:text})),
+    });
+    return {
+        ...raw,
+        jobs: raw.jobs.map(wrapBullets),
+        education: raw.education.map(wrapBullets),
+        projects: raw.projects.map(wrapBullets)
+    };
+}
+
+function removeBulletIds(data: ResumeData): ResumeDataRaw {
+    const unwrapBullets = <T extends { bullets: Bullet[] }> (item:T) => ({
+        ...item,
+        bullets: item.bullets.map(bullet => (bullet.text)),
+    });
+    return {
+        ...data,
+        jobs: data.jobs.map(unwrapBullets),
+        education: data.education.map(unwrapBullets),
+        projects: data.projects.map(unwrapBullets),
+    }
+}
+
 export const resumeApi = {
     generate: (request:ResumeRequest): Promise<ResumeMetadata> => fetchApi(`/resume/new`, {
         method: "POST",
         body: JSON.stringify(request)
     }),
-    get: (id:string): Promise<ResumeData> => fetchApi(`/resume/${id}`),
-    update: (id:string, input: ResumeData): Promise<ResumeData> => fetchApi(`/resume/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(input)
-    }),
+    get: (id:string): Promise<ResumeData> => fetchApi(`/resume/${id}`).then(data => addBulletIds(data)),
+    update: (id:string, input: ResumeData): Promise<ResumeData> => {
+        const rawData = removeBulletIds(input);
+        return fetchApi(`/resume/${id}`, {
+            method: "PUT",
+            body: JSON.stringify(rawData)
+        }).then(addBulletIds)
+    },
     delete: (id:string): Promise<null> => fetchApi(`/resume/${id}`, {
         method: "DELETE",
     }),
