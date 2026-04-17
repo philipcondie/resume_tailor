@@ -13,7 +13,7 @@ type ProjectEntryProps = {
 export function ProjectEntryForm({project, index, handleUpdate, handleDelete}: ProjectEntryProps) {
     const [draft, setDraft] = useState<ProjectEntry>(project);
     const id = project.id;
-    const { ref, handleRef, isDragging } = useSortable({ id, index });
+    const { ref, handleRef } = useSortable({ id, index });
 
     const isEditing = JSON.stringify(draft) !== JSON.stringify(project);
 

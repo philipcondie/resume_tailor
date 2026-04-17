@@ -29,7 +29,7 @@ export function AuthProvider({ children } : {children: ReactNode}) {
                     password: password,
                 }),
             });
-        } catch (error) {
+        } catch {
             throw new Error("Unable to connect to server");
         }
     
@@ -61,7 +61,7 @@ export function AuthProvider({ children } : {children: ReactNode}) {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({email:email, password:password, inviteCode: inviteCode}),
             });
-        } catch (error) {
+        } catch {
             throw new Error("Unable to connect to server")
         }
         if (response.status == 400) {
@@ -86,6 +86,7 @@ export function AuthProvider({ children } : {children: ReactNode}) {
       );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components 
 export const useAuth = () => {
     const ctx = useContext(AuthContext);
     if (!ctx) throw new Error('useAuth must be used inside AuthProvider');

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { JobEntry } from "../../types/resume";
 import { EditableTextArea } from "../utils/EditableFields";
 import { useSortable } from '@dnd-kit/react/sortable';
@@ -14,7 +14,7 @@ export function JobEntryForm({job, index, handleUpdate, handleDelete} : JobEntry
     const [draft, setDraft] = useState<JobEntry>(job);
     
     const id: string = job.id;
-    const { ref, handleRef, isDragging } = useSortable({id, index})
+    const { ref, handleRef } = useSortable({id, index})
     
 
     const isEditing = JSON.stringify(draft) !== JSON.stringify(job);

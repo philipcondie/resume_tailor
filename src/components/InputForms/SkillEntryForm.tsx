@@ -12,7 +12,7 @@ type SkillEntryProps = {
 export function SkillEntryForm({skill, index, handleUpdate, handleDelete}: SkillEntryProps) {
     const [draft, setDraft] = useState<SkillEntry>(skill);
     const id = skill.id;
-    const { ref, handleRef, isDragging } = useSortable({ id, index });
+    const { ref, handleRef } = useSortable({ id, index });
     const isEditing = JSON.stringify(draft) !== JSON.stringify(skill);
 
     const updateField = (key: keyof SkillEntry, value: string) => {

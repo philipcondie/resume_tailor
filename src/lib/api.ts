@@ -37,7 +37,7 @@ export const clearToken = () => {
 };
 
 
-const fetchApi = async (endpoint: string, options?: RequestInit): Promise<any> => {
+const fetchApi = async <T>(endpoint: string, options?: RequestInit): Promise<T> => {
     let response: Response;
     try {
         response = await fetch(`${API_BASE_URL}${endpoint}`,
@@ -50,14 +50,14 @@ const fetchApi = async (endpoint: string, options?: RequestInit): Promise<any> =
 
             }
         );
-    } catch (error) {
+    } catch {
         throw new Error("Unable to connect to server");
     }
 
     if (response.status == 401) {
         clearToken();
         window.location.href = '/login';
-        return;
+        throw new ApiError(401, 'Unauthorized');
     }
     if (!response.ok) {
         throw new ApiError(response.status, response.statusText);
@@ -67,8 +67,8 @@ const fetchApi = async (endpoint: string, options?: RequestInit): Promise<any> =
 
 function createProfileApi<T>(field: string) {
     return {
-        get: () => fetchApi(`/profile/${field}`),
-        save: (data: T) => fetchApi(`/profile/${field}`,{
+        get: () => fetchApi<T>(`/profile/${field}`),
+        save: (data: T) => fetchApi<T>(`/profile/${field}`,{
             method: "POST",
             body: JSON.stringify(data)
         }),
@@ -109,27 +109,27 @@ function removeBulletIds(data: ResumeData): ResumeDataRaw {
 }
 
 export const resumeApi = {
-    generate: (request:ResumeRequest): Promise<ResumeMetadata> => fetchApi(`/resume/new`, {
+    generate: (request:ResumeRequest) => fetchApi<ResumeMetadata>(`/resume/new`, {
         method: "POST",
         body: JSON.stringify(request)
     }),
-    get: (id:string): Promise<ResumeData> => fetchApi(`/resume/${id}`).then(data => addBulletIds(data)),
-    update: (id:string, input: ResumeData): Promise<ResumeData> => {
+    get: (id:string) => fetchApi<ResumeDataRaw>(`/resume/${id}`).then(data => addBulletIds(data)),
+    update: (id:string, input: ResumeData) => {
         const rawData = removeBulletIds(input);
-        return fetchApi(`/resume/${id}`, {
+        return fetchApi<ResumeDataRaw>(`/resume/${id}`, {
             method: "PUT",
             body: JSON.stringify(rawData)
         }).then(addBulletIds)
     },
-    delete: (id:string): Promise<null> => fetchApi(`/resume/${id}`, {
+    delete: (id:string) => fetchApi<null>(`/resume/${id}`, {
         method: "DELETE",
     }),
-    list: (): Promise<ResumeMetadata[]> => fetchApi(`/resume`),
+    list: () => fetchApi<ResumeMetadata[]>(`/resume`),
 }
 
 export const promptApi = {
-    get: (): Promise<PromptData> => fetchApi(`/prompt`),
-    update: (data: PromptData): Promise<PromptData> => fetchApi(`/prompt/update`, {
+    get: () => fetchApi<PromptData>(`/prompt`),
+    update: (data: PromptData) => fetchApi<PromptData>(`/prompt/update`, {
         method: "POST",
         body: JSON.stringify(data),
     }),
