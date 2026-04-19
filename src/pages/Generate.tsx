@@ -1,52 +1,46 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { JobEntry, LLMInput, LLMOutput, ResumeData } from "../types/resume";
-import { useJobHistory, usePersonalInfo, useEducationHistory, useProjectHistory, useSkillList, useResumeData } from "../hooks/dataHooks";
-import { usePrompts } from "../hooks/usePrompts";
-import { tailorResume } from "../lib/claude";
-import { useApiKey } from "../hooks/useApiKey";
+import { JobEntry, LLMInput, ResumeMetadata, ResumeRequest } from "../types/resume";
+import { resumeApi, jobsApi, ApiError } from "../lib/api";
 import { Spinner } from "../components/utils/Spinner";
 import { useEditHistory } from "../hooks/useEditHistory";
-/**
- * 
- * generate button to kick off process X
- * overview of information to be sent
- * input for job description X
- * assemble info for api call
- * parse response then redirect with location state and local storage
- */
 
 export function Generate() {
     const navigate = useNavigate();
-    const { jobHistory } = useJobHistory();
-    const { personalInfo } = usePersonalInfo();
-    const { educationHistory } = useEducationHistory();
-    const { projectHistory } = useProjectHistory();
-    const { skillList } = useSkillList();
-    const { saveResumeData } = useResumeData();
     const { clearHistory } = useEditHistory();
-    const { apiKey, saveApiKey } = useApiKey();
-    const { systemPrompt, userPrompt} = usePrompts();
-
+    
+    const [jobHistory, setJobHistory] = useState<JobEntry[]>([]);
+    const [filename, setFilename] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<Error | null>(null);
     const [jobDescription, setJobDescription] = useState<string>('');
     const [userInstructions, setUserInstructions] = useState<string>('');
     const [expandedJobs, setExpandedJobs] = useState<Set<string>>(new Set());
 
+     useEffect(() => {
+            jobsApi.get()
+                .then((data) => setJobHistory(data))
+                .catch((error) => {
+                    if (error instanceof ApiError && error.status == 404) {
+                        setJobHistory([]);
+                    } else {
+                        setError(error);
+                    }
+                })
+                .finally(() => setIsLoading(false))
+        }, [])
+
     const formBulletId = (jobId: string, bullet: string) => {
         return `${jobId}::${bullet}`;
     };
 
-    const [enabledBullets, setEnabledBullets] = useState<Set<string>>(
-        () => new Set(jobHistory.flatMap(job => 
-            job.bullets.map(bullet => formBulletId(job.id,bullet))
-        ))
+    const [disabledBullets, setDisabledBullets] = useState<Set<string>>(
+        () => new Set()
     );
     
-    const isJobEnabled = (job:JobEntry) => job.bullets.some(b => enabledBullets.has(`${job.id}::${b}`));
-    const isJobFullyEnabled = (job:JobEntry) => job.bullets.every(b => enabledBullets.has(`${job.id}::${b}`));
+    const isJobEnabled = (job:JobEntry) => job.bullets.some(b => !disabledBullets.has(`${job.id}::${b}`));
+    const isJobFullyEnabled = (job:JobEntry) => job.bullets.every(b => !disabledBullets.has(`${job.id}::${b}`));
 
     const handleGenerate = async () => {
         setIsLoading(true);
@@ -57,30 +51,21 @@ export function Generate() {
             const input: LLMInput = {
                 jobs: jobHistory
                     .filter(j => isJobEnabled(j))
-                    .map(j => ({...j, bullets: j.bullets.filter(b => enabledBullets.has(formBulletId(j.id,b)))})),
-                systemPrompt: systemPrompt + "\n\n" + userPrompt,
+                    .map(j => ({...j, bullets: j.bullets.filter(b => !disabledBullets.has(formBulletId(j.id,b)))})),
                 userInstructions: userInstructions,
                 jobDescription: jobDescription,
             }
-            // do api call
-            const response: LLMOutput = await tailorResume(apiKey, input);
-            // assemble resume data
-            const resumeData : ResumeData = {
-                personalInfo: personalInfo,
-                educations: educationHistory,
-                projects: projectHistory,
-                skills: skillList,
-                jobs: response.jobs,
-                summary: response.summary
+            const request: ResumeRequest = {
+                input: input,
+                filename: filename,
             }
-            // save data to local storage
-            saveResumeData(resumeData);
+            // do api call
+            const response: ResumeMetadata = await resumeApi.generate(request);
+            
             clearHistory();
 
             // navigate to preview
-            navigate("/preview", {
-                state: {'resumeData': resumeData}
-            })
+            navigate(`/preview/${response.id}`)
         } catch(err) {
             setError(err instanceof Error ? err : new Error(String(err)));
         } finally {
@@ -89,23 +74,23 @@ export function Generate() {
     }
 
     const onJobChange = (job: JobEntry) => {
-        const next = new Set(enabledBullets)
+        const next = new Set(disabledBullets)
         if (isJobFullyEnabled(job)) {
-            job.bullets.forEach(bullet => next.delete(formBulletId(job.id,bullet)));
-        } else {
             job.bullets.forEach(bullet => next.add(formBulletId(job.id,bullet)));
+        } else {
+            job.bullets.forEach(bullet => next.delete(formBulletId(job.id,bullet)));
         }
-        setEnabledBullets(next);
+        setDisabledBullets(next);
     };
 
     const onBulletChange = (targetId:string) => {
-        const next = new Set(enabledBullets);
+        const next = new Set(disabledBullets);
         if (next.has(targetId)) {
             next.delete(targetId);
         } else {
             next.add(targetId);
         }
-        setEnabledBullets(next);
+        setDisabledBullets(next);
     };
 
     const toggleExpanded = (jobId:string) => {
@@ -162,13 +147,13 @@ export function Generate() {
                             </div>
                             {/* Bullet list (collapsible) */}
                             {expandedJobs.has(job.id) && (
-                                <div className="flex flex-col gap-0.5 px-3 pb-2 ml-[42px]">
+                                <div className="flex flex-col gap-0.5 px-3 pb-2 ml-10.5">
                                     {job.bullets.map((bullet, i) => (
                                         <label key={i} className="flex items-start gap-2 py-1 text-xs text-gray-600 cursor-pointer hover:text-gray-900 transition-colors">
                                             <input
                                                 type="checkbox"
                                                 className="accent-slate-700 mt-0.5"
-                                                checked={enabledBullets.has(formBulletId(job.id, bullet))}
+                                                checked={!disabledBullets.has(formBulletId(job.id, bullet))}
                                                 onChange={() => onBulletChange(formBulletId(job.id, bullet))}
                                             />
                                             <span>{bullet}</span>
@@ -181,12 +166,12 @@ export function Generate() {
                 </div>
             </details>
             <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium uppercase tracking-wide text-gray-600">Anthropic API Key</label>
+                <label className="text-xs font-medium uppercase tracking-wide text-gray-600">File Name</label>
                 <input
-                    className="border-b border-gray-400 bg-transparent px-0 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-gray-900 transition-colors"
-                    type="password"
-                    value={apiKey}
-                    onChange={e => saveApiKey(e.target.value)}
+                    className="border border-gray-300 rounded bg-transparent px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-900 transition-colors resize-y"
+                    value={filename}
+                    placeholder="Enter file name..."
+                    onChange={e => setFilename(e.target.value)}
                 />
             </div>
             <div className="flex flex-col gap-1">
@@ -216,7 +201,7 @@ export function Generate() {
                 <button
                     className="ml-auto px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     onClick={handleGenerate}
-                    disabled={jobDescription === '' || apiKey === '' || isLoading}
+                    disabled={jobDescription === '' || filename === '' || isLoading}
                 >
                     Generate Resume
                 </button>

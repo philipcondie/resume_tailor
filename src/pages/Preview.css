@@ -283,6 +283,21 @@
     left: 1em;
 }
 
+.drag-handle {
+    color: #a0aec0;
+    cursor: grab;
+    opacity: 1;
+}
+
+.bullet-delete {
+    right: auto;
+    left: -2.2em;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
 .section-item:hover .bullet-controls,
 .section-item:hover .add-bullet-controls {
     opacity: 1;
