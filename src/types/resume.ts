@@ -48,7 +48,7 @@ export type PersonalInfoEntry = z.infer<typeof PersonalInfoEntrySchema>;
 
 export const ProfileDataSchema = z.object({
     personalInfo: PersonalInfoEntrySchema,
-    educations: z.array(EducationEntrySchema),
+    education: z.array(EducationEntrySchema),
     jobs: z.array(JobEntrySchema),
     projects: z.array(ProjectEntrySchema),
     skills: z.array(SkillEntrySchema),
@@ -63,40 +63,67 @@ export const ProfileExportDataSchema = z.object({
 
 export type ProfileExportData = z.infer<typeof ProfileExportDataSchema>;
 
-export interface ResumeData {
+export interface ResumeDataRaw {
     personalInfo: PersonalInfoEntry,
     summary: string,
-    educations: EducationEntry[],
+    education: EducationEntry[],
     jobs: JobEntry[],
     projects: ProjectEntry[],
     skills?: SkillEntry[]
 }
 
-export interface CandidateInfo {
-    generalInfo: string,
+export interface ResumeData {
+    personalInfo: PersonalInfoEntry,
+    summary: string,
+    education: WithBulletIds<EducationEntry>[],
+    jobs: WithBulletIds<JobEntry>[],
+    projects: WithBulletIds<ProjectEntry>[],
+    skills?: SkillEntry[]
 }
+
+export interface ResumeMetadata {
+    id: number,
+    filename: string,
+    createdAt: string,
+    updatedAt: string,
+}
+
+export interface PromptData {
+    prompt: string
+}
+
 
 export interface LLMInput {
     jobs: JobEntry[],
     jobDescription: string,
-    systemPrompt: string,
     userInstructions: string,
 }
 
-export const LLMOutputSchema = z.object({
-    jobs: z.array(JobEntrySchema),
-    summary: z.string(),
-});
-
-export type LLMOutput = z.infer<typeof LLMOutputSchema>
-
-export interface SectionData {
-    name:keyof ResumeData,
-    enabled:boolean,
-    ordering:number,
+export interface ResumeRequest {
+    filename: string
+    input: LLMInput
 }
+
+export const SectionDataSchema = z.object({
+    name: z.enum(['summary', 'personalInfo', 'jobs', 'education', 'projects', 'skills']),
+    enabled: z.boolean(),
+    ordering: z.number().int().min(0)
+})
+
+export const SectionDataArraySchema = z.array(SectionDataSchema)
+
+export type SectionData = z.infer<typeof SectionDataSchema>
 
 export type SectionProps = {
     draft: ResumeData,
     updateSection: <K extends keyof ResumeData>(key:K, value:ResumeData[K]) => void,
+}
+
+export type Bullet = {
+    id: string,
+    text: string,
+}
+
+type WithBulletIds<T extends {bullets: string[]}> = Omit<T, 'bullets'> & {
+    bullets: Bullet[]
 }

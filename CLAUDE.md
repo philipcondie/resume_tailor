@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Collaboration Style
+- This project is a learning exercise. Act as a tutor, not a code generator.
+- Do NOT write code or edit files unless explicitly asked to.
+- Explain concepts, point out issues, discuss best practices, and suggest approaches - let the user implement. 
+
 ## Commands
 
 - **Dev server:** `npm run dev` (Vite)
@@ -13,20 +18,25 @@ No test framework is configured.
 
 ## Architecture
 
-Resume Tailor is a React SPA (Vite + Tailwind v4 + React Router v7) that helps users build a resume profile and then calls the Claude API to tailor job-history bullets and a summary to a target job description. Deployed to Vercel.
+Resume Tailor is a React SPA (Vite + Tailwind v4 + React Router v7) that helps users build a resume profile and then asks a backend service to tailor job-history bullets and a summary to a target job description. The frontend talks to a backend API for all profile data, resume generation, and persistence. Deployed to Vercel.
 
 ### Data flow
 
-1. **Profile entry** — Users fill out personal info, work history, education, projects, and skills via form pages under `/profile/*`. Each data type has a `useLocalStorage`-backed hook in `src/hooks/dataHooks.ts` that persists to browser localStorage.
-2. **Generation** — The Generate page (`src/pages/Generate.tsx`) collects all profile data, a pasted job description, and optional user instructions, then calls `tailorResume()` in `src/lib/claude.ts`. This makes a browser-side Anthropic API call (`dangerouslyAllowBrowser: true`) using structured output via Zod (`LLMOutputSchema`). The LLM returns tailored job bullets and a summary.
-3. **Preview & print** — The Preview page (`src/pages/Preview.tsx`) renders a print-ready resume. Sections are driven by a **section registry** (`src/types/SectionRegistry.ts`) that maps `ResumeData` keys to React components in `src/components/ResumeSections/`. Section visibility and ordering are user-configurable via `useLayoutConfig` and the `SectionPanel` component. The `EditToolBar` component provides undo/redo, save, print, and section management controls. An overflow detector warns if content exceeds one page.
+1. **Profile entry** — Users fill out personal info, work history, education, projects, and skills via form pages under `/profile/*`. Each form has a *Container* component (e.g., `PersonalInfoContainer.tsx`) that owns the data: it fetches the current value from the backend via `src/lib/api.ts` on mount, holds it in local `useState`, and writes back imperatively on save. Containers render presentational form components from `src/components/InputForms/`.
+2. **Generation** — The Generate page (`src/pages/Generate.tsx`) fetches the user's job history via `jobsApi.get()` and displays a filter UI where users can toggle individual jobs and bullets on/off (tracked via a `disabledBullets` Set). The user pastes a job description and optional instructions, then calls `resumeApi.generate()` in `src/lib/api.ts`. The backend pulls the user's profile, calls the LLM, and returns a `ResumeMetadata` record. The frontend then navigates to `/preview/:resumeId`.
+3. **Resume list** — The Resumes page (`src/pages/Resumes.tsx`) calls `resumeApi.list()` and renders a table of saved resumes (filename, created, updated). Each row's filename links to `/preview/:resumeId`.
+4. **Preview & print** — The Preview page (`src/pages/Preview.tsx`) reads `:resumeId` from the route via `useParams()`, fetches the resume via `resumeApi.get()`, and renders a print-ready resume. It holds two parallel copies of the data: `resume` (the server baseline) and `draft` (the in-progress local edits); the `isEditing` flag is derived by comparing them. Edits update `draft`; `onSave` calls `resumeApi.update()` and promotes `draft` to `resume`. Sections are driven by a **section registry** (`src/types/SectionRegistry.ts`) that maps `ResumeData` keys to React components in `src/components/ResumeSections/`. Section visibility and ordering are user-configurable via `useLayoutConfig` and the `SectionPanel` component. The `EditToolBar` component provides undo/redo, save, print, and section management controls. An overflow detector warns if content exceeds one page.
 
 ### Key patterns
 
-- **`useLocalStorage<T>` hook** (`src/hooks/useLocalStorage.ts`) — generic hook used by all data hooks; supports functional updates.
+- **API client** (`src/lib/api.ts`) — central place for all backend calls. Exposes a `fetchApi` helper that injects the JWT bearer token, redirects to `/login` on 401, and throws `ApiError` on other failures. Per-resource clients (`personalInfoApi`, `jobsApi`, `educationApi`, `projectsApi`, `skillsApi`, `resumeApi`, `promptApi`) are built on top.
+- **Container fetch pattern** — Backend-backed pages use a `useState` triple (`data`, `isLoading`, `error`) plus a `useEffect` that calls the relevant `someApi.get()`, with early returns for the loading and error states. A 404 is treated as "no data yet" and falls back to a default value rather than surfacing as an error. Mutations are imperative (call `someApi.save()` and `setData(...)` side-by-side in the handler) — there is no caching layer or refetch.
+- **Authentication** — JWT-based. Token is stored in `localStorage` under `jwt_token` and attached as a `Bearer` header by `fetchApi`. A 401 response clears the token and redirects to `/login`. `AuthProvider` (`src/lib/auth.tsx`) exposes `login`, `signup` (requires invite code), and `logout` via React context. `ProtectedRoute` (`src/pages/ProtectedRoute.tsx`) guards authenticated routes; public routes are `/login` and `/signup`.
+- **`useLocalStorage<T>` hook** (`src/hooks/useLocalStorage.ts`) — generic localStorage hook, used for client-only UI state: `useLayoutConfig` (section visibility/order) and `useEditHistory` (undo/redo stack). Profile and prompt data live on the backend.
 - **Section registry** — `sectionRegistry` maps each `keyof ResumeData` to a component implementing `SectionProps` in `src/components/ResumeSections/`. Adding a new resume section means: define the type in `resume.ts`, create the component in `ResumeSections/`, and register it.
-- **Zod schemas for LLM output** — `LLMOutputSchema` in `src/types/resume.ts` defines the structured output contract with the Claude API.
-- **PasswordGate** — optional auth gate controlled by `VITE_GATE_PASSWORD` env var; disabled when unset.
+- **Zod schemas for LLM output** — `LLMOutputSchema` in `src/types/resume.ts` defines the structured output contract used by the backend when calling the LLM.
+- **Drag-and-drop** — `@dnd-kit/react` is used across all list containers (jobs, education, projects, skills) for reordering entries, and within resume bullet editing on the Preview page. `api.ts` adds temporary UUIDs to bullets on fetch (`addBulletIds`) and strips them before save (`removeBulletIds`) so dnd-kit has stable keys without persisting IDs to the backend.
+- **Custom prompts** — The Prompt page (`src/pages/Prompt.tsx`) lets users edit a custom LLM prompt stored on the backend via `promptApi`. Includes save, reset, and restore-default controls.
 
 ### File conventions
 
