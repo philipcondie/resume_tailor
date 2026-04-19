@@ -12,7 +12,7 @@ export function Home() {
     const {logout} = useAuth();
     return (
             <div className="flex min-h-screen bg-gray-50">
-                <aside className="w-52 shrink-0 border-r border-gray-200 bg-white pt-10 px-4 sticky top-0 h-screen">
+                <aside className="w-52 shrink-0 border-r border-gray-200 bg-white pt-10 px-4 sticky top-0 h-screen flex flex-col">
                     <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 px-4 mb-4">Resume Builder</p>
                     <nav className="flex flex-col">
                         <NavLink to="resumes" className={navLinkClass}>Resumes</NavLink>
@@ -24,7 +24,12 @@ export function Home() {
                         <NavLink to="prompt" className={navLinkClass}>Prompt</NavLink>
                         <NavLink to="generate" className={navLinkClass}>Generate</NavLink>
                     </nav>
-                <button className="block px-4 py-2 text-sm border-l-2 transition-colors border-transparent text-sky-850 hover:text-sky-950 hover:border-gray-300" onClick={logout}>Log out</button>
+                <button
+                    onClick={logout}
+                    className="mt-auto mb-6 px-4 pt-4 text-left text-sm text-gray-500 hover:text-gray-900 transition-colors border-t border-gray-200"
+                >
+                    Log out
+                </button>
                 </aside>
                 <main className="flex-1 p-10">
                     <Outlet />
