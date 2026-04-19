@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
+import { useResumeData } from '../hooks/dataHooks';
 import { useEditHistory } from '../hooks/useEditHistory';
 import { ResumeData } from '../types/resume';
 import './Preview.css';
@@ -9,34 +10,22 @@ import { SectionPanel } from '../components/SectionPanel';
 import { useLayoutConfig } from '../hooks/useLayoutConfig';
 import { sectionRegistry } from '../types/SectionRegistry';
 import { EditToolBar } from '../components/ResumeSections/EditToolBar';
-import { resumeApi } from '../lib/api';
-import { Spinner } from '../components/utils/Spinner';
 
 export function Preview() {
-    const {resumeId} = useParams();
-    const [resume, setResume] = useState<ResumeData | null>(null);
-    const [draft, setDraft] = useState<ResumeData | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [error, setError] = useState<Error | null>(null)
-    const isEditing = JSON.stringify(draft) !== JSON.stringify(resume);
+    const location = useLocation();
+
+    const {resumeData: savedResumeData, saveResumeData } = useResumeData();
+    const data = location.state?.['resume-data'] ?? savedResumeData;
+
+    const [draft, setDraft] = useState<ResumeData>(data);
+    const isEditing = JSON.stringify(draft) !== JSON.stringify(data);
 
     const {layoutConfig, setLayoutConfig} = useLayoutConfig();
     const { save, canUndo, undo, canRedo, redo } = useEditHistory();
     const [sectionsOpen, setSectionsOpen] = useState(false);
 
     const pageRef = useRef<HTMLDivElement>(null);
-    const [isOverflowing, setIsOverflowing] = useState(true);
-
-    useEffect(() => {
-        if (!resumeId) return;
-        resumeApi.get(resumeId)
-            .then((data) => {
-                setResume(data);
-                setDraft(data);
-            })
-            .catch(setError)
-            .finally(() => setIsLoading(false))
-    }, [resumeId]);
+    const [isOverflowing, setIsOverflowing] = useState(false);
 
     useEffect(() => {
         requestAnimationFrame(() => {
@@ -49,12 +38,8 @@ export function Preview() {
         [layoutConfig]
     );
 
-    if (isLoading) return <Spinner />;
-    if (error) return <div>{error.message}</div>;
-    if (!draft || !resume) return <div>No resume data found</div>;
-
     const updateSection = <K extends keyof ResumeData>(key:K, value:ResumeData[K]) => {
-        setDraft((prev) => prev ? ({...prev, [key]:value}) : prev);
+        setDraft((prev) => ({...prev, [key]:value}));
     };
 
     const onRedo = () => {
@@ -65,16 +50,21 @@ export function Preview() {
         const next = undo(draft);
         if (next) setDraft(next);
     };
-    const onSave = async () => {
-        if (!draft || !resumeId) return; 
-        await resumeApi.update(resumeId,draft);
-        save(resume);
-        setResume(draft);
+    const onSave = () => {
+        save(data); saveResumeData(draft);
     };
     const onReset = () => {
-        setDraft(resume);
+        setDraft(data);
     };
     const onOpenSections = () => {setSectionsOpen(true)};
+
+    if (!data) {
+        return (
+            <div>
+                No resume data found
+            </div>
+        )
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -100,13 +90,10 @@ export function Preview() {
                 <div ref={pageRef} className="page">
                     <PersonalInfoSection draft={draft} updateSection={updateSection} />
                     {sorted.map(section => {
-                        if (!section.enabled) return null;
-                        const value = draft[section.name];
-                        if (Array.isArray(value) && value.length === 0) return null;
-                        if (typeof value === 'string' && value.trim() === '') return null;
-                        const Component = sectionRegistry[section.name];
-                        return <Component key={section.name} draft={draft} updateSection={updateSection} />
-                        
+                        if (section.enabled) {
+                            const Component = sectionRegistry[section.name];
+                            return <Component key={section.name} draft={draft} updateSection={updateSection} />
+                        }
                     })}
                 </div>
             </div>

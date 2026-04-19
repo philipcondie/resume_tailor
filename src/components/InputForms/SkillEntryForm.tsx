@@ -1,18 +1,14 @@
 import { useState } from "react";
 import { SkillEntry } from "../../types/resume";
-import { useSortable } from '@dnd-kit/react/sortable';
 
 type SkillEntryProps = {
     skill: SkillEntry,
-    index: number,
     handleUpdate: (id: string, skill: SkillEntry) => void,
     handleDelete: (id: string) => void,
 }
 
-export function SkillEntryForm({skill, index, handleUpdate, handleDelete}: SkillEntryProps) {
+export function SkillEntryForm({skill, handleUpdate, handleDelete}: SkillEntryProps) {
     const [draft, setDraft] = useState<SkillEntry>(skill);
-    const id = skill.id;
-    const { ref, handleRef } = useSortable({ id, index });
     const isEditing = JSON.stringify(draft) !== JSON.stringify(skill);
 
     const updateField = (key: keyof SkillEntry, value: string) => {
@@ -26,7 +22,7 @@ export function SkillEntryForm({skill, index, handleUpdate, handleDelete}: Skill
     }
 
     return (
-        <div ref={ref} className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-4">
+        <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-4">
             <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium uppercase tracking-wide text-gray-600">Skill Title</label>
                 <input
@@ -49,9 +45,6 @@ export function SkillEntryForm({skill, index, handleUpdate, handleDelete}: Skill
                     onClick={onSave}
                     disabled={!isEditing}
                 >Save</button>
-                <button ref={handleRef} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
-                    ⠿
-                </button>
             </div>
         </div>
     )

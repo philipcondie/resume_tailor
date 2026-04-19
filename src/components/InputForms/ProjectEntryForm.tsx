@@ -1,19 +1,15 @@
 import { useState } from "react";
 import { ProjectEntry } from "../../types/resume";
 import { EditableTextArea } from "../utils/EditableFields";
-import { useSortable } from '@dnd-kit/react/sortable';
 
 type ProjectEntryProps = {
     project: ProjectEntry,
-    index: number,
     handleUpdate: (id:string, project: ProjectEntry) => void,
     handleDelete: (id:string) => void,
 }
 
-export function ProjectEntryForm({project, index, handleUpdate, handleDelete}: ProjectEntryProps) {
+export function ProjectEntryForm({project, handleUpdate, handleDelete}: ProjectEntryProps) {
     const [draft, setDraft] = useState<ProjectEntry>(project);
-    const id = project.id;
-    const { ref, handleRef } = useSortable({ id, index });
 
     const isEditing = JSON.stringify(draft) !== JSON.stringify(project);
 
@@ -49,7 +45,7 @@ export function ProjectEntryForm({project, index, handleUpdate, handleDelete}: P
     }
 
     return (
-        <div ref={ref} className="bg-white border border-gray-200 rounded-xl p-6 flex flex-col gap-6">
+        <div className="bg-white border border-gray-200 rounded-xl p-6 flex flex-col gap-6">
             <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium uppercase tracking-wide text-gray-600">Title</label>
                 <input
@@ -81,9 +77,6 @@ export function ProjectEntryForm({project, index, handleUpdate, handleDelete}: P
                     onClick={onSave}
                     disabled={!isEditing}
                 >Save</button>
-                <button ref={handleRef} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
-                    ⠿
-                </button>
             </div>
         </div>
     )

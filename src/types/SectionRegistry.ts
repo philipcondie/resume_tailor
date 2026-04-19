@@ -11,7 +11,7 @@ export const sectionRegistry: Record<keyof ResumeData,React.ComponentType<Sectio
     summary: SummarySection,
     personalInfo: PersonalInfoSection,
     jobs: JobSection,
-    education: EducationSection,
+    educations: EducationSection,
     projects: ProjectSection,
     skills: SkillSection,
 } 
