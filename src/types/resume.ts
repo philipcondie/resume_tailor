@@ -82,7 +82,7 @@ export interface ResumeData {
 }
 
 export interface ResumeMetadata {
-    id: number,
+    id: string,
     filename: string,
     createdAt: string,
     updatedAt: string,
