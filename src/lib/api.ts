@@ -125,6 +125,10 @@ export const resumeApi = {
         method: "DELETE",
     }),
     list: () => fetchApi<ResumeMetadata[]>(`/resume`),
+    duplicate: (id:string, filename:string) => fetchApi<ResumeMetadata>(`/resume/${id}/duplicate`, {
+        method: "POST",
+        body: JSON.stringify({"filename":filename})
+    }),
 }
 
 export const promptApi = {
