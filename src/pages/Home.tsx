@@ -22,6 +22,7 @@ export function Home() {
                         <NavLink to="profile/projects" className={navLinkClass}>Projects</NavLink>
                         <NavLink to="profile/skills" className={navLinkClass}>Skills</NavLink>
                         <NavLink to="prompt" className={navLinkClass}>Prompt</NavLink>
+                        <NavLink to="layout" className={navLinkClass}>Layout</NavLink>
                         <NavLink to="generate" className={navLinkClass}>Generate</NavLink>
                     </nav>
                 <button

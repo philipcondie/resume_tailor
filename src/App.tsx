@@ -13,6 +13,7 @@ import { ProjectEntryContainer } from "./pages/profile/ProjectEntryContainer";
 import { SkillEntryContainer } from "./pages/profile/SkillEntryContainer";
 import { ProtectedRoute } from "./pages/ProtectedRoute";
 import { Signup } from "./pages/Signup";
+import { LayoutConfigPage } from "./pages/LayoutConfigPage";
 
 export default function App() {
     return (    
@@ -33,6 +34,7 @@ export default function App() {
                             <Route path="/resumes" element={<Resumes />} />
                             <Route path="/preview/:resumeId" element={<Preview />} />
                             <Route path="/prompt" element={<Prompt />} />
+                            <Route path="/layout" element={<LayoutConfigPage />} />
                         </Route>
                     </Route>
                 </Routes>

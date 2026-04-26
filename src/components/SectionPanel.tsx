@@ -1,11 +1,11 @@
 import { useRef, useEffect, useMemo } from 'react';
-import { SectionData } from '../types/resume';
+import { SectionConfig } from '../types/resume';
 
 type SectionPanelProps = {
     open: boolean;
     onClose: () => void;
-    layoutConfig: SectionData[];
-    setLayoutConfig: (config: SectionData[]) => void;
+    layoutConfig: SectionConfig[];
+    setLayoutConfig: (config: SectionConfig[]) => void;
 };
 
 export function SectionPanel({ open, onClose, layoutConfig, setLayoutConfig }: SectionPanelProps) {

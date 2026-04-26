@@ -2,11 +2,10 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { useEditHistory } from '../hooks/useEditHistory';
-import { ResumeData } from '../types/resume';
+import { LayoutConfig, ResumeData } from '../types/resume';
 import './Preview.css';
 import { PersonalInfoSection } from '../components/ResumeSections/PersonalInfoSection';
 import { SectionPanel } from '../components/SectionPanel';
-import { useLayoutConfig } from '../hooks/useLayoutConfig';
 import { sectionRegistry } from '../types/SectionRegistry';
 import { EditToolBar } from '../components/ResumeSections/EditToolBar';
 import { resumeApi } from '../lib/api';
@@ -14,13 +13,15 @@ import { Spinner } from '../components/utils/Spinner';
 
 export function Preview() {
     const {resumeId} = useParams();
-    const [resume, setResume] = useState<ResumeData | null>(null);
+    const [resumeData, setResumeData] = useState<ResumeData | null>(null);
     const [draft, setDraft] = useState<ResumeData | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<Error | null>(null)
-    const isEditing = JSON.stringify(draft) !== JSON.stringify(resume);
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const [layoutConfig, setLayoutConfig] = useState<LayoutConfig>([]);
+    const [draftLayout, setDraftLayout] = useState<LayoutConfig>([]);
+    const isEditing = (JSON.stringify(draft) !== JSON.stringify(resumeData)) || (JSON.stringify(layoutConfig) !== JSON.stringify(draftLayout));
 
-    const {layoutConfig, setLayoutConfig} = useLayoutConfig();
     const { save, canUndo, undo, canRedo, redo } = useEditHistory();
     const [sectionsOpen, setSectionsOpen] = useState(false);
 
@@ -31,8 +32,10 @@ export function Preview() {
         if (!resumeId) return;
         resumeApi.get(resumeId)
             .then((data) => {
-                setResume(data);
-                setDraft(data);
+                setResumeData(data.resumeData);
+                setDraft(data.resumeData);
+                setLayoutConfig(data.layout);
+                setDraftLayout(data.layout);
             })
             .catch(setError)
             .finally(() => setIsLoading(false))
@@ -42,16 +45,16 @@ export function Preview() {
         requestAnimationFrame(() => {
             setIsOverflowing(!!pageRef.current && pageRef.current.scrollHeight > pageRef.current.clientHeight);
         })
-    },[draft,layoutConfig]);
+    },[draft,draftLayout]);
 
     const sorted = useMemo(
-        () => [...layoutConfig].sort((a, b) => a.ordering - b.ordering),
-        [layoutConfig]
+        () => [...draftLayout].sort((a, b) => a.ordering - b.ordering),
+        [draftLayout]
     );
 
     if (isLoading) return <Spinner />;
     if (error) return <div>{error.message}</div>;
-    if (!draft || !resume) return <div>No resume data found</div>;
+    if (!draft || !resumeData) return <div>No resume data found</div>;
 
     const updateSection = <K extends keyof ResumeData>(key:K, value:ResumeData[K]) => {
         setDraft((prev) => prev ? ({...prev, [key]:value}) : prev);
@@ -66,14 +69,34 @@ export function Preview() {
         if (next) setDraft(next);
     };
     const onSave = async () => {
-        if (!draft || !resumeId) return; 
-        await resumeApi.update(resumeId,draft);
-        save(resume);
-        setResume(draft);
+        if (!draft || !resumeId) return;
+        const failures: string[] = [];
+        if(JSON.stringify(draft) !== JSON.stringify(resumeData)) {
+            try {
+                await resumeApi.updateData(resumeId,draft);
+                save(resumeData);
+                setResumeData(draft);
+            } catch (e) {
+                failures.push(`Failed to save content: ${e instanceof Error ? e.message : 'unknown error'}`);
+            }
+        }
+        if (JSON.stringify(layoutConfig) !== JSON.stringify(draftLayout)) {
+            try {
+                await resumeApi.updateLayout(resumeId,draftLayout);
+                setLayoutConfig(draftLayout);
+            } catch (e) {
+                failures.push(`Failed to save layout: ${e instanceof Error ? e.message : 'unknown error'}`);
+            }
+        }
+        setSaveError(failures.length ? failures.join(' ') : null);
     };
+
     const onReset = () => {
-        setDraft(resume);
+        setDraft(resumeData);
+        setDraftLayout(layoutConfig);
+        setSaveError(null);
     };
+
     const onOpenSections = () => {setSectionsOpen(true)};
 
     return (
@@ -89,17 +112,23 @@ export function Preview() {
                 onSave={onSave}
                 onOpenSections={onOpenSections}
             />
+            {saveError && (
+                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-2 text-sm flex items-center justify-between">
+                    <span>{saveError}</span>
+                    <button onClick={() => setSaveError(null)} className="ml-2 underline">dismiss</button>
+                </div>
+            )}
             <SectionPanel
                 open={sectionsOpen}
                 onClose={() => setSectionsOpen(false)}
-                layoutConfig={layoutConfig}
-                setLayoutConfig={setLayoutConfig}
+                layoutConfig={draftLayout}
+                setLayoutConfig={setDraftLayout}
             />
 
             <div className="preview-wrapper">
                 <div ref={pageRef} className="page">
                     <PersonalInfoSection draft={draft} updateSection={updateSection} />
-                    {sorted.map(section => {
+                    {sorted.map((section) => {
                         if (!section.enabled) return null;
                         const value = draft[section.name];
                         if (Array.isArray(value) && value.length === 0) return null;
