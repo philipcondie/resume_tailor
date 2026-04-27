@@ -159,8 +159,8 @@ export const promptApi = {
 }
 
 export const layoutApi = {
-    get: () => fetchApi<LayoutResponse>(`/layout`),
-    update: (layout: LayoutConfig) => fetchApi<LayoutResponse>(`/layout/update`, {
+    get: () => fetchApi<LayoutConfig>(`/layout`),
+    update: (layout: LayoutConfig) => fetchApi<LayoutConfig>(`/layout/update`, {
         method: "POST",
         body: JSON.stringify({"layout": layout}),
     })

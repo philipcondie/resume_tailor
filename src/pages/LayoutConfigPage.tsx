@@ -14,8 +14,8 @@ export function LayoutConfigPage() {
     useEffect(() => {
         layoutApi.get()
             .then((data) => {
-                setLayoutConfig(data.layout);
-                setDraftLayout(data.layout);
+                setLayoutConfig(data);
+                setDraftLayout(data);
             })
             .catch((error) => setError(error))
             .finally(() => setIsLoading(false));
@@ -49,8 +49,8 @@ export function LayoutConfigPage() {
         setError(null);
         try {
             const data = await layoutApi.update(draftLayout);
-            setLayoutConfig(data.layout);
-            setDraftLayout(data.layout);
+            setLayoutConfig(data);
+            setDraftLayout(data);
         } catch (err) {
             setError(err instanceof Error ? err : new Error(String(err)));
         } finally {
