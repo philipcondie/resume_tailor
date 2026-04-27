@@ -104,15 +104,29 @@ export interface ResumeRequest {
     input: LLMInput
 }
 
-export const SectionDataSchema = z.object({
-    name: z.enum(['summary', 'personalInfo', 'jobs', 'education', 'projects', 'skills']),
+export interface ResumeResponse {
+    resumeData: ResumeDataRaw,
+    layout: LayoutConfig
+}
+
+export interface Resume {
+    resumeData: ResumeData,
+    layout: LayoutConfig
+}
+
+export const SectionConfigSchema = z.object({
+    name: z.enum(['summary', 'jobs', 'education', 'projects', 'skills']),
     enabled: z.boolean(),
     ordering: z.number().int().min(0)
 })
 
-export const SectionDataArraySchema = z.array(SectionDataSchema)
+export type SectionConfig = z.infer<typeof SectionConfigSchema>
 
-export type SectionData = z.infer<typeof SectionDataSchema>
+export type LayoutConfig = SectionConfig[]
+
+export interface LayoutResponse {
+    layout: LayoutConfig
+}
 
 export type SectionProps = {
     draft: ResumeData,

@@ -9,7 +9,11 @@ import {
     PromptData, 
     ResumeRequest, 
     ResumeDataRaw,
-    Bullet
+    Bullet,
+    LayoutResponse,
+    LayoutConfig,
+    ResumeResponse,
+    Resume
 } from "../types/resume";
 
 
@@ -113,13 +117,28 @@ export const resumeApi = {
         method: "POST",
         body: JSON.stringify(request)
     }),
-    get: (id:string) => fetchApi<ResumeDataRaw>(`/resume/${id}`).then(data => addBulletIds(data)),
-    update: (id:string, input: ResumeData) => {
+    get: (id:string) : Promise<Resume> => fetchApi<ResumeResponse>(`/resume/${id}`).then(data => {
+        const resumeData = addBulletIds(data.resumeData);
+        return {layout:data.layout, resumeData: resumeData}
+    }),
+    updateData: (id: string, input: ResumeData): Promise<Resume> => {
         const rawData = removeBulletIds(input);
-        return fetchApi<ResumeDataRaw>(`/resume/${id}`, {
+        return fetchApi<ResumeResponse>(`/resume/${id}`, {
             method: "PUT",
             body: JSON.stringify(rawData)
-        }).then(addBulletIds)
+        }).then((data) => {
+            const resumeData = addBulletIds(data.resumeData);
+            return { layout: data.layout, resumeData: resumeData }
+        });
+    },
+    updateLayout: (id: string, input: LayoutConfig): Promise<Resume> => {
+        return fetchApi<ResumeResponse>(`/resume/${id}/layout`, {
+            method: "PUT",
+            body: JSON.stringify({ "layout": input })
+        }).then((data) => {
+            const resumeData = addBulletIds(data.resumeData);
+            return { layout: data.layout, resumeData: resumeData }
+        });
     },
     delete: (id:string) => fetchApi<null>(`/resume/${id}`, {
         method: "DELETE",
@@ -137,4 +156,12 @@ export const promptApi = {
         method: "POST",
         body: JSON.stringify(data),
     }),
+}
+
+export const layoutApi = {
+    get: () => fetchApi<LayoutConfig>(`/layout`),
+    update: (layout: LayoutConfig) => fetchApi<LayoutConfig>(`/layout/update`, {
+        method: "POST",
+        body: JSON.stringify({"layout": layout}),
+    })
 }
