@@ -119,7 +119,7 @@ export const resumeApi = {
     }),
     get: (id:string) : Promise<Resume> => fetchApi<ResumeResponse>(`/resume/${id}`).then(data => {
         const resumeData = addBulletIds(data.resumeData);
-        return {layout:data.layout, resumeData: resumeData}
+        return {filename: data.filename, layout:data.layout, resumeData: resumeData}
     }),
     updateData: (id: string, input: ResumeData): Promise<Resume> => {
         const rawData = removeBulletIds(input);
@@ -128,7 +128,7 @@ export const resumeApi = {
             body: JSON.stringify(rawData)
         }).then((data) => {
             const resumeData = addBulletIds(data.resumeData);
-            return { layout: data.layout, resumeData: resumeData }
+            return { filename: data.filename, layout: data.layout, resumeData: resumeData }
         });
     },
     updateLayout: (id: string, input: LayoutConfig): Promise<Resume> => {
@@ -137,7 +137,7 @@ export const resumeApi = {
             body: JSON.stringify({ "layout": input })
         }).then((data) => {
             const resumeData = addBulletIds(data.resumeData);
-            return { layout: data.layout, resumeData: resumeData }
+            return { filename: data.filename, layout: data.layout, resumeData: resumeData }
         });
     },
     delete: (id:string) => fetchApi<null>(`/resume/${id}`, {

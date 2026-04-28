@@ -105,11 +105,13 @@ export interface ResumeRequest {
 }
 
 export interface ResumeResponse {
+    filename: string,
     resumeData: ResumeDataRaw,
     layout: LayoutConfig
 }
 
 export interface Resume {
+    filename: string,
     resumeData: ResumeData,
     layout: LayoutConfig
 }

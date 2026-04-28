@@ -15,6 +15,7 @@ export function Preview() {
     const {resumeId} = useParams();
     const [resumeData, setResumeData] = useState<ResumeData | null>(null);
     const [draft, setDraft] = useState<ResumeData | null>(null);
+    const [filename, setFilename] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<Error | null>(null)
     const [saveError, setSaveError] = useState<string | null>(null);
@@ -34,6 +35,7 @@ export function Preview() {
             .then((data) => {
                 setResumeData(data.resumeData);
                 setDraft(data.resumeData);
+                setFilename(data.filename);
                 setLayoutConfig(data.layout);
                 setDraftLayout(data.layout);
             })
@@ -112,6 +114,11 @@ export function Preview() {
                 onSave={onSave}
                 onOpenSections={onOpenSections}
             />
+            {filename && (
+                <div className="bg-white border-b border-gray-200 px-4 py-2 text-sm text-gray-600 font-medium">
+                    {filename}
+                </div>
+            )}
             {saveError && (
                 <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-2 text-sm flex items-center justify-between">
                     <span>{saveError}</span>
