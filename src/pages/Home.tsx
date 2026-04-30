@@ -1,40 +1,30 @@
-import { NavLink, Outlet } from "react-router-dom";
-import { useAuth } from "../lib/auth";
-
-const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `block px-4 py-2 text-sm border-l-2 transition-colors ${
-        isActive
-            ? "border-gray-900 text-gray-900 font-medium"
-            : "border-transparent text-gray-600 hover:text-gray-700 hover:border-gray-300"
-    }`;
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
+import { Sidebar } from "../components/Sidebar";
+import { MenuIcon } from "../components/utils/Icons";
 
 export function Home() {
-    const {logout} = useAuth();
+    const [sidebarIsOpen, setSidebarIsOpen] = useState<boolean>(true);
+
     return (
-            <div className="flex min-h-screen bg-gray-50">
-                <aside className="w-52 shrink-0 border-r border-gray-200 bg-white pt-10 px-4 sticky top-0 h-screen flex flex-col">
-                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 px-4 mb-4">Resume Builder</p>
-                    <nav className="flex flex-col">
-                        <NavLink to="resumes" className={navLinkClass}>Resumes</NavLink>
-                        <NavLink to="profile/personal" className={navLinkClass}>Personal Info</NavLink>
-                        <NavLink to="profile/education" className={navLinkClass}>Education</NavLink>
-                        <NavLink to="profile/work" className={navLinkClass}>Work</NavLink>
-                        <NavLink to="profile/projects" className={navLinkClass}>Projects</NavLink>
-                        <NavLink to="profile/skills" className={navLinkClass}>Skills</NavLink>
-                        <NavLink to="prompt" className={navLinkClass}>Prompt</NavLink>
-                        <NavLink to="layout" className={navLinkClass}>Layout</NavLink>
-                        <NavLink to="generate" className={navLinkClass}>Generate</NavLink>
-                    </nav>
-                <button
-                    onClick={logout}
-                    className="mt-auto mb-6 px-4 pt-4 text-left text-sm text-gray-500 hover:text-gray-900 transition-colors border-t border-gray-200"
-                >
-                    Log out
-                </button>
-                </aside>
-                <main className="flex-1 p-10">
-                    <Outlet />
-                </main>
+            <div className="flex flex-col h-screen bg-gray-50">
+                <header className="flex items-center h-14 px-4 border-b bg-white shrink-0">
+                    <button
+                        onClick={() => setSidebarIsOpen(!sidebarIsOpen)}
+                        aria-label="Toggle sidebar"
+                        aria-expanded={sidebarIsOpen}
+                        className="p-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                    >
+                        <MenuIcon />
+                    </button>
+                    <span className="ml-4 font-semibold text-lg">Resume Tailor</span>
+                </header>
+                <div className="flex flex-1 overflow-hidden">
+                    <Sidebar isOpen={sidebarIsOpen} />
+                    <main className="flex-1 p-10 overflow-y-auto">
+                        <Outlet />
+                    </main>
+                </div>
             </div>
         )
 }
