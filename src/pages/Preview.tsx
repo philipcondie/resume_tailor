@@ -19,6 +19,7 @@ export function Preview() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<Error | null>(null)
     const [saveError, setSaveError] = useState<string | null>(null);
+    const [downloadError, setDownloadError] = useState<string | null>(null);
     const [layoutConfig, setLayoutConfig] = useState<LayoutConfig>([]);
     const [draftLayout, setDraftLayout] = useState<LayoutConfig>([]);
     const isEditing = (JSON.stringify(draft) !== JSON.stringify(resumeData)) || (JSON.stringify(layoutConfig) !== JSON.stringify(draftLayout));
@@ -101,9 +102,27 @@ export function Preview() {
 
     const onOpenSections = () => {setSectionsOpen(true)};
 
+    const onDownload = async () => {
+        if (!resumeId) return
+        try {
+            const blob = await resumeApi.download(resumeId)
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename + ".pdf";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        catch (e) {
+            setDownloadError(`Failed to download resume: ${e instanceof Error ? e.message : 'unknown error'}`)
+        }
+        
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
-            <EditToolBar 
+            <EditToolBar
+                filename={filename || "Preview"}
                 isOverflowing={isOverflowing}
                 isEditing={isEditing}
                 canUndo={canUndo}
@@ -113,16 +132,18 @@ export function Preview() {
                 onReset={onReset}
                 onSave={onSave}
                 onOpenSections={onOpenSections}
+                onDownload={onDownload}
             />
-            {filename && (
-                <div className="bg-white border-b border-gray-200 px-4 py-2 text-sm text-gray-600 font-medium">
-                    {filename}
-                </div>
-            )}
             {saveError && (
                 <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-2 text-sm flex items-center justify-between">
                     <span>{saveError}</span>
                     <button onClick={() => setSaveError(null)} className="ml-2 underline">dismiss</button>
+                </div>
+            )}
+            {downloadError && (
+                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-2 text-sm flex items-center justify-between">
+                    <span>{downloadError}</span>
+                    <button onClick={() => setDownloadError(null)} className="ml-2 underline">dismiss</button>
                 </div>
             )}
             <SectionPanel
