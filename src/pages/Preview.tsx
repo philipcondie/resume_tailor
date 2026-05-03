@@ -121,7 +121,8 @@ export function Preview() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <EditToolBar 
+            <EditToolBar
+                filename={filename || "Preview"}
                 isOverflowing={isOverflowing}
                 isEditing={isEditing}
                 canUndo={canUndo}
@@ -133,11 +134,6 @@ export function Preview() {
                 onOpenSections={onOpenSections}
                 onDownload={onDownload}
             />
-            {filename && (
-                <div className="bg-white border-b border-gray-200 px-4 py-2 text-sm text-gray-600 font-medium">
-                    {filename}
-                </div>
-            )}
             {saveError && (
                 <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-2 text-sm flex items-center justify-between">
                     <span>{saveError}</span>

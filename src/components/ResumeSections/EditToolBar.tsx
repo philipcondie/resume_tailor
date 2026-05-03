@@ -2,6 +2,7 @@ import { useState, useRef, useEffect} from 'react';
 import { UndoIcon, RedoIcon } from '../utils/Icons';
 
 type EditToolBarProps = {
+    filename: string,
     isOverflowing: boolean,
     isEditing: boolean,
     canUndo: boolean,
@@ -14,7 +15,7 @@ type EditToolBarProps = {
     onDownload: () => void,
 }
 
-export function EditToolBar({isOverflowing, isEditing, canUndo, onUndo, canRedo, onRedo, onSave, onReset, onOpenSections, onDownload }:EditToolBarProps) {
+export function EditToolBar({ filename, isOverflowing, isEditing, canUndo, onUndo, canRedo, onRedo, onSave, onReset, onOpenSections, onDownload }:EditToolBarProps) {
 
     const [moreOpen, setMoreOpen] = useState(false);
     const moreRef = useRef<HTMLDivElement>(null);
@@ -36,10 +37,10 @@ export function EditToolBar({isOverflowing, isEditing, canUndo, onUndo, canRedo,
     return (
         <div className="edit-toolbar flex items-center gap-4 px-6 py-2.5 bg-white border-b border-gray-200">
             {/* ── Left: Title + Status ── */}
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Preview</p>
-            <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${pillColor}`}>
-                {isOverflowing ? '> 1 page' : '1 page'}
-            </span>
+            <p className="text-sm font-semibold text-gray-600">{filename}</p>
+            {isOverflowing && <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${pillColor}`}>
+                &gt; 1 page
+            </span>}
 
             {/* ── Spacer ── */}
             <div className="flex-1" />
