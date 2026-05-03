@@ -148,6 +148,31 @@ export const resumeApi = {
         method: "POST",
         body: JSON.stringify({"filename":filename})
     }),
+    download: async (id:string) => {
+        let response: Response;
+        try {
+            response = await fetch(`${API_BASE_URL}/resume/${id}/pdf`, {
+                headers: {
+                    'Content-Type': 'application/pdf',
+                    'Authorization': `Bearer ${getToken() ?? ''}`,
+                }
+            });
+        }
+        catch {
+            throw new Error("Unable to connect to server");
+        }
+        
+        if (response.status == 401) {
+            clearToken();
+            window.location.href = '/login';
+            throw new ApiError(401, 'Unauthorized');
+        }
+        if (!response.ok) {
+            throw new ApiError(response.status, response.statusText);
+        }
+
+        return await response.blob();
+    }
 }
 
 export const promptApi = {

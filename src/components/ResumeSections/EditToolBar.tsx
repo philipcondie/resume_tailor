@@ -11,9 +11,10 @@ type EditToolBarProps = {
     onSave: () => void,
     onReset: () => void,
     onOpenSections: () => void,
+    onDownload: () => void,
 }
 
-export function EditToolBar({isOverflowing, isEditing, canUndo, onUndo, canRedo, onRedo, onSave, onReset, onOpenSections}:EditToolBarProps) {
+export function EditToolBar({isOverflowing, isEditing, canUndo, onUndo, canRedo, onRedo, onSave, onReset, onOpenSections, onDownload }:EditToolBarProps) {
 
     const [moreOpen, setMoreOpen] = useState(false);
     const moreRef = useRef<HTMLDivElement>(null);
@@ -64,6 +65,11 @@ export function EditToolBar({isOverflowing, isEditing, canUndo, onUndo, canRedo,
             </div>
 
             {/* ── System Group: Save + Print ── */}
+            <button
+                className="px-2 py-1.5 text-xs font-medium border border-gray-300 text-gray-600 bg-white rounded hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                onClick={onDownload}
+                disabled={isEditing || isOverflowing}
+            >Download</button>
             <button
                 className="px-4 py-1.5 text-xs font-medium border border-gray-300 text-gray-600 bg-white rounded hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 onClick={() => window.print()}
