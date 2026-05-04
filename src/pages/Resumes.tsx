@@ -92,7 +92,8 @@ export function Resumes() {
                             </button>
                         </div>
                     )}
-                    <div className="border border-gray-200 rounded-md bg-white">
+                    <div className="overflow-x-auto rounded-md">
+                    <div className="border border-gray-200 rounded-md bg-white min-w-[520px]">
                     <Modal isOpen={isModalOpen} onClose={onModalClose} >
                         <h2 className="text-lg font-semibold text-gray-900 mb-4">Duplicate Resume</h2>
                         <div className="flex flex-col gap-1">
@@ -138,10 +139,10 @@ export function Resumes() {
                             key={r.id}
                             className="grid grid-cols-[2fr_1fr_1fr_auto] gap-4 px-4 py-3 border-b border-gray-100 last:border-b-0 text-sm"
                         >
-                            <div>
+                            <div className="min-w-0">
                                 <Link
                                     to={`/preview/${r.id}`}
-                                    className="text-gray-900 font-medium hover:text-gray-600 hover:underline"
+                                    className="block truncate text-gray-900 font-medium hover:text-gray-600 hover:underline"
                                 >
                                     {r.filename}
                                 </Link>
@@ -168,6 +169,7 @@ export function Resumes() {
                             </div>
                         </div>
                     ))}
+                    </div>
                     </div>
                 </>
             )}
