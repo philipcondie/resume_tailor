@@ -10,10 +10,10 @@ import {
     ResumeRequest, 
     ResumeDataRaw,
     Bullet,
-    LayoutResponse,
     LayoutConfig,
     ResumeResponse,
-    Resume
+    Resume,
+    ResumeStyling,
 } from "../types/resume";
 
 
@@ -188,5 +188,13 @@ export const layoutApi = {
     update: (layout: LayoutConfig) => fetchApi<LayoutConfig>(`/layout/update`, {
         method: "POST",
         body: JSON.stringify({"layout": layout}),
+    })
+}
+
+export const stylingApi = {
+    get: () => fetchApi<ResumeStyling>(`/layout/styling`),
+    update: (update: ResumeStyling) => fetchApi<ResumeStyling>(`/layout/styling/update`, {
+        method: "POST",
+        body: JSON.stringify(update)
     })
 }

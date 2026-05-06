@@ -46,23 +46,6 @@ export const PersonalInfoEntrySchema = z.object({
 
 export type PersonalInfoEntry = z.infer<typeof PersonalInfoEntrySchema>;
 
-export const ProfileDataSchema = z.object({
-    personalInfo: PersonalInfoEntrySchema,
-    education: z.array(EducationEntrySchema),
-    jobs: z.array(JobEntrySchema),
-    projects: z.array(ProjectEntrySchema),
-    skills: z.array(SkillEntrySchema),
-});
-
-export type ProfileData = z.infer<typeof ProfileDataSchema>;
-
-export const ProfileExportDataSchema = z.object({
-    exportedAt: z.string(),
-    profile: ProfileDataSchema,
-});
-
-export type ProfileExportData = z.infer<typeof ProfileExportDataSchema>;
-
 export interface ResumeDataRaw {
     personalInfo: PersonalInfoEntry,
     summary: string,
@@ -142,4 +125,10 @@ export type Bullet = {
 
 type WithBulletIds<T extends {bullets: string[]}> = Omit<T, 'bullets'> & {
     bullets: Bullet[]
+}
+
+export type ResumeStyling = {
+    colorTextName: string,
+    colorAccent: string,
+    fontMain: string[]
 }
