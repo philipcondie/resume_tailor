@@ -152,7 +152,7 @@ export function LayoutConfigPage() {
                 )}
 
                 <div className="bg-white border border-gray-200 rounded-xl shadow-sm divide-y divide-gray-100">
-                    <label className="flex items-center justify-between gap-4 px-5 py-4">
+                    <label className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
                         <span className="text-sm font-medium text-gray-900">Font Style</span>
                         <div className="flex items-center gap-2">
                             <span
@@ -165,7 +165,7 @@ export function LayoutConfigPage() {
                                 name="fontMain"
                                 value={currentFontKey}
                                 onChange={(e) => handleFontChange(e.target.value)}
-                                className="min-w-40 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-700 focus:border-transparent"
+                                className="min-w-30 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-700 focus:border-transparent"
                             >
                                 {Object.entries(FONT_PRESETS).map(([name,fonts]) => (
                                     <option key={name} value={name}>{`${name[0].toUpperCase()}${name.slice(1)}`}</option>
@@ -173,16 +173,18 @@ export function LayoutConfigPage() {
                             </select>
                         </div>
                     </label>
-                    <label className="flex items-center justify-between gap-4 px-5 py-4">
-                        <span className="text-sm font-medium text-gray-900">Name Color</span>
+                    <label className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
+                        <span className="text-sm font-medium text-gray-900">Color Theme</span>
                         <div className="flex items-center gap-2">
-                            <span className="w-5 h-5 rounded border border-gray-300" style={{ backgroundColor: draftStyling.colorTextName }} />
-                            <span className="w-5 h-5 rounded border border-gray-300" style={{ backgroundColor: draftStyling.colorAccent }} />
+                            <div className="flex items-center gap-1">
+                                <span className="w-5 h-5 rounded border border-gray-300" style={{ backgroundColor: draftStyling.colorTextName }} />
+                                <span className="w-5 h-5 rounded border border-gray-300" style={{ backgroundColor: draftStyling.colorAccent }} />
+                            </div>
                             <select
                                 name="colorTextName"
                                 value={currentColorKey}
                                 onChange={(e) => handleColorChange(e.target.value)}
-                                className="min-w-40 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-700 focus:border-transparent"
+                                className="min-w-30 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-700 focus:border-transparent"
                             >
                                 {
                                     Object.entries(COLOR_FAMILIES).map(([name,colors]) => (
@@ -228,8 +230,7 @@ export function LayoutConfigPage() {
                 <div className="bg-white border border-gray-200 rounded-xl shadow-sm divide-y divide-gray-100">
                     {sorted.map((section, i) => (
                         <div
-                            key={section.name}
-                            className="flex items-center gap-4 px-5 py-4"
+                            key={section.name} className="flex flex-wrap items-center gap-4 px-5 py-4"
                         >
                             <label className="relative inline-flex cursor-pointer shrink-0">
                                 <input
@@ -241,7 +242,7 @@ export function LayoutConfigPage() {
                                 <div className="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-slate-700 transition-colors" />
                                 <div className="absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow-sm transition-transform peer-checked:translate-x-5" />
                             </label>
-                            <span className={`flex-1 text-sm capitalize ${section.enabled ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
+                            <span className={`flex-1 min-w-[45px] text-sm capitalize ${section.enabled ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
                                 {section.name}
                             </span>
                             <div className="flex items-center gap-1">

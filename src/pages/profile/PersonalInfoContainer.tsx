@@ -36,10 +36,19 @@ export function PersonalInfoContainer() {
         </div>
     )
     return (
-        <PersonalInfoForm 
-            info={personalInfo} 
-            handleUpdate={(info) => {personalInfoApi.save(info); setPersonalInfo(info)}} 
-            handleClear={() => {personalInfoApi.save(defaultPersonalInfo); setPersonalInfo(defaultPersonalInfo)}}
-        />
+        <div className="flex flex-col gap-6">
+            <div className='flex items-start justify-between'>
+                <div>
+                    <h2 className="text-lg font-semibold text-gray-900">Personal Info</h2>
+                    <p className="text-sm text-gray-500 mt-0.5">Your contact details for the resume header.</p>
+                </div>
+            </div>
+            <PersonalInfoForm
+                info={personalInfo}
+                handleUpdate={(info) => { personalInfoApi.save(info); setPersonalInfo(info) }}
+                handleClear={() => { personalInfoApi.save(defaultPersonalInfo); setPersonalInfo(defaultPersonalInfo) }}
+            />
+        </div>
+        
     )
 }

@@ -73,7 +73,7 @@ export function JobEntryContainer() {
                     <p className="text-sm text-gray-500 mt-0.5">Your professional experience.</p>
                 </div>
                 <button
-                    className="px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 transition-colors"
+                    className="min-w-[66px] px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 transition-colors"
                     onClick={handleAddJob}
                 >+ Add</button>
             </div>

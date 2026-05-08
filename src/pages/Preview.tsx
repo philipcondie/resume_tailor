@@ -138,7 +138,7 @@ export function Preview() {
       };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen">
             <EditToolBar
                 filename={filename || "Preview"}
                 isOverflowing={isOverflowing}
