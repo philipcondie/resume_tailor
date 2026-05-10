@@ -10,7 +10,7 @@ export function SkillSection({draft, updateSection}:SectionProps) {
 
     return (
         <section className='section'>
-            <h2 className="section-title">Technical Skills</h2>
+            <h2 className="section-title">Skills</h2>
             <div className="skills-list">
                 {draft.skills?.map((skill) => (
                     <div className="skill-line" key={skill.id}>
