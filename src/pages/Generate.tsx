@@ -109,9 +109,9 @@ export function Generate() {
                 <h2 className="text-lg font-semibold text-gray-900">Generate Resume</h2>
                 <p className="text-sm text-gray-500 mt-0.5">Paste a job description and generate a tailored resume.</p>
             </div>
-            <details className="flex flex-col gap-1">
+            <details className="group flex flex-col gap-1">
                 <summary className="text-xs font-medium uppercase tracking-wide text-gray-600 cursor-pointer list-none flex items-center gap-1.5 select-none">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform [[open]>&]:rotate-90">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-open:rotate-90">
                         <polyline points="9 18 15 12 9 6" />
                     </svg>
                     Filter Job History

@@ -14,6 +14,7 @@ import { Spinner } from '../components/utils/Spinner';
 export function Preview() {
     const {resumeId} = useParams();
     const [resumeData, setResumeData] = useState<ResumeData | null>(null);
+    const [jobDescription, setJobDescription] = useState<string>('');
     const [draft, setDraft] = useState<ResumeData | null>(null);
     const [filename, setFilename] = useState<string | null>(null);
     const [isLoadingResume, setIsLoadingResume] = useState<boolean>(true);
@@ -43,6 +44,7 @@ export function Preview() {
                 setFilename(data.filename);
                 setLayoutConfig(data.layout);
                 setDraftLayout(data.layout);
+                setJobDescription(data.jobDescription);
             })
             .catch(setError)
             .finally(() => setIsLoadingResume(false))
@@ -138,51 +140,64 @@ export function Preview() {
       };
 
     return (
-        <div className="min-h-screen">
-            <EditToolBar
-                filename={filename || "Preview"}
-                isOverflowing={isOverflowing}
-                isEditing={isEditing}
-                canUndo={canUndo}
-                onUndo={onUndo}
-                canRedo={canRedo}
-                onRedo={onRedo}
-                onReset={onReset}
-                onSave={onSave}
-                onOpenSections={onOpenSections}
-                onDownload={onDownload}
-            />
-            {saveError && (
-                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-2 text-sm flex items-center justify-between">
-                    <span>{saveError}</span>
-                    <button onClick={() => setSaveError(null)} className="ml-2 underline">dismiss</button>
+        <div className="min-h-screen flex flex-col gap-6">
+            <details className="group flex flex-col gap-1">
+                <summary className="text-xs font-medium uppercase tracking-wide text-gray-600 cursor-pointer list-none flex items-center gap-1.5 select-none">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-open:rotate-90">
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                    Job Description
+                </summary>
+                <div className="rounded border border-gray-200 overflow-hidden">
+                    <p className="text-xs text-gray-700 whitespace-pre-wrap px-3 py-2 max-h-64 overflow-y-auto">{jobDescription}</p>
                 </div>
-            )}
-            {downloadError && (
-                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-2 text-sm flex items-center justify-between">
-                    <span>{downloadError}</span>
-                    <button onClick={() => setDownloadError(null)} className="ml-2 underline">dismiss</button>
-                </div>
-            )}
-            <SectionPanel
-                open={sectionsOpen}
-                onClose={() => setSectionsOpen(false)}
-                layoutConfig={draftLayout}
-                setLayoutConfig={setDraftLayout}
-            />
+            </details>
+            <div>
+                <EditToolBar
+                    filename={filename || "Preview"}
+                    isOverflowing={isOverflowing}
+                    isEditing={isEditing}
+                    canUndo={canUndo}
+                    onUndo={onUndo}
+                    canRedo={canRedo}
+                    onRedo={onRedo}
+                    onReset={onReset}
+                    onSave={onSave}
+                    onOpenSections={onOpenSections}
+                    onDownload={onDownload}
+                />
+                {saveError && (
+                    <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-2 text-sm flex items-center justify-between">
+                        <span>{saveError}</span>
+                        <button onClick={() => setSaveError(null)} className="ml-2 underline">dismiss</button>
+                    </div>
+                )}
+                {downloadError && (
+                    <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-2 text-sm flex items-center justify-between">
+                        <span>{downloadError}</span>
+                        <button onClick={() => setDownloadError(null)} className="ml-2 underline">dismiss</button>
+                    </div>
+                )}
+                <SectionPanel
+                    open={sectionsOpen}
+                    onClose={() => setSectionsOpen(false)}
+                    layoutConfig={draftLayout}
+                    setLayoutConfig={setDraftLayout}
+                />
 
-            <div className="preview-wrapper" style={style}>
-                <div ref={pageRef} className="page" >
-                    <PersonalInfoSection draft={draft} updateSection={updateSection} />
-                    {sorted.map((section) => {
-                        if (!section.enabled) return null;
-                        const value = draft[section.name];
-                        if (Array.isArray(value) && value.length === 0) return null;
-                        if (typeof value === 'string' && value.trim() === '') return null;
-                        const Component = sectionRegistry[section.name];
-                        return <Component key={section.name} draft={draft} updateSection={updateSection} />
-                        
-                    })}
+                <div className="preview-wrapper" style={style}>
+                    <div ref={pageRef} className="page" >
+                        <PersonalInfoSection draft={draft} updateSection={updateSection} />
+                        {sorted.map((section) => {
+                            if (!section.enabled) return null;
+                            const value = draft[section.name];
+                            if (Array.isArray(value) && value.length === 0) return null;
+                            if (typeof value === 'string' && value.trim() === '') return null;
+                            const Component = sectionRegistry[section.name];
+                            return <Component key={section.name} draft={draft} updateSection={updateSection} />
+                            
+                        })}
+                    </div>
                 </div>
             </div>
         </div>

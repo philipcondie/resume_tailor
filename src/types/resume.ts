@@ -91,12 +91,14 @@ export interface ResumeResponse {
     filename: string,
     resumeData: ResumeDataRaw,
     layout: LayoutConfig
+    jobDescription: string,
 }
 
 export interface Resume {
     filename: string,
     resumeData: ResumeData,
     layout: LayoutConfig
+    jobDescription:string
 }
 
 export const SectionConfigSchema = z.object({
