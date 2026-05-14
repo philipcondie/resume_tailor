@@ -46,7 +46,6 @@ export function PersonalInfoContainer() {
             <PersonalInfoForm
                 info={personalInfo}
                 handleUpdate={(info) => { personalInfoApi.save(info); setPersonalInfo(info) }}
-                handleClear={() => { personalInfoApi.save(defaultPersonalInfo); setPersonalInfo(defaultPersonalInfo) }}
             />
         </div>
         

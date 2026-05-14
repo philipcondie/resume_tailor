@@ -3,9 +3,8 @@ import { PersonalInfoEntry } from "../../types/resume"
 type PersonalInfoProps = {
     info : PersonalInfoEntry,
     handleUpdate: (info: PersonalInfoEntry) => void,
-    handleClear: () => void
 }
-export function PersonalInfoForm({info, handleUpdate, handleClear}:PersonalInfoProps) {
+export function PersonalInfoForm({info, handleUpdate}:PersonalInfoProps) {
     const [draft, setDraft] = useState<PersonalInfoEntry>({...info})
 
     const handleExtraChange = (index:number, value:string) => {
@@ -86,7 +85,6 @@ export function PersonalInfoForm({info, handleUpdate, handleClear}:PersonalInfoP
                 <button className="self-start text-xs text-blue-500 hover:text-blue-700 transition-colors mt-1" onClick={handleExtraAdd}>+ Add field</button>
             </div>
             <div className="flex flex-wrap gap-3 pt-2 border-t border-gray-100">
-                <button className="px-4 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors" onClick={() => handleClear()}>Clear</button>
                 <button
                     className="ml-auto px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     onClick={onSave}
