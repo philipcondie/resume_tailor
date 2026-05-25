@@ -48,6 +48,7 @@ export function Resumes() {
         setFilename('');
         setModalError(null);
     };
+    
     const handleDuplicate = async () => {
         setIsLoadingModal(true);
         setModalError(null);

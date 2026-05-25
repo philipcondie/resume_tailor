@@ -75,7 +75,6 @@ export interface PromptData {
     prompt: string
 }
 
-
 export interface LLMInput {
     jobs: JobEntry[],
     jobDescription: string,
@@ -104,12 +103,22 @@ export interface Resume {
 export const SectionConfigSchema = z.object({
     name: z.enum(['summary', 'jobs', 'education', 'projects', 'skills']),
     enabled: z.boolean(),
-    ordering: z.number().int().min(0)
+    ordering: z.number().int().min(0),
+    panel: z.string(),
 })
 
 export type SectionConfig = z.infer<typeof SectionConfigSchema>
 
-export type LayoutConfig = SectionConfig[]
+export type TemplateConfig = {
+    sections: SectionConfig[],
+}
+
+export type TemplateName = "classic" | "sidebar" | "multipanel";
+
+export type LayoutConfig = {
+    selectedTemplate: TemplateName
+    templates: Record<TemplateName, TemplateConfig>
+}
 
 export interface LayoutResponse {
     layout: LayoutConfig
