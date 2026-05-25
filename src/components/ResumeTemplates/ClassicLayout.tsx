@@ -10,9 +10,9 @@ export function ClassicLayout({resume, sections, updateSection} : LayoutProps) {
         [sections]
     );
     return (
-        <>
+        <div className="layout-classic">
             <PersonalInfoSection draft={resume} updateSection={updateSection}/>
             {renderPanel(sorted, resume, "main", classicSectionRegistry, updateSection)}
-        </>
+        </div>
     )
 }

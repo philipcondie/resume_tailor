@@ -116,6 +116,7 @@ export function Preview() {
 
     const handleSaveModal = (config: LayoutConfig) => {
         setDraftLayout(config);
+        setIsModalOpen(false);
     }
 
     const onDownload = async () => {
@@ -185,7 +186,7 @@ export function Preview() {
                         <button onClick={() => setDownloadError(null)} className="ml-2 underline">dismiss</button>
                     </div>
                 )}
-                <div className="preview-wrapper" style={style}>
+                <div className="bg-[#e8e8e8] min-h-screen p-4 overflow-x-auto" style={style}>
                     <div ref={pageRef} className="page" >
                         <Layout resume={draft} sections={draftLayout.templates[draftLayout.selectedTemplate].sections} updateSection={updateSection}/>
                     </div>

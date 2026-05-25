@@ -11,20 +11,18 @@ export function SidebarLayout({ resume, sections, updateSection }: LayoutProps) 
     );
 
     return (
-        <>
+        <div className="layout-sidebar">
             <PersonalInfoSection draft={resume} updateSection={updateSection} />
-            <div className="grid grid-cols-[1fr_2fr]">
-                <div>
-                    {renderPanel(
-                        sorted, resume, "sidebar", sidebarSectionRegistry, updateSection
-                    )}
-                </div>
-                <div>
-                    {renderPanel(
-                        sorted, resume, "main", sidebarSectionRegistry, updateSection
-                    )}
-                </div>
+            <div className="sidebar-panel">
+                {renderPanel(
+                    sorted, resume, "sidebar", sidebarSectionRegistry, updateSection
+                )}
             </div>
-        </>
+            <div className="main-panel">
+                {renderPanel(
+                    sorted, resume, "main", sidebarSectionRegistry, updateSection
+                )}
+            </div>
+        </div>
     )
 }

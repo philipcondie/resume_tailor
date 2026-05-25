@@ -11,23 +11,23 @@ export function MultipanelLayout({resume, sections, updateSection}: LayoutProps)
     );
 
     return (
-        <>
+        <div className="layout-multipanel">
             <PersonalInfoSection draft={resume} updateSection={updateSection} />
-            {renderPanel(
-                sorted, resume, "main", multipanelSectionRegistry, updateSection
-            )}
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    {renderPanel(
-                        sorted, resume, "left", multipanelSectionRegistry, updateSection
-                    )}
-                </div>
-                <div className="border-l pl-4">
-                    {renderPanel(
-                        sorted, resume, "right", multipanelSectionRegistry, updateSection
-                    )}
-                </div>
+            <div className="main-panel">
+                {renderPanel(
+                    sorted, resume, "main", multipanelSectionRegistry, updateSection
+                )}
             </div>
-        </>
+            <div className="left-panel">
+                {renderPanel(
+                    sorted, resume, "left", multipanelSectionRegistry, updateSection
+                )}
+            </div>
+            <div className="right-panel">
+                {renderPanel(
+                    sorted, resume, "right", multipanelSectionRegistry, updateSection
+                )}
+            </div>
+        </div>
     )
 }
