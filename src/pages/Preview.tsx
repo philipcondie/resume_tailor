@@ -4,12 +4,13 @@ import { data, useParams } from 'react-router-dom';
 import { useEditHistory } from '../hooks/useEditHistory';
 import { LayoutConfig, ResumeData, ResumeStyling } from '../types/resume';
 import './Preview.css';
-import { PersonalInfoSection } from '../components/ResumeSections/PersonalInfoSection';
-import { SectionPanel } from '../components/SectionPanel';
-import { sectionRegistry } from '../types/SectionRegistry';
+import { templateRegistry } from '../types/SectionRegistry';
 import { EditToolBar } from '../components/ResumeSections/EditToolBar';
 import { resumeApi, stylingApi } from '../lib/api';
 import { Spinner } from '../components/utils/Spinner';
+import { Modal } from '../components/utils/Modal';
+import { LayoutConfigComponent } from '../components/LayoutConfigComponent';
+
 
 export function Preview() {
     const {resumeId} = useParams();
@@ -21,8 +22,8 @@ export function Preview() {
     const [error, setError] = useState<Error | null>(null)
     const [saveError, setSaveError] = useState<string | null>(null);
     const [downloadError, setDownloadError] = useState<string | null>(null);
-    const [layoutConfig, setLayoutConfig] = useState<LayoutConfig>([]);
-    const [draftLayout, setDraftLayout] = useState<LayoutConfig>([]);
+    const [layoutConfig, setLayoutConfig] = useState<LayoutConfig | null>(null);
+    const [draftLayout, setDraftLayout] = useState<LayoutConfig | null >(null);
     const [styling, setStyling] = useState<ResumeStyling | null>(null);
     const [isLoadingStyling, setIsLoadingStyling] = useState<boolean>(true);
     const [stylingError, setStylingError] = useState<Error | null>(null);
@@ -30,7 +31,9 @@ export function Preview() {
     const isLoading = isLoadingResume || isLoadingStyling;
 
     const { save, canUndo, undo, canRedo, redo } = useEditHistory();
-    const [sectionsOpen, setSectionsOpen] = useState(false);
+
+    // modal state
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
     const pageRef = useRef<HTMLDivElement>(null);
     const [isOverflowing, setIsOverflowing] = useState(true);
@@ -63,15 +66,10 @@ export function Preview() {
         })
     },[draft,draftLayout]);
 
-    const sorted = useMemo(
-        () => [...draftLayout].sort((a, b) => a.ordering - b.ordering),
-        [draftLayout]
-    );
-
     if (isLoading) return <Spinner />;
     if (error) return <div>{error.message}</div>;
     if (stylingError) return <div>{stylingError.message}</div>;
-    if (!draft || !resumeData || !styling) return <div>No resume data found</div>;
+    if (!draft || !resumeData || !styling || !draftLayout) return <div>No resume data found</div>;
 
     const updateSection = <K extends keyof ResumeData>(key:K, value:ResumeData[K]) => {
         setDraft((prev) => prev ? ({...prev, [key]:value}) : prev);
@@ -81,10 +79,12 @@ export function Preview() {
         const next = redo(draft);
         if (next) setDraft(next);
     };
+
     const onUndo = () => {
         const next = undo(draft);
         if (next) setDraft(next);
     };
+
     const onSave = async () => {
         if (!draft || !resumeId) return;
         const failures: string[] = [];
@@ -114,7 +114,10 @@ export function Preview() {
         setSaveError(null);
     };
 
-    const onOpenSections = () => {setSectionsOpen(true)};
+    const handleSaveModal = (config: LayoutConfig) => {
+        setDraftLayout(config);
+        setIsModalOpen(false);
+    }
 
     const onDownload = async () => {
         if (!resumeId) return
@@ -138,9 +141,14 @@ export function Preview() {
         '--color-accent': styling.colorAccent,
         '--font-main': styling.fontMain.map(f => f.includes(' ') ? `"${f}"` : f).join(', ')
       };
-
+    
+    const template = templateRegistry[draftLayout.selectedTemplate];
+    const Layout = template.layout;
     return (
         <div className="min-h-screen flex flex-col gap-6">
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                <LayoutConfigComponent layoutConfig={draftLayout} isSaving={false} error={null} handleSave={handleSaveModal} isModal={true} />
+            </Modal>
             <details className="group flex flex-col gap-1">
                 <summary className="text-xs font-medium uppercase tracking-wide text-gray-600 cursor-pointer list-none flex items-center gap-1.5 select-none">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-open:rotate-90">
@@ -163,7 +171,7 @@ export function Preview() {
                     onRedo={onRedo}
                     onReset={onReset}
                     onSave={onSave}
-                    onOpenSections={onOpenSections}
+                    onOpenLayout={() => setIsModalOpen(true)}
                     onDownload={onDownload}
                 />
                 {saveError && (
@@ -178,25 +186,9 @@ export function Preview() {
                         <button onClick={() => setDownloadError(null)} className="ml-2 underline">dismiss</button>
                     </div>
                 )}
-                <SectionPanel
-                    open={sectionsOpen}
-                    onClose={() => setSectionsOpen(false)}
-                    layoutConfig={draftLayout}
-                    setLayoutConfig={setDraftLayout}
-                />
-
-                <div className="preview-wrapper" style={style}>
+                <div className="bg-[#e8e8e8] min-h-screen p-4 overflow-x-auto" style={style}>
                     <div ref={pageRef} className="page" >
-                        <PersonalInfoSection draft={draft} updateSection={updateSection} />
-                        {sorted.map((section) => {
-                            if (!section.enabled) return null;
-                            const value = draft[section.name];
-                            if (Array.isArray(value) && value.length === 0) return null;
-                            if (typeof value === 'string' && value.trim() === '') return null;
-                            const Component = sectionRegistry[section.name];
-                            return <Component key={section.name} draft={draft} updateSection={updateSection} />
-                            
-                        })}
+                        <Layout resume={draft} sections={draftLayout.templates[draftLayout.selectedTemplate].sections} updateSection={updateSection}/>
                     </div>
                 </div>
             </div>

@@ -22,6 +22,11 @@ export const COLOR_FAMILIES = {
     olive: { name: "#4A4A2B", accent: "#7A7A3D" },
 }
 
+export const PANEL_OPTIONS = {
+    classic: ['main'],
+    sidebar: ['main', 'sidebar'],
+    multipanel: ['main', 'left', 'right'],
+}
 
 
 

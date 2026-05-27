@@ -11,11 +11,11 @@ type EditToolBarProps = {
     onRedo: () => void,
     onSave: () => void,
     onReset: () => void,
-    onOpenSections: () => void,
+    onOpenLayout: () => void,
     onDownload: () => void,
 }
 
-export function EditToolBar({ filename, isOverflowing, isEditing, canUndo, onUndo, canRedo, onRedo, onSave, onReset, onOpenSections, onDownload }:EditToolBarProps) {
+export function EditToolBar({ filename, isOverflowing, isEditing, canUndo, onUndo, canRedo, onRedo, onSave, onReset, onOpenLayout, onDownload }:EditToolBarProps) {
 
     const [moreOpen, setMoreOpen] = useState(false);
     const moreRef = useRef<HTMLDivElement>(null);
@@ -105,10 +105,10 @@ export function EditToolBar({ filename, isOverflowing, isEditing, canUndo, onUnd
                             Reset to last save
                         </button>
                         <button
-                            onClick={() => { onOpenSections(); setMoreOpen(false); }}
+                            onClick={() => { onOpenLayout(); setMoreOpen(false); }}
                             className="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
                         >
-                            Sections
+                            Layout
                         </button>
                     </div>
                 )}
