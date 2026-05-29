@@ -1,3 +1,4 @@
+import { data } from "react-router-dom";
 import { 
     EducationEntry, 
     JobEntry, 
@@ -119,25 +120,35 @@ export const resumeApi = {
     }),
     get: (id:string) : Promise<Resume> => fetchApi<ResumeResponse>(`/resume/${id}`).then(data => {
         const resumeData = addBulletIds(data.resumeData);
-        return {filename: data.filename, layout:data.layout, resumeData: resumeData, jobDescription:data.jobDescription}
+        return {filename: data.filename, layout:data.layout, resumeData: resumeData, jobDescription:data.jobDescription, styling: data.styling}
     }),
-    updateData: (id: string, input: ResumeData): Promise<Resume> => {
+    update: async (id: string, input: Resume): Promise<Resume> => {
+        const rawResumeData = removeBulletIds(input.resumeData);
+        return fetchApi<ResumeResponse>(`/resume/${id}`, {
+            method: "PUT",
+            body: JSON.stringify({...input, resumeData: rawResumeData})
+        }).then((data) => {
+            const resumeData = addBulletIds(data.resumeData)
+            return {...data, resumeData: resumeData}
+        })
+    },
+    updateData: async (id: string, input: ResumeData): Promise<Resume> => {
         const rawData = removeBulletIds(input);
         return fetchApi<ResumeResponse>(`/resume/${id}`, {
             method: "PUT",
             body: JSON.stringify(rawData)
         }).then((data) => {
             const resumeData = addBulletIds(data.resumeData);
-            return { filename: data.filename, layout: data.layout, resumeData: resumeData, jobDescription: data.jobDescription }
+            return { ...data, resumeData: resumeData }
         });
     },
-    updateLayout: (id: string, input: LayoutConfig): Promise<Resume> => {
+    updateLayout: async (id: string, input: LayoutConfig): Promise<Resume> => {
         return fetchApi<ResumeResponse>(`/resume/${id}/layout`, {
             method: "PUT",
             body: JSON.stringify({ "layout": input })
         }).then((data) => {
             const resumeData = addBulletIds(data.resumeData);
-            return { filename: data.filename, layout: data.layout, resumeData: resumeData, jobDescription: data.jobDescription }
+            return { ...data, resumeData: resumeData }
         });
     },
     delete: (id:string) => fetchApi<null>(`/resume/${id}`, {

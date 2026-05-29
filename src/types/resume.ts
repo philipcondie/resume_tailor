@@ -90,13 +90,15 @@ export interface ResumeResponse {
     filename: string,
     resumeData: ResumeDataRaw,
     layout: LayoutConfig
+    styling: ResumeStyling,
     jobDescription: string,
 }
 
 export interface Resume {
     filename: string,
     resumeData: ResumeData,
-    layout: LayoutConfig
+    layout: LayoutConfig,
+    styling: ResumeStyling,
     jobDescription:string
 }
 

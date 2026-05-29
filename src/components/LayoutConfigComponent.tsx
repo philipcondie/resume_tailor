@@ -7,12 +7,13 @@ import { templateRegistry } from "../types/SectionRegistry";
 export type LayoutConfigProps = {
     layoutConfig: LayoutConfig,
     error: Error | null,
+    isLoading: boolean,
     isSaving: boolean,
     handleSave: (config: LayoutConfig) => void | Promise<void>,
     isModal: boolean
 }
 
-export function LayoutConfigComponent({layoutConfig, isSaving, error, handleSave, isModal}: LayoutConfigProps) {
+export function LayoutConfigComponent({layoutConfig, isSaving, isLoading, error, handleSave, isModal}: LayoutConfigProps) {
     const [draftLayout, setDraftLayout] = useState<LayoutConfig | null>(layoutConfig);
 
     if (error) return (
@@ -104,6 +105,8 @@ export function LayoutConfigComponent({layoutConfig, isSaving, error, handleSave
                     Choose the template and which sections appear and their order on your resumes.
                 </p>
             </div>
+        { isLoading ? <Spinner /> :
+            <>
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm divide-y divide-gray-100 mb-6">
                 <label className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
                     <span className="text-sm font-medium text-gray-900">Layout</span>
@@ -201,6 +204,8 @@ export function LayoutConfigComponent({layoutConfig, isSaving, error, handleSave
                     {isModal ? "OK": "Save"}
                 </button>
             </div>
+            </>
+        }
         </div>
     );
 }
