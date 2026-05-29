@@ -1,15 +1,16 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { data, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import { useEditHistory } from '../hooks/useEditHistory';
 import { LayoutConfig, ResumeData, ResumeStyling } from '../types/resume';
 import './Preview.css';
 import { templateRegistry } from '../types/SectionRegistry';
 import { EditToolBar } from '../components/ResumeSections/EditToolBar';
-import { resumeApi, stylingApi } from '../lib/api';
+import { resumeApi } from '../lib/api';
 import { Spinner } from '../components/utils/Spinner';
 import { Modal } from '../components/utils/Modal';
 import { LayoutConfigComponent } from '../components/LayoutConfigComponent';
+import { StylingComponent } from '../components/StylingComponent';
 
 
 export function Preview() {
@@ -25,15 +26,15 @@ export function Preview() {
     const [layoutConfig, setLayoutConfig] = useState<LayoutConfig | null>(null);
     const [draftLayout, setDraftLayout] = useState<LayoutConfig | null >(null);
     const [styling, setStyling] = useState<ResumeStyling | null>(null);
-    const [isLoadingStyling, setIsLoadingStyling] = useState<boolean>(true);
-    const [stylingError, setStylingError] = useState<Error | null>(null);
-    const isEditing = (JSON.stringify(draft) !== JSON.stringify(resumeData)) || (JSON.stringify(layoutConfig) !== JSON.stringify(draftLayout));
-    const isLoading = isLoadingResume || isLoadingStyling;
+    const [draftStyling, setDraftStyling] = useState<ResumeStyling | null>(null);
+    const isEditing = (JSON.stringify(draft) !== JSON.stringify(resumeData)) || (JSON.stringify(layoutConfig) !== JSON.stringify(draftLayout)) || (JSON.stringify(styling) !== JSON.stringify(draftStyling));
+    const isLoading = isLoadingResume;
 
     const { save, canUndo, undo, canRedo, redo } = useEditHistory();
 
     // modal state
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [isLayoutModalOpen, setIsLayoutModalOpen] = useState<boolean>(false);
+    const [isStylingModalOpen, setIsStylingModalOpen] = useState<boolean>(false);
 
     const pageRef = useRef<HTMLDivElement>(null);
     const [isOverflowing, setIsOverflowing] = useState(true);
@@ -47,18 +48,13 @@ export function Preview() {
                 setFilename(data.filename);
                 setLayoutConfig(data.layout);
                 setDraftLayout(data.layout);
+                setStyling(data.styling);
+                setDraftStyling(data.styling);
                 setJobDescription(data.jobDescription);
             })
             .catch(setError)
             .finally(() => setIsLoadingResume(false))
     }, [resumeId]);
-
-    useEffect(() => {
-        stylingApi.get()
-            .then((data) => setStyling(data))
-            .catch(setStylingError)
-            .finally(() => setIsLoadingStyling(false))
-    },[])
 
     useEffect(() => {
         requestAnimationFrame(() => {
@@ -68,8 +64,7 @@ export function Preview() {
 
     if (isLoading) return <Spinner />;
     if (error) return <div>{error.message}</div>;
-    if (stylingError) return <div>{stylingError.message}</div>;
-    if (!draft || !resumeData || !styling || !draftLayout) return <div>No resume data found</div>;
+    if (!draft || !resumeData || !styling || !draftLayout || !draftStyling) return <div>No resume data found</div>;
 
     const updateSection = <K extends keyof ResumeData>(key:K, value:ResumeData[K]) => {
         setDraft((prev) => prev ? ({...prev, [key]:value}) : prev);
@@ -86,38 +81,35 @@ export function Preview() {
     };
 
     const onSave = async () => {
-        if (!draft || !resumeId) return;
-        const failures: string[] = [];
-        if(JSON.stringify(draft) !== JSON.stringify(resumeData)) {
-            try {
-                await resumeApi.updateData(resumeId,draft);
-                save(resumeData);
-                setResumeData(draft);
-            } catch (e) {
-                failures.push(`Failed to save content: ${e instanceof Error ? e.message : 'unknown error'}`);
-            }
+        if (!draft || !resumeId || !filename || !draftLayout || !draftStyling) return;
+       
+        try {
+            await resumeApi.update(resumeId,{resumeData:draft, filename: filename, layout: draftLayout, styling: draftStyling, jobDescription: jobDescription});
+            save(resumeData);
+            setResumeData(draft);
+            setLayoutConfig(draftLayout);
+            setStyling(draftStyling);
+        } catch (e) {
+            setSaveError(`Failed to save resume: ${e instanceof Error ? e.message : 'unknown error'}`)
         }
-        if (JSON.stringify(layoutConfig) !== JSON.stringify(draftLayout)) {
-            try {
-                await resumeApi.updateLayout(resumeId,draftLayout);
-                setLayoutConfig(draftLayout);
-            } catch (e) {
-                failures.push(`Failed to save layout: ${e instanceof Error ? e.message : 'unknown error'}`);
-            }
-        }
-        setSaveError(failures.length ? failures.join(' ') : null);
     };
 
     const onReset = () => {
         setDraft(resumeData);
         setDraftLayout(layoutConfig);
+        setDraftStyling(styling);
         setSaveError(null);
     };
 
-    const handleSaveModal = (config: LayoutConfig) => {
+    const handleSaveLayoutModal = (config: LayoutConfig) => {
         setDraftLayout(config);
-        setIsModalOpen(false);
-    }
+        setIsLayoutModalOpen(false);
+    };
+
+    const handleSaveStylingModal = (stylingUpdate: ResumeStyling) => {
+        setDraftStyling(stylingUpdate);
+        setIsStylingModalOpen(false);
+    };
 
     const onDownload = async () => {
         if (!resumeId) return
@@ -137,17 +129,20 @@ export function Preview() {
     };
 
     const style: React.CSSProperties & Record<`--${string}`, string> = {
-        '--color-text-name': styling.colorTextName,
-        '--color-accent': styling.colorAccent,
-        '--font-main': styling.fontMain.map(f => f.includes(' ') ? `"${f}"` : f).join(', ')
+        '--color-text-name': draftStyling.colorTextName,
+        '--color-accent': draftStyling.colorAccent,
+        '--font-main': draftStyling.fontMain.map(f => f.includes(' ') ? `"${f}"` : f).join(', ')
       };
     
     const template = templateRegistry[draftLayout.selectedTemplate];
     const Layout = template.layout;
     return (
         <div className="min-h-screen flex flex-col gap-6">
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-                <LayoutConfigComponent layoutConfig={draftLayout} isSaving={false} error={null} handleSave={handleSaveModal} isModal={true} />
+            <Modal isOpen={isLayoutModalOpen} onClose={() => setIsLayoutModalOpen(false)}>
+                <LayoutConfigComponent layoutConfig={draftLayout} isSaving={false} error={null} isLoading={isLoading} handleSave={handleSaveLayoutModal} isModal={true} />
+            </Modal>
+            <Modal isOpen={isStylingModalOpen} onClose={() => setIsStylingModalOpen(false)}>
+                <StylingComponent styling={draftStyling} isSaving={false} error={null} isLoading={isLoading} handleSave={handleSaveStylingModal} isModal={true} />
             </Modal>
             <details className="group flex flex-col gap-1">
                 <summary className="text-xs font-medium uppercase tracking-wide text-gray-600 cursor-pointer list-none flex items-center gap-1.5 select-none">
@@ -171,7 +166,8 @@ export function Preview() {
                     onRedo={onRedo}
                     onReset={onReset}
                     onSave={onSave}
-                    onOpenLayout={() => setIsModalOpen(true)}
+                    onOpenLayout={() => setIsLayoutModalOpen(true)}
+                    onOpenStyling={() => setIsStylingModalOpen(true)}
                     onDownload={onDownload}
                 />
                 {saveError && (

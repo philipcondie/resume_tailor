@@ -12,10 +12,11 @@ type EditToolBarProps = {
     onSave: () => void,
     onReset: () => void,
     onOpenLayout: () => void,
+    onOpenStyling: () => void,
     onDownload: () => void,
 }
 
-export function EditToolBar({ filename, isOverflowing, isEditing, canUndo, onUndo, canRedo, onRedo, onSave, onReset, onOpenLayout, onDownload }:EditToolBarProps) {
+export function EditToolBar({ filename, isOverflowing, isEditing, canUndo, onUndo, canRedo, onRedo, onSave, onReset, onOpenLayout, onOpenStyling, onDownload }:EditToolBarProps) {
 
     const [moreOpen, setMoreOpen] = useState(false);
     const moreRef = useRef<HTMLDivElement>(null);
@@ -109,6 +110,12 @@ export function EditToolBar({ filename, isOverflowing, isEditing, canUndo, onUnd
                             className="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
                         >
                             Layout
+                        </button>
+                        <button
+                            onClick={() => { onOpenStyling(); setMoreOpen(false); }}
+                            className="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+                        >
+                            Styling
                         </button>
                     </div>
                 )}
