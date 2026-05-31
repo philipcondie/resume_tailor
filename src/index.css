@@ -3,3 +3,9 @@
 *:not(.page):not(.page *) {
   font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif;
 }
+
+/* Used by the landing-page demo reveal (DemoSection bullets). */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

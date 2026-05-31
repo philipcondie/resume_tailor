@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { LayoutConfig, ResumeStyling } from "../types/resume";
-import { Spinner } from "../components/utils/Spinner";
 import { layoutApi, stylingApi } from "../lib/api";
 import { LayoutConfigComponent } from "../components/LayoutConfigComponent";
 import { StylingComponent } from "../components/StylingComponent";
@@ -55,7 +54,7 @@ export function LayoutConfigPage() {
         try {
             const data = await layoutApi.update(config);
             setLayoutConfig(data);
-        } catch (err) {err instanceof Error ? err : new Error(String(err))
+        } catch (err) {
             const error = err instanceof Error ? err : new Error(String(err))
             setErrorLayout(error);
             throw error;

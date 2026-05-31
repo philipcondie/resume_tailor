@@ -65,7 +65,7 @@ export function Generate() {
             clearHistory();
 
             // navigate to preview
-            navigate(`/preview/${response.id}`)
+            navigate(`/app/preview/${response.id}`)
         } catch(err) {
             setError(err instanceof Error ? err : new Error(String(err)));
         } finally {
