@@ -103,6 +103,12 @@
     --font-main: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
 }
 
+/* Pin the rem basis so it can't drift from the backend WeasyPrint render.
+   Must match resume-store .../resume_templates/resume.css. */
+html {
+    font-size: 16px;
+}
+
 .page, .page *, .page *::before, .page *::after {
     margin: 0;
     padding: 0;

@@ -58,7 +58,14 @@ export function Preview() {
 
     useEffect(() => {
         requestAnimationFrame(() => {
-            setIsOverflowing(!!pageRef.current && pageRef.current.scrollHeight > pageRef.current.clientHeight);
+            // Usable page height must mirror the backend @page margins in
+            // resume-store .../resume_templates/resume.css (0.55in top + 0.5in bottom
+            // on an 11in letter sheet). WeasyPrint paginates against this exact height,
+            // so we measure the .page's natural (unclipped) content height against it.
+            // scrollHeight ignores the .page's `overflow: hidden`/`max-height` clip,
+            // reporting true content height. 96 CSS px per inch.
+            const USABLE_HEIGHT_PX = (11 - 0.55 - 0.5) * 96; // 9.95in -> 955.2px
+            setIsOverflowing(!!pageRef.current && pageRef.current.scrollHeight > USABLE_HEIGHT_PX);
         })
     },[draft,draftLayout]);
 
