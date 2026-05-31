@@ -11,8 +11,8 @@ export function renderPanel(
     return sections.map((section) => {
         if (!section.enabled || section.panel !== panel) return null;
         const value = resume[section.name];
-        if (Array.isArray(value) && value.length === 0) return null;
-        if (typeof value === 'string' && value.trim() === '') return null;
+        // if (Array.isArray(value) && value.length === 0) return null;
+        // if (typeof value === 'string' && value.trim() === '') return null;
         const Component = registry[section.name];
         return <Component key={section.name} draft={resume} updateSection={updateSection} />;        
     })

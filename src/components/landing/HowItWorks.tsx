@@ -14,7 +14,7 @@ const STEPS: Step[] = [
     },
     {
         title: "Get a tailored resume",
-        body: "Bullets and summary are rewritten to match the job, then rendered into a print-ready, one-page resume you can style.",
+        body: "The most relevant bullets are selected and rewritten to match the job, then rendered into a print-ready, one-page resume you can style.",
     },
 ];
 

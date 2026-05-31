@@ -6,7 +6,7 @@ type Feature = {
 const FEATURES: Feature[] = [
     {
         title: "Tailored to the job, not generic",
-        body: "An LLM finetunes your work experience and summary to mirror the language and priorities of each job description while keeping your facts and sharpening the framing.",
+        body: "An LLM selects your most relevant work experience and finetunes your resume to the job description while keeping your specific job history.",
     },
     {
         title: "Print-ready templates with live theming",
