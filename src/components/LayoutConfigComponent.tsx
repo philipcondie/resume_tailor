@@ -194,7 +194,7 @@ export function LayoutConfigComponent({layoutConfig, isSaving, isLoading, error,
                         try {
                             await handleSave(draftLayout);
                         } catch {
-                            
+                            // handled upstream: handleSave sets the error state before rethrowing
                         }
                         
                     }}

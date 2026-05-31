@@ -9,7 +9,7 @@ export function Login() {
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-    if (isAuthenticated) return <Navigate to={'/'} replace/>
+    if (isAuthenticated) return <Navigate to={'/app/resumes'} replace/>
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();

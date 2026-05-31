@@ -58,7 +58,7 @@ export function StylingComponent({ styling, error, isSaving, isLoading, handleSa
     };
 
     return (
-        <div className="max-w-lg mb-10">
+        <div className="max-w-lg mb-5">
             <div className="mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">Text Settings</h2>
                 <p className="text-sm text-gray-500 mt-1">
@@ -83,7 +83,7 @@ export function StylingComponent({ styling, error, isSaving, isLoading, handleSa
                             onChange={(e) => handleFontChange(e.target.value)}
                             className="min-w-30 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-700 focus:border-transparent"
                         >
-                            {Object.entries(FONT_PRESETS).map(([name,fonts]) => (
+                            {Object.entries(FONT_PRESETS).map(([name]) => (
                                 <option key={name} value={name}>{`${name[0].toUpperCase()}${name.slice(1)}`}</option>
                             ))}
                         </select>
@@ -103,7 +103,7 @@ export function StylingComponent({ styling, error, isSaving, isLoading, handleSa
                             className="min-w-30 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-700 focus:border-transparent"
                         >
                             {
-                                Object.entries(COLOR_FAMILIES).map(([name,colors]) => (
+                                Object.entries(COLOR_FAMILIES).map(([name]) => (
                                     <option key={name} value={name}>{`${name[0].toUpperCase()}${name.slice(1)}`}</option>
                                 ))
                             }
@@ -125,7 +125,7 @@ export function StylingComponent({ styling, error, isSaving, isLoading, handleSa
                         try {
                             await handleSave(draftStyling);
                         } catch {
-
+                            // handled upstream: handleSave sets the error state before rethrowing
                         }
                     }}
                     disabled={!isEditing || isSaving}
