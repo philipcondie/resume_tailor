@@ -145,3 +145,8 @@ export type ResumeStyling = {
     colorAccent: string,
     fontMain: string[]
 }
+
+export type ResumeDownload = {
+    blob: Blob,
+    pageCountStr: string | null
+}

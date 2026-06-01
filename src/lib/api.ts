@@ -14,6 +14,7 @@ import {
     ResumeResponse,
     Resume,
     ResumeStyling,
+    ResumeDownload,
 } from "../types/resume";
 
 
@@ -158,7 +159,7 @@ export const resumeApi = {
         method: "POST",
         body: JSON.stringify({"filename":filename})
     }),
-    download: async (id:string) => {
+    download: async (id:string) : Promise<ResumeDownload> => {
         let response: Response;
         try {
             response = await fetch(`${API_BASE_URL}/resume/${id}/pdf`, {
@@ -181,7 +182,11 @@ export const resumeApi = {
             throw new ApiError(response.status, response.statusText);
         }
 
-        return await response.blob();
+        const pdfBlob = await response.blob();
+        return {
+            blob: pdfBlob,
+            pageCountStr: response.headers.get("x-resume-page-count")
+        }
     }
 }
 
