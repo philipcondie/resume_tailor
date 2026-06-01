@@ -36,7 +36,7 @@ export function Preview() {
     const [isLayoutModalOpen, setIsLayoutModalOpen] = useState<boolean>(false);
     const [isStylingModalOpen, setIsStylingModalOpen] = useState<boolean>(false);
 
-    const pageRef = useRef<HTMLDivElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
     const [isOverflowing, setIsOverflowing] = useState(true);
 
     useEffect(() => {
@@ -60,12 +60,13 @@ export function Preview() {
         requestAnimationFrame(() => {
             // Usable page height must mirror the backend @page margins in
             // resume-store .../resume_templates/resume.css (0.55in top + 0.5in bottom
-            // on an 11in letter sheet). WeasyPrint paginates against this exact height,
-            // so we measure the .page's natural (unclipped) content height against it.
-            // scrollHeight ignores the .page's `overflow: hidden`/`max-height` clip,
-            // reporting true content height. 96 CSS px per inch.
+            // on an 11in letter sheet). WeasyPrint paginates against this exact height.
+            // We measure the inner content wrapper (not .page itself), because .page
+            // carries min-height:11in and border-box padding that would inflate the
+            // reading. The wrapper has no padding/min-height, so its scrollHeight is the
+            // true content height, directly comparable to the usable area. 96 px/inch.
             const USABLE_HEIGHT_PX = (11 - 0.55 - 0.5) * 96; // 9.95in -> 955.2px
-            setIsOverflowing(!!pageRef.current && pageRef.current.scrollHeight > USABLE_HEIGHT_PX);
+            setIsOverflowing(!!contentRef.current && contentRef.current.scrollHeight > USABLE_HEIGHT_PX);
         })
     },[draft,draftLayout]);
 
@@ -119,15 +120,19 @@ export function Preview() {
     };
 
     const onDownload = async () => {
+        setDownloadError(null);
         if (!resumeId) return
         try {
-            const blob = await resumeApi.download(resumeId)
-            const url = URL.createObjectURL(blob);
+            const response = await resumeApi.download(resumeId)
+            const url = URL.createObjectURL(response.blob);
             const a = document.createElement("a");
             a.href = url;
             a.download = filename + ".pdf";
             a.click();
             URL.revokeObjectURL(url);
+            if (response.pageCountStr && parseInt(response.pageCountStr, 10) > 1) {
+                setDownloadError(`WARNING: The generated PDF may exceed 1 page in length. Check the download.`);
+            }
         }
         catch (e) {
             setDownloadError(`Failed to download resume: ${e instanceof Error ? e.message : 'unknown error'}`)
@@ -190,8 +195,10 @@ export function Preview() {
                     </div>
                 )}
                 <div className="bg-[#e8e8e8] min-h-screen p-4 overflow-x-auto" style={style}>
-                    <div ref={pageRef} className="page" >
-                        <Layout resume={draft} sections={draftLayout.templates[draftLayout.selectedTemplate].sections} updateSection={updateSection}/>
+                    <div className="page" >
+                        <div ref={contentRef}>
+                            <Layout resume={draft} sections={draftLayout.templates[draftLayout.selectedTemplate].sections} updateSection={updateSection}/>
+                        </div>
                     </div>
                 </div>
             </div>
