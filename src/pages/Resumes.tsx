@@ -72,7 +72,7 @@ export function Resumes() {
                 <div className="border border-dashed border-gray-300 rounded-md p-10 text-center">
                     <p className="text-sm text-gray-600 mb-4">You haven't generated any resumes yet.</p>
                     <Link
-                        to="generate"
+                        to="/app/generate"
                         className="inline-block px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded hover:bg-gray-700 transition-colors"
                     >
                         Create your first resume
