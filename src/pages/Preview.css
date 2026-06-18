@@ -194,7 +194,6 @@ html {
     font-size: 1.5rem;
     font-weight: 800;
     letter-spacing: 0.02em;
-    text-transform: uppercase;
     color: var(--color-text-name);
     line-height: 1.1;
 }
@@ -251,6 +250,7 @@ html {
 .page input.editable {
     font: inherit;
     color: inherit;
+    text-transform: inherit;
     background: transparent;
     border: none;
     box-sizing: content-box;

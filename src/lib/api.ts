@@ -162,7 +162,7 @@ export const resumeApi = {
     download: async (id:string) : Promise<ResumeDownload> => {
         let response: Response;
         try {
-            response = await fetch(`${API_BASE_URL}/resume/${id}/pdf`, {
+            response = await fetch(`${API_BASE_URL}/resume/${id}/pdf/playwright`, {
                 headers: {
                     'Content-Type': 'application/pdf',
                     'Authorization': `Bearer ${getToken() ?? ''}`,
