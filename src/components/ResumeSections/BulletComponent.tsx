@@ -13,7 +13,7 @@ export function BulletComponent({bullet, index, updateBullet, deleteBullet}:Bull
     const { ref, handleRef } = useSortable({id:bullet.id, index}) 
     return (
         <li ref={ref} className="bullet-row">
-            <EditableTextArea as="span" className='editable' content={bullet.text} handleChange={(text) => updateBullet(text)}/>
+            <EditableTextArea className='editable' content={bullet.text} handleChange={(text) => updateBullet(text)}/>
             <button className='bullet-controls bullet-delete' onClick={deleteBullet}>×</button>
             <button ref={handleRef} className="bullet-controls drag-handle">⠿</button>
         </li>

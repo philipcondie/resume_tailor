@@ -1,79 +1,61 @@
-import { useLayoutEffect, useRef, type ClipboardEvent, type KeyboardEvent } from "react";
+import { useEffect, useRef } from "react";
 
 type EditableTextAreaProps = {
     className?: string,
     content: string,
     handleChange: (content:string) => void,
-    as?: "p" | "span",
 }
 
-function normalizeEditableText(text: string) {
-    return text.replace(/\u00a0/g, " ").replace(/[\r\n]+/g, " ");
-}
-
-function useEditableText(content: string, handleChange: (content: string) => void) {
-    const editableRef = useRef<HTMLElement | null>(null);
-    
-    useLayoutEffect(() => {
-        const el = editableRef.current;
-        if (!el || document.activeElement === el || el.textContent === content) return;
-        el.textContent = content;
-    }, [content]);
-
-    const syncFromElement = (el: HTMLElement) => {
-        handleChange(normalizeEditableText(el.textContent ?? ""));
-    };
-
-    const onInput = () => {
-        if (editableRef.current) syncFromElement(editableRef.current);
-    };
-
-    const onBlur = () => {
-        const el = editableRef.current;
+export function EditableTextArea({className,content,handleChange}: EditableTextAreaProps) {
+    const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+    const autoResize = (el: HTMLTextAreaElement | null) => {
         if (!el) return;
-        const normalized = normalizeEditableText(el.textContent ?? "");
-        if (el.textContent !== normalized) el.textContent = normalized;
-        handleChange(normalized);
-    };
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px';
+    }
 
-    const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
-        if (e.key === "Enter") e.preventDefault();
-    };
+    useEffect(() => {
+        autoResize(textAreaRef.current)
+    },[content]);
 
-    const onPaste = (e: ClipboardEvent<HTMLElement>) => {
-        e.preventDefault();
-        document.execCommand("insertText", false, normalizeEditableText(e.clipboardData.getData("text/plain")));
-    };
-
-    return {
-        ref: editableRef,
-        contentEditable: true,
-        suppressContentEditableWarning: true,
-        onInput,
-        onBlur,
-        onKeyDown,
-        onPaste,
-    };
-}
-
-export function EditableTextArea({className,content,handleChange,as: Element = "p"}: EditableTextAreaProps) {
-    const editableProps = useEditableText(content, handleChange);
-
+    const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        handleChange(e.target.value);
+        autoResize(textAreaRef.current);
+    }
     return (
-        <Element
-            {...editableProps}
-            className={className}
-        />
+        <textarea ref={textAreaRef} className={className} onChange={onChange} value={content} rows={1} />
     )
 }
 
 export function EditableInline({className, content, handleChange}: EditableTextAreaProps) {
-    const editableProps = useEditableText(content, handleChange);
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const mirrorRef = useRef<HTMLSpanElement | null>(null);
+
+    const autoWidth = () => {
+        if (!mirrorRef.current || !inputRef.current) return;
+        const style = window.getComputedStyle(inputRef.current);
+        mirrorRef.current.style.font = style.font;
+        mirrorRef.current.style.letterSpacing = style.letterSpacing;
+        mirrorRef.current.style.textTransform = style.textTransform;
+        const padding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+        const border = parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth);
+        inputRef.current.style.width = Math.ceil(mirrorRef.current.getBoundingClientRect().width) + padding + border + 'px';
+    };
+
+    useEffect(() => {
+        document.fonts.ready.then(autoWidth);
+    }, [content]);
+
+    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        handleChange(e.target.value);
+    };
 
     return (
-        <span
-            {...editableProps}
-            className={className}
-        />
+        <>
+            <span ref={mirrorRef} style={{ visibility: 'hidden', position: 'absolute', whiteSpace: 'pre', font: 'inherit' }}>
+                {content || ' '}
+            </span>
+            <input ref={inputRef} type="text" className={className} onChange={onChange} value={content} />
+        </>
     );
 }
