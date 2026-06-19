@@ -23,8 +23,8 @@ export function SkillSection({draft, updateSection}:SectionProps) {
                 {draft.skills?.map((skill) => (
                     <div className="skill-line section-item" key={skill.id}>
                         <button className='bullet-controls bullet-delete' onClick={() => deleteSkill(skill.id)}>×</button>
-                        <span className="skill-category"><EditableInline content={skill.title} handleChange={(text)=>updateSkillField(skill.id,'title',text)}/>: </span>
-                        <span className="skill-values"><EditableInline content={skill.text} handleChange={(text)=>updateSkillField(skill.id,'text',text)}/></span>
+                        <span className="skill-category"><EditableInline className='editable' content={skill.title} handleChange={(text)=>updateSkillField(skill.id,'title',text)}/>: </span>
+                        <span className="skill-values"><EditableInline className='editable' content={skill.text} handleChange={(text)=>updateSkillField(skill.id,'text',text)}/></span>
                     </div>
                 ))}
                 <button className='add-bullet-controls' onClick={addSkill}>+</button>
