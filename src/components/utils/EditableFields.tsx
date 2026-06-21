@@ -15,7 +15,7 @@ export function EditableTextArea({className,content,handleChange}: EditableTextA
     }
 
     useEffect(() => {
-        autoResize(textAreaRef.current)
+        document.fonts.ready.then(()=>autoResize(textAreaRef.current))
     },[content]);
 
     const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
