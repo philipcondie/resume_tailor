@@ -4,12 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { JobEntry, LLMInput, ResumeMetadata, ResumeRequest } from "../types/resume";
 import { resumeApi, jobsApi, ApiError } from "../lib/api";
 import { Spinner } from "../components/utils/Spinner";
-import { useEditHistory } from "../hooks/useEditHistory";
 
 export function Generate() {
     const navigate = useNavigate();
-    const { clearHistory } = useEditHistory();
-    
+
     const [jobHistory, setJobHistory] = useState<JobEntry[]>([]);
     const [filename, setFilename] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -61,8 +59,6 @@ export function Generate() {
             }
             // do api call
             const response: ResumeMetadata = await resumeApi.generate(request);
-            
-            clearHistory();
 
             // navigate to preview
             navigate(`/app/preview/${response.id}`)

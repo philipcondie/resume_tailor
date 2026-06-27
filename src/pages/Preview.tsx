@@ -17,20 +17,23 @@ export function Preview() {
     const {resumeId} = useParams();
     const [resumeData, setResumeData] = useState<ResumeData | null>(null);
     const [jobDescription, setJobDescription] = useState<string>('');
-    const [draft, setDraft] = useState<ResumeData | null>(null);
     const [filename, setFilename] = useState<string | null>(null);
     const [isLoadingResume, setIsLoadingResume] = useState<boolean>(true);
     const [error, setError] = useState<Error | null>(null)
     const [saveError, setSaveError] = useState<string | null>(null);
     const [downloadError, setDownloadError] = useState<string | null>(null);
     const [layoutConfig, setLayoutConfig] = useState<LayoutConfig | null>(null);
-    const [draftLayout, setDraftLayout] = useState<LayoutConfig | null >(null);
     const [styling, setStyling] = useState<ResumeStyling | null>(null);
-    const [draftStyling, setDraftStyling] = useState<ResumeStyling | null>(null);
-    const isEditing = (JSON.stringify(draft) !== JSON.stringify(resumeData)) || (JSON.stringify(layoutConfig) !== JSON.stringify(draftLayout)) || (JSON.stringify(styling) !== JSON.stringify(draftStyling));
     const isLoading = isLoadingResume;
 
-    const { save, canUndo, undo, canRedo, redo } = useEditHistory();
+    // The history's `present` is the single source of truth for the in-progress
+    // draft (resumeData + layout + styling). The plain `*` state above holds the
+    // last-saved baseline, used for `isEditing` and reset.
+    const { present, canUndo, undo, canRedo, redo, record, reinit } = useEditHistory();
+    const draft = present?.resumeData ?? null;
+    const draftLayout = present?.layout ?? null;
+    const draftStyling = present?.styling ?? null;
+    const isEditing = (JSON.stringify(draft) !== JSON.stringify(resumeData)) || (JSON.stringify(layoutConfig) !== JSON.stringify(draftLayout)) || (JSON.stringify(styling) !== JSON.stringify(draftStyling));
 
     // modal state
     const [isLayoutModalOpen, setIsLayoutModalOpen] = useState<boolean>(false);
@@ -44,17 +47,16 @@ export function Preview() {
         resumeApi.get(resumeId)
             .then((data) => {
                 setResumeData(data.resumeData);
-                setDraft(data.resumeData);
                 setFilename(data.filename);
                 setLayoutConfig(data.layout);
-                setDraftLayout(data.layout);
                 setStyling(data.styling);
-                setDraftStyling(data.styling);
                 setJobDescription(data.jobDescription);
+                // Seed a fresh, resume-scoped history from the loaded baseline.
+                reinit({ resumeData: data.resumeData, layout: data.layout, styling: data.styling });
             })
             .catch(setError)
             .finally(() => setIsLoadingResume(false))
-    }, [resumeId]);
+    }, [resumeId, reinit]);
 
     useEffect(() => {
         requestAnimationFrame(() => {
@@ -75,25 +77,22 @@ export function Preview() {
     if (!draft || !resumeData || !styling || !draftLayout || !draftStyling) return <div>No resume data found</div>;
 
     const updateSection = <K extends keyof ResumeData>(key:K, value:ResumeData[K]) => {
-        setDraft((prev) => prev ? ({...prev, [key]:value}) : prev);
+        record({ resumeData: { ...draft, [key]: value }, layout: draftLayout, styling: draftStyling });
     };
 
     const onRedo = () => {
-        const next = redo(draft);
-        if (next) setDraft(next);
+        redo();
     };
 
     const onUndo = () => {
-        const next = undo(draft);
-        if (next) setDraft(next);
+        undo();
     };
 
     const onSave = async () => {
         if (!draft || !resumeId || !filename || !draftLayout || !draftStyling) return;
-       
+
         try {
             await resumeApi.update(resumeId,{resumeData:draft, filename: filename, layout: draftLayout, styling: draftStyling, jobDescription: jobDescription});
-            save(resumeData);
             setResumeData(draft);
             setLayoutConfig(draftLayout);
             setStyling(draftStyling);
@@ -103,19 +102,18 @@ export function Preview() {
     };
 
     const onReset = () => {
-        setDraft(resumeData);
-        setDraftLayout(layoutConfig);
-        setDraftStyling(styling);
+        if (!layoutConfig || !styling) return;
+        reinit({ resumeData, layout: layoutConfig, styling });
         setSaveError(null);
     };
 
     const handleSaveLayoutModal = (config: LayoutConfig) => {
-        setDraftLayout(config);
+        record({ resumeData: draft, layout: config, styling: draftStyling });
         setIsLayoutModalOpen(false);
     };
 
     const handleSaveStylingModal = (stylingUpdate: ResumeStyling) => {
-        setDraftStyling(stylingUpdate);
+        record({ resumeData: draft, layout: draftLayout, styling: stylingUpdate });
         setIsStylingModalOpen(false);
     };
 
