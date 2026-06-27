@@ -15,6 +15,7 @@ import {
     Resume,
     ResumeStyling,
     ResumeDownload,
+    ResumeListResponse,
 } from "../types/resume";
 
 
@@ -154,7 +155,7 @@ export const resumeApi = {
     delete: (id:string) => fetchApi<null>(`/resume/${id}`, {
         method: "DELETE",
     }),
-    list: () => fetchApi<ResumeMetadata[]>(`/resume`),
+    list: (limit:number, offset:number) => fetchApi<ResumeListResponse>(`/resume/resumes?limit=${limit}&offset=${offset}`),
     duplicate: (id:string, filename:string) => fetchApi<ResumeMetadata>(`/resume/${id}/duplicate`, {
         method: "POST",
         body: JSON.stringify({"filename":filename})

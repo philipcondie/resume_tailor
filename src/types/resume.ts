@@ -71,6 +71,11 @@ export interface ResumeMetadata {
     updatedAt: string,
 }
 
+export interface ResumeListResponse {
+    resumes: ResumeMetadata[]
+    resumeCount: number
+}
+
 export interface PromptData {
     prompt: string
 }
