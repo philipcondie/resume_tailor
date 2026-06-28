@@ -30,20 +30,98 @@ export class ApiError extends Error {
     }
 }
 
-const TOKEN_KEY = 'jwt_token';
+const ACCESS_TOKEN_KEY = 'jwt_token';
+const REFRESH_TOKEN_KEY = 'refreshToken';
 
-export const getToken = () => {
-    return localStorage.getItem(TOKEN_KEY)
+// --- Subscriber registry --------------------------------------------------
+type AccessTokenListener = (token: string | null) => void;
+const accessTokenListeners = new Set<AccessTokenListener>();
+
+export const onAccessTokenChange = (cb: AccessTokenListener) => {
+    accessTokenListeners.add(cb);
+    return () => {
+        accessTokenListeners.delete(cb);
+    };
 };
-export const setToken = (token: string) => {
-    localStorage.setItem(TOKEN_KEY, token);
+
+const notifyAccessTokenChange = (token: string | null) => {
+    accessTokenListeners.forEach((cb) => cb(token));
 };
-export const clearToken = () => {
-    localStorage.removeItem(TOKEN_KEY);
+// -------------------------------------------------------------------------
+
+export const getAccessToken = () => {
+    return localStorage.getItem(ACCESS_TOKEN_KEY)
+};
+export const setAccessToken = (token: string) => {
+    localStorage.setItem(ACCESS_TOKEN_KEY, token);
+    notifyAccessTokenChange(token);
+};
+export const clearAccessToken = () => {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    notifyAccessTokenChange(null);
+};
+
+export const getRefreshToken = () => {
+    return localStorage.getItem(REFRESH_TOKEN_KEY)
+};
+export const setRefreshToken = (token: string) => {
+    localStorage.setItem(REFRESH_TOKEN_KEY, token);
+};
+export const clearRefreshToken = () => {
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
 };
 
 
-const fetchApi = async <T>(endpoint: string, options?: RequestInit): Promise<T> => {
+// Shared in-flight refresh so concurrent 401s don't each fire a refresh call
+// (refresh tokens rotate and are single-use). The first 401 sets this; the
+// rest await the same promise.
+let refreshPromise: Promise<boolean> | null = null;
+
+const refreshAccessToken = async (): Promise<boolean> => {
+    const origRefreshToken = getRefreshToken();
+    if (!origRefreshToken) {
+        return false;
+    }
+    let response: Response;
+    try {
+        response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({"refreshToken":origRefreshToken}),
+        })
+    } catch {
+        return false
+    }
+
+    if (!response.ok) {
+        return false
+    }
+
+    const { accessToken, refreshToken } = (await response.json())
+    setAccessToken(accessToken);
+    setRefreshToken(refreshToken);
+    return true;
+};
+
+const handleUnauthorized = async (): Promise<boolean> => {
+    // YOUR CODE HERE — use/replace refreshPromise to dedupe concurrent refreshes
+    try {
+        if (!refreshPromise) {
+            refreshPromise = refreshAccessToken();
+        }
+        const ok = await refreshPromise;
+        if (!ok) {
+            clearAccessToken();
+            clearRefreshToken();
+            return false;
+        }
+        return true;
+    } finally {
+        refreshPromise = null;
+    }
+};
+
+const fetchApi = async <T>(endpoint: string, options?: RequestInit, _isRetry = false): Promise<T> => {
     let response: Response;
     try {
         response = await fetch(`${API_BASE_URL}${endpoint}`,
@@ -51,9 +129,8 @@ const fetchApi = async <T>(endpoint: string, options?: RequestInit): Promise<T> 
                 ...options,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getToken() ?? ''}`,
+                    'Authorization': `Bearer ${getAccessToken() ?? ''}`,
                 }
-
             }
         );
     } catch {
@@ -61,14 +138,57 @@ const fetchApi = async <T>(endpoint: string, options?: RequestInit): Promise<T> 
     }
 
     if (response.status == 401) {
-        clearToken();
-        window.location.href = '/login';
+        // Avoid an infinite loop: if this is already a post-refresh retry, give up.
+        if (_isRetry) {
+            clearAccessToken();
+            clearRefreshToken();
+            throw new ApiError(401, 'Unauthorized');
+        }
+        const shouldRetry = await handleUnauthorized();
+        if (shouldRetry) {
+            return fetchApi<T>(endpoint, options, true);
+        }
         throw new ApiError(401, 'Unauthorized');
     }
     if (!response.ok) {
         throw new ApiError(response.status, response.statusText);
     }
     return await response.json();
+};
+
+const fetchApiResponse = async (endpoint: string, options?: RequestInit, _isRetry = false): Promise<Response> => {
+    let response: Response;
+    try {
+        response = await fetch(`${API_BASE_URL}${endpoint}`,
+            {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAccessToken() ?? ''}`,
+                    ...options?.headers,
+                }
+            }
+        );
+    } catch {
+        throw new Error("Unable to connect to server");
+    }
+
+    if (response.status == 401) {
+        if (_isRetry) {
+            clearAccessToken();
+            clearRefreshToken();
+            throw new ApiError(401, 'Unauthorized');
+        }
+        const shouldRetry = await handleUnauthorized();
+        if (shouldRetry) {
+            return fetchApiResponse(endpoint, options, true);
+        }
+        throw new ApiError(401, 'Unauthorized');
+    }
+    if (!response.ok) {
+        throw new ApiError(response.status, response.statusText);
+    }
+    return response;
 };
 
 function createProfileApi<T>(field: string) {
@@ -161,27 +281,11 @@ export const resumeApi = {
         body: JSON.stringify({"filename":filename})
     }),
     download: async (id:string) : Promise<ResumeDownload> => {
-        let response: Response;
-        try {
-            response = await fetch(`${API_BASE_URL}/resume/${id}/pdf/playwright`, {
-                headers: {
-                    'Content-Type': 'application/pdf',
-                    'Authorization': `Bearer ${getToken() ?? ''}`,
-                }
-            });
-        }
-        catch {
-            throw new Error("Unable to connect to server");
-        }
-        
-        if (response.status == 401) {
-            clearToken();
-            window.location.href = '/login';
-            throw new ApiError(401, 'Unauthorized');
-        }
-        if (!response.ok) {
-            throw new ApiError(response.status, response.statusText);
-        }
+        const response = await fetchApiResponse(`/resume/${id}/pdf/playwright`, {
+            headers: {
+                'Content-Type': 'application/pdf',
+            }
+        });
 
         const pdfBlob = await response.blob();
         return {

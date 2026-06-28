@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-import { getToken, setToken, clearToken } from "./api";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { getAccessToken, setAccessToken, clearAccessToken, onAccessTokenChange, setRefreshToken, clearRefreshToken } from "./api";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -14,7 +14,13 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children } : {children: ReactNode}) {
-    const [authToken, setAuthToken] = useState<string | null>(getToken());
+    const [authToken, setAuthToken] = useState<string | null>(getAccessToken());
+
+    // Keep context state in sync with token changes that originate in api.ts
+    // (e.g. a successful refresh, or a failed refresh clearing the token).
+    // onAccessTokenChange returns its own unsubscribe fn, so it doubles as the
+    // effect cleanup.
+    useEffect(() => onAccessTokenChange(setAuthToken), []);
 
     const login = async (username: string, password: string) => {
         let response: Response;
@@ -42,13 +48,14 @@ export function AuthProvider({ children } : {children: ReactNode}) {
         if (!response.ok) {
             throw new Error(`Error: ${response.statusText}`)
         }
-        const { access_token } = (await response.json());
-        setToken(access_token);
-        setAuthToken(access_token);
+        const { accessToken, refreshToken } = (await response.json());
+        setAccessToken(accessToken);
+        setRefreshToken(refreshToken);
     }
     
     const logout = () => {
-        clearToken();
+        clearAccessToken();
+        clearRefreshToken();
         setAuthToken(null)
         window.location.href = '/login';
     }
@@ -73,9 +80,9 @@ export function AuthProvider({ children } : {children: ReactNode}) {
         if (!response.ok) {
             throw new Error(`Error: ${response.statusText}`)
         }
-        const { access_token } = (await response.json());
-        setToken(access_token);
-        setAuthToken(access_token);
+        const { accessToken, refreshToken } = (await response.json());
+        setAccessToken(accessToken);
+        setRefreshToken(refreshToken);
     }
 
     const isAuthenticated = authToken !== null;
