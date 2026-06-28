@@ -3,7 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../lib/auth";
 
 export function Login() {
-    const { isAuthenticated, login} = useAuth();
+    const { isAuthenticated, login } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("")
     const [error, setError] = useState<string | null>(null);
