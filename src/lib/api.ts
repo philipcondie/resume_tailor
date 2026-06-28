@@ -156,6 +156,41 @@ const fetchApi = async <T>(endpoint: string, options?: RequestInit, _isRetry = f
     return await response.json();
 };
 
+const fetchApiResponse = async (endpoint: string, options?: RequestInit, _isRetry = false): Promise<Response> => {
+    let response: Response;
+    try {
+        response = await fetch(`${API_BASE_URL}${endpoint}`,
+            {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAccessToken() ?? ''}`,
+                    ...options?.headers,
+                }
+            }
+        );
+    } catch {
+        throw new Error("Unable to connect to server");
+    }
+
+    if (response.status == 401) {
+        if (_isRetry) {
+            clearAccessToken();
+            clearRefreshToken();
+            throw new ApiError(401, 'Unauthorized');
+        }
+        const shouldRetry = await handleUnauthorized();
+        if (shouldRetry) {
+            return fetchApiResponse(endpoint, options, true);
+        }
+        throw new ApiError(401, 'Unauthorized');
+    }
+    if (!response.ok) {
+        throw new ApiError(response.status, response.statusText);
+    }
+    return response;
+};
+
 function createProfileApi<T>(field: string) {
     return {
         get: () => fetchApi<T>(`/profile/${field}`),
@@ -246,27 +281,11 @@ export const resumeApi = {
         body: JSON.stringify({"filename":filename})
     }),
     download: async (id:string) : Promise<ResumeDownload> => {
-        let response: Response;
-        try {
-            response = await fetch(`${API_BASE_URL}/resume/${id}/pdf/playwright`, {
-                headers: {
-                    'Content-Type': 'application/pdf',
-                    'Authorization': `Bearer ${getAccessToken() ?? ''}`,
-                }
-            });
-        }
-        catch {
-            throw new Error("Unable to connect to server");
-        }
-        
-        if (response.status == 401) {
-            clearAccessToken();
-            window.location.href = '/login';
-            throw new ApiError(401, 'Unauthorized');
-        }
-        if (!response.ok) {
-            throw new ApiError(response.status, response.statusText);
-        }
+        const response = await fetchApiResponse(`/resume/${id}/pdf/playwright`, {
+            headers: {
+                'Content-Type': 'application/pdf',
+            }
+        });
 
         const pdfBlob = await response.blob();
         return {

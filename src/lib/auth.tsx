@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { getAccessToken, setAccessToken, clearAccessToken, onAccessTokenChange, setRefreshToken } from "./api";
+import { getAccessToken, setAccessToken, clearAccessToken, onAccessTokenChange, setRefreshToken, clearRefreshToken } from "./api";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -55,6 +55,7 @@ export function AuthProvider({ children } : {children: ReactNode}) {
     
     const logout = () => {
         clearAccessToken();
+        clearRefreshToken();
         setAuthToken(null)
         window.location.href = '/login';
     }
@@ -79,8 +80,9 @@ export function AuthProvider({ children } : {children: ReactNode}) {
         if (!response.ok) {
             throw new Error(`Error: ${response.statusText}`)
         }
-        const { accessToken } = (await response.json());
+        const { accessToken, refreshToken } = (await response.json());
         setAccessToken(accessToken);
+        setRefreshToken(refreshToken);
     }
 
     const isAuthenticated = authToken !== null;
