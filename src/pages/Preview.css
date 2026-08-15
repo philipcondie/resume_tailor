@@ -209,7 +209,61 @@ html {
 
 .contact-info a {
     color: var(--color-text-name);
-    text-decoration: none;
+}
+
+.resume-link {
+    color: inherit;
+    text-decoration-line: underline;
+    text-decoration-thickness: 0.06em;
+    text-underline-offset: 0.12em;
+}
+
+.linkable-editor {
+    display: inline-flex;
+    position: relative;
+    align-items: baseline;
+}
+
+.linkable-editor-control {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    padding: 0.1rem;
+    border: 0;
+    background: transparent;
+    color: var(--color-accent);
+    cursor: pointer;
+    opacity: 0;
+    z-index: 2;
+}
+
+.contact-info .linkable-editor-control,
+.right-panel .linkable-editor-control {
+    left: auto;
+    right: 100%;
+}
+
+.page a.editable.linkable-display {
+    display: inline-block;
+    border-radius: 6px;
+}
+
+.page a.editable.linkable-display:hover,
+.page a.editable.linkable-display:focus {
+    outline: 1px solid var(--color-accent);
+}
+
+.page .linkable-editor input.editable:hover,
+.page .linkable-editor input.editable:focus {
+    border: none;
+    outline: 1px solid var(--color-accent);
+}
+
+.linkable-editor:hover .linkable-editor-control,
+.linkable-editor:focus-within .linkable-editor-control {
+    opacity: 1;
 }
 
 /* ── Section ── */

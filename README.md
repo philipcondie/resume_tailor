@@ -9,8 +9,9 @@ and summary to match, then renders a print-ready resume you can fine-tune and ex
 ## Features
 
 - **Profile builder** — forms for personal info, work history, education, projects, and skills, with drag-and-drop reordering.
+- **Linkable resume fields** — add optional web links to project titles and extra contact fields (for example, a portfolio or LinkedIn profile). Addresses without a scheme are saved as HTTPS links; only HTTP and HTTPS URLs are accepted.
 - **Tailored generation** — paste a job description (plus optional instructions) and toggle individual jobs/bullets on or off before generating.
-- **Live preview & print** — edit the generated resume inline, undo/redo changes, reorder sections, and print to a clean one-page layout with an overflow warning.
+- **Live preview & print** — edit the generated resume inline, add or change field links, undo/redo changes, reorder sections, and print to a clean one-page layout with an overflow warning.
 - **Saved resumes** — list, revisit, and re-edit previously generated resumes.
 - **Custom prompts** — edit the LLM prompt used for generation.
 
@@ -54,6 +55,19 @@ npm run dev
 The frontend expects a backend API. Set `VITE_API_URL` in your `.env` file to its
 base URL. The backend ([resume_store](https://github.com/philipcondie/resume_store))
 is responsible for profile storage, authentication, LLM calls, and resume persistence.
+
+Project titles and personal-info extras use a linkable-text object in the API payload:
+
+```json
+{
+  "text": "Portfolio",
+  "url": "https://example.com"
+}
+```
+
+`url` may be `null`. The frontend remains compatible with existing records where
+these fields are plain strings by converting them to `{ "text": "...", "url": null }`
+when profile or resume data is loaded.
 
 ## License
 

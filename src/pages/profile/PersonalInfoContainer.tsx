@@ -45,7 +45,10 @@ export function PersonalInfoContainer() {
             </div>
             <PersonalInfoForm
                 info={personalInfo}
-                handleUpdate={(info) => { personalInfoApi.save(info); setPersonalInfo(info) }}
+                handleUpdate={async (info) => {
+                    const saved = await personalInfoApi.save(info);
+                    setPersonalInfo(saved);
+                }}
             />
         </div>
         

@@ -1,23 +1,28 @@
-import { useState } from "react";
-import { PersonalInfoEntry } from "../../types/resume"
+import { useRef, useState } from "react";
+import { LinkableText, PersonalInfoEntry } from "../../types/resume"
+import { normalizeWebUrl } from "../../lib/links";
 type PersonalInfoProps = {
     info : PersonalInfoEntry,
-    handleUpdate: (info: PersonalInfoEntry) => void,
+    handleUpdate: (info: PersonalInfoEntry) => Promise<void>,
 }
 export function PersonalInfoForm({info, handleUpdate}:PersonalInfoProps) {
-    const [draft, setDraft] = useState<PersonalInfoEntry>({...info})
+    const [draft, setDraft] = useState<PersonalInfoEntry>({...info, extras: info.extras?.map(extra => ({...extra}))})
+    const [error, setError] = useState<string | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const saveInFlight = useRef(false);
 
-    const handleExtraChange = (index:number, value:string) => {
+    const handleExtraChange = (index:number, field:keyof LinkableText, value:string) => {
+        if (field === 'url') setError(null);
         setDraft((prev:PersonalInfoEntry) => ({
             ...prev,
-            extras: prev.extras?.map((extra,i) => i === index ? value : extra)
+            extras: prev.extras?.map((extra,i) => i === index ? {...extra, [field]: value} : extra)
         }));
     };
 
     const handleExtraAdd = () => {
         setDraft((prev:PersonalInfoEntry) => ({
             ...prev,
-            extras: [...(prev.extras ?? []), ''],
+            extras: [...(prev.extras ?? []), {text: '', url: null}],
         }))
     };
 
@@ -32,8 +37,24 @@ export function PersonalInfoForm({info, handleUpdate}:PersonalInfoProps) {
         setDraft(prev => ({...prev, [field]: value}));
     };
 
-    const onSave = () => {
-        handleUpdate(draft)
+    const onSave = async () => {
+        if (saveInFlight.current) return;
+        saveInFlight.current = true;
+        setIsSaving(true);
+        try {
+            const normalized = {
+                ...draft,
+                extras: draft.extras?.map(extra => ({...extra, url: normalizeWebUrl(extra.url)})),
+            };
+            await handleUpdate(normalized);
+            setDraft(normalized);
+            setError(null);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Unable to save personal info');
+        } finally {
+            saveInFlight.current = false;
+            setIsSaving(false);
+        }
     };
 
     const isEditing = JSON.stringify(draft) !== JSON.stringify(info);
@@ -72,24 +93,38 @@ export function PersonalInfoForm({info, handleUpdate}:PersonalInfoProps) {
             <div className="flex flex-col gap-2">
                 <label className="text-xs font-medium uppercase tracking-wide text-gray-600">Extra Contact Info</label>
                 {draft.extras?.map((extra, index) => (
-                    <div key={index} className="flex gap-2 items-center">
-                        <input
-                            className="flex-1 min-w-0 border-b border-gray-400 bg-transparent px-0 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-gray-900 transition-colors"
-                            type='text'
-                            value={extra}
-                            onChange={e => handleExtraChange(index, e.target.value)}
-                        />
+                    <div key={index} className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-3 items-end">
+                        <label className="flex flex-col gap-1 min-w-0">
+                            <span className="text-[10px] text-gray-500">Display text</span>
+                            <input
+                                className="min-w-0 border-b border-gray-400 bg-transparent px-0 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-gray-900 transition-colors"
+                                type='text'
+                                value={extra.text}
+                                onChange={e => handleExtraChange(index, 'text', e.target.value)}
+                            />
+                        </label>
+                        <label className="flex flex-col gap-1 min-w-0">
+                            <span className="text-[10px] text-gray-500">Optional URL</span>
+                            <input
+                                className="min-w-0 border-b border-gray-400 bg-transparent px-0 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-gray-900 transition-colors"
+                                type='url'
+                                placeholder="example.com"
+                                value={extra.url ?? ''}
+                                onChange={e => handleExtraChange(index, 'url', e.target.value)}
+                            />
+                        </label>
                         <button className="text-red-300 hover:text-red-600 text-sm transition-colors" onClick={() => handleExtraDelete(index)}>✕</button>
                     </div>
                 ))}
                 <button className="self-start text-xs text-blue-500 hover:text-blue-700 transition-colors mt-1" onClick={handleExtraAdd}>+ Add field</button>
             </div>
+            {error && <p className="text-xs text-red-600">{error}</p>}
             <div className="flex flex-wrap gap-3 pt-2 border-t border-gray-100">
                 <button
                     className="ml-auto px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     onClick={onSave}
-                    disabled={!isEditing}
-                >Save</button>
+                    disabled={!isEditing || isSaving}
+                >{isSaving ? 'Saving…' : 'Save'}</button>
             </div>
         </div>
     )

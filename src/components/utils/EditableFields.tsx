@@ -6,6 +6,11 @@ type EditableTextAreaProps = {
     handleChange: (content:string) => void,
 }
 
+type EditableInlineProps = EditableTextAreaProps & {
+    autoFocus?: boolean,
+    onBlur?: React.FocusEventHandler<HTMLInputElement>,
+}
+
 export function EditableTextArea({className,content,handleChange}: EditableTextAreaProps) {
     const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
     const autoResize = (el: HTMLTextAreaElement | null) => {
@@ -27,7 +32,7 @@ export function EditableTextArea({className,content,handleChange}: EditableTextA
     )
 }
 
-export function EditableInline({className, content, handleChange}: EditableTextAreaProps) {
+export function EditableInline({className, content, handleChange, autoFocus, onBlur}: EditableInlineProps) {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const mirrorRef = useRef<HTMLSpanElement | null>(null);
 
@@ -55,7 +60,7 @@ export function EditableInline({className, content, handleChange}: EditableTextA
             <span ref={mirrorRef} style={{ visibility: 'hidden', position: 'absolute', whiteSpace: 'pre', font: 'inherit' }}>
                 {content || ' '}
             </span>
-            <input ref={inputRef} type="text" className={className} onChange={onChange} value={content} />
+            <input ref={inputRef} type="text" className={className} onChange={onChange} value={content} autoFocus={autoFocus} onBlur={onBlur} />
         </>
     );
 }
