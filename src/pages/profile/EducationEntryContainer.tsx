@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Spinner } from "../../components/utils/Spinner";
 import { EducationEntryForm } from "../../components/InputForms/EducationEntryForm"
 import { EducationEntry } from "../../types/resume";
@@ -11,6 +11,9 @@ export function EducationEntryContainer() {
     const [educationHistory, setEducationHistory] = useState<EducationEntry[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<Error | null>(null);
+    const [isMutating, setIsMutating] = useState(false);
+    const [mutationError, setMutationError] = useState<string | null>(null);
+    const mutationInFlight = useRef(false);
 
     useEffect(() => {
         educationApi.get()
@@ -25,34 +28,78 @@ export function EducationEntryContainer() {
             .finally(() => setIsLoading(false))
     }, [])
 
-    const handleDragEnd = (event:DragEndEvent) => {
-        setEducationHistory((prev) => {
-            const reorderd = move(prev,event);
-            educationApi.save(reorderd);
-            return reorderd;
-        })
+    const handleDragEnd = async (event:DragEndEvent) => {
+        if (mutationInFlight.current) return;
+        mutationInFlight.current = true;
+        setIsMutating(true);
+        setMutationError(null);
+        const previous = educationHistory;
+        const reordered = move(previous, event);
+        setEducationHistory(reordered);
+        try {
+            const saved = await educationApi.save(reordered);
+            setEducationHistory(saved);
+        } catch (e) {
+            setEducationHistory(previous);
+            setMutationError(e instanceof Error ? e.message : 'Unable to reorder education entries');
+        } finally {
+            mutationInFlight.current = false;
+            setIsMutating(false);
+        }
     }
 
-    const handleAddEducation = () => {
+    const handleAddEducation = async () => {
+        if (mutationInFlight.current) return;
+        mutationInFlight.current = true;
+        setIsMutating(true);
+        setMutationError(null);
         const blank: EducationEntry = {
             id: crypto.randomUUID(),
             school: '',
             degree: '',
             bullets: [],
         }
-        setEducationHistory(prev => [...prev, blank]);
+        try {
+            const saved = await educationApi.save([...educationHistory, blank]);
+            setEducationHistory(saved);
+        } catch (e) {
+            setMutationError(e instanceof Error ? e.message : 'Unable to add education entry');
+        } finally {
+            mutationInFlight.current = false;
+            setIsMutating(false);
+        }
     };
 
-    const updateEducation = (id: string, updatedItem: EducationEntry) => {
+    const updateEducation = async (id: string, updatedItem: EducationEntry) => {
+        if (mutationInFlight.current) throw new Error('Another education change is currently being saved');
+        mutationInFlight.current = true;
+        setIsMutating(true);
+        setMutationError(null);
         const updated = educationHistory.map(item => item.id !== id ? item : updatedItem)
-        educationApi.save(updated);
-        setEducationHistory(updated);
+        try {
+            const saved = await educationApi.save(updated);
+            setEducationHistory(saved);
+        } finally {
+            mutationInFlight.current = false;
+            setIsMutating(false);
+        }
     };
 
-    const removeEducation = (id: string) => {
+    const removeEducation = async (id: string) => {
+        if (mutationInFlight.current) return;
+        mutationInFlight.current = true;
+        setIsMutating(true);
+        setMutationError(null);
         const updated = educationHistory.filter(item => item.id !== id);
-        educationApi.save(updated);
-        setEducationHistory(updated);
+        try {
+            const saved = await educationApi.save(updated);
+            setEducationHistory(saved);
+        } catch (e) {
+            setMutationError(e instanceof Error ? e.message : 'Unable to delete education entry');
+        } finally {
+            mutationInFlight.current = false;
+            setIsMutating(false);
+        }
     };
     
     if (isLoading) return <Spinner />
@@ -71,8 +118,10 @@ export function EducationEntryContainer() {
                 <button
                     className="min-w-[66px] px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 transition-colors"
                     onClick={handleAddEducation}
+                    disabled={isMutating}
                 >+ Add</button>
             </div>
+            {mutationError && <p role="alert" className="text-sm text-red-600">{mutationError}</p>}
             <DragDropProvider onDragEnd={handleDragEnd}>
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,400px),1fr))] gap-4 items-start">
                     {educationHistory.map((education: EducationEntry, index: number) => (
@@ -82,6 +131,7 @@ export function EducationEntryContainer() {
                             education={education} 
                             handleUpdate={updateEducation} 
                             handleDelete={removeEducation} 
+                            isMutating={isMutating}
                         />
                     ))}
                 </div>

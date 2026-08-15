@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { EducationEntry } from "../../types/resume"
 import { EditableTextArea } from '../utils/EditableFields';
 import { useSortable } from '@dnd-kit/react/sortable';
@@ -6,12 +6,16 @@ import { useSortable } from '@dnd-kit/react/sortable';
 type EducationEntryProps = {
     education: EducationEntry,
     index: number,
-    handleUpdate: (id:string, education: EducationEntry) => void,
-    handleDelete: (id:string) => void,
+    handleUpdate: (id:string, education: EducationEntry) => Promise<void>,
+    handleDelete: (id:string) => Promise<void>,
+    isMutating: boolean,
 }
 
-export function EducationEntryForm({education, index, handleUpdate, handleDelete}: EducationEntryProps) {
+export function EducationEntryForm({education, index, handleUpdate, handleDelete, isMutating}: EducationEntryProps) {
     const [draft, setDraft] = useState<EducationEntry>(education);
+    const [error, setError] = useState<string | null>(null);
+    const [isSavingThis, setIsSavingThis] = useState(false);
+    const saveInFlight = useRef(false);
     const id = education.id;
     const { ref, handleRef  } = useSortable({id,index})
     const isEditing = JSON.stringify(draft) !== JSON.stringify(education);
@@ -43,8 +47,19 @@ export function EducationEntryForm({education, index, handleUpdate, handleDelete
         }))
     }
 
-    const onSave = () => {
-        handleUpdate(education.id, draft)
+    const onSave = async () => {
+        if (saveInFlight.current || isMutating) return;
+        saveInFlight.current = true;
+        setIsSavingThis(true);
+        try {
+            await handleUpdate(education.id, draft);
+            setError(null);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Unable to save education');
+        } finally {
+            saveInFlight.current = false;
+            setIsSavingThis(false);
+        }
     }
 
     return (
@@ -65,6 +80,7 @@ export function EducationEntryForm({education, index, handleUpdate, handleDelete
                     />
                 </div>
             </div>
+            {error && <p className="text-xs text-red-600">{error}</p>}
             <div className="flex flex-col gap-2">
                 <label className="text-xs font-medium uppercase tracking-wide text-gray-600">Bullets</label>
                 {draft.bullets.map((bullet, index) => (
@@ -83,13 +99,14 @@ export function EducationEntryForm({education, index, handleUpdate, handleDelete
                 <button
                     className="px-4 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
                     onClick={() => handleDelete(education.id)}
+                    disabled={isMutating}
                 >Delete</button>
                 <button
                     className="ml-auto px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     onClick={onSave}
-                    disabled={!isEditing}
-                >Save</button>
-                <button ref={handleRef} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+                    disabled={!isEditing || isMutating || isSavingThis}
+                >{isSavingThis ? 'Saving…' : 'Save'}</button>
+                <button ref={handleRef} disabled={isMutating} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30">
                     ⠿
                 </button>
             </div>

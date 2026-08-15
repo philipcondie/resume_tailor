@@ -1,13 +1,17 @@
 import { SectionProps } from "../../types/resume";
 import { BulletSection } from "./BulletSection";
 import { EditableInline } from "../utils/EditableFields";
+import { shouldRenderJob } from "../../lib/resumeVisibility";
 
 export function JobSection({draft, updateSection}:SectionProps) {
+    if (!draft.jobs.some(shouldRenderJob)) return null;
+
     return (
         <section className="section">
             <h2 className="section-title">Work Experience</h2>
             <BulletSection
                 items={draft.jobs}
+                shouldRenderItem={shouldRenderJob}
                 onItemsChange={(jobs) => updateSection('jobs', jobs)}
                 renderHeader={(job, updateItemField) => (
                     <div className="section-item-header">

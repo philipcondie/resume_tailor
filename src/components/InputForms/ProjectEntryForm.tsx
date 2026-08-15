@@ -8,11 +8,11 @@ type ProjectEntryProps = {
     project: ProjectEntry,
     index: number,
     handleUpdate: (id:string, project: ProjectEntry) => Promise<void>,
-    handleDelete: (id:string) => void,
-    isSaving: boolean,
+    handleDelete: (id:string) => Promise<void>,
+    isMutating: boolean,
 }
 
-export function ProjectEntryForm({project, index, handleUpdate, handleDelete, isSaving}: ProjectEntryProps) {
+export function ProjectEntryForm({project, index, handleUpdate, handleDelete, isMutating}: ProjectEntryProps) {
     const [draft, setDraft] = useState<ProjectEntry>(project);
     const [error, setError] = useState<string | null>(null);
     const [isSavingThis, setIsSavingThis] = useState(false);
@@ -51,7 +51,7 @@ export function ProjectEntryForm({project, index, handleUpdate, handleDelete, is
     }
 
     const onSave = async () => {
-        if (saveInFlight.current || isSaving) return;
+        if (saveInFlight.current || isMutating) return;
         saveInFlight.current = true;
         setIsSavingThis(true);
         try {
@@ -104,14 +104,14 @@ export function ProjectEntryForm({project, index, handleUpdate, handleDelete, is
                 <button
                     className="px-4 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
                     onClick={() => handleDelete(project.id)}
-                    disabled={isSaving}
+                    disabled={isMutating}
                 >Delete</button>
                 <button
                     className="ml-auto px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     onClick={onSave}
-                    disabled={!isEditing || isSaving || isSavingThis}
+                    disabled={!isEditing || isMutating || isSavingThis}
                 >{isSavingThis ? 'Saving…' : 'Save'}</button>
-                <button ref={handleRef} disabled={isSaving} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30">
+                <button ref={handleRef} disabled={isMutating} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30">
                     ⠿
                 </button>
             </div>
