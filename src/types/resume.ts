@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+export const LinkableTextSchema = z.preprocess(
+    (value) => typeof value === 'string' ? { text: value, url: null } : value,
+    z.object({
+        text: z.string(),
+        url: z.string().nullable().default(null),
+    }),
+);
+
+export type LinkableText = z.infer<typeof LinkableTextSchema>;
+
 export const JobEntrySchema = z.object({
     id: z.string(),
     company: z.string(),
@@ -23,7 +33,7 @@ export type EducationEntry = z.infer<typeof EducationEntrySchema>;
 
 export const ProjectEntrySchema = z.object({
     id: z.string(),
-    title: z.string(),
+    title: LinkableTextSchema,
     bullets: z.array(z.string()),
 });
 
@@ -41,7 +51,7 @@ export const PersonalInfoEntrySchema = z.object({
     name: z.string(),
     email: z.string(),
     phonenumber: z.string(),
-    extras: z.array(z.string()).optional(),
+    extras: z.array(LinkableTextSchema).optional(),
 });
 
 export type PersonalInfoEntry = z.infer<typeof PersonalInfoEntrySchema>;

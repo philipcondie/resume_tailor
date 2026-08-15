@@ -17,6 +17,7 @@ import {
     ResumeDownload,
     ResumeListResponse,
 } from "../types/resume";
+import { normalizePersonalInfo, normalizeProjects, normalizeResumeLinks } from "./links";
 
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -201,10 +202,18 @@ function createProfileApi<T>(field: string) {
     };
 }
 
-export const personalInfoApi = createProfileApi<PersonalInfoEntry>('personal_info');
+const personalInfoProfileApi = createProfileApi<PersonalInfoEntry>('personal_info');
+export const personalInfoApi = {
+    get: () => personalInfoProfileApi.get().then(normalizePersonalInfo),
+    save: (data: PersonalInfoEntry) => personalInfoProfileApi.save(data).then(normalizePersonalInfo),
+};
 export const jobsApi = createProfileApi<JobEntry[]>('jobs');
 export const educationApi = createProfileApi<EducationEntry[]>('education');
-export const projectsApi = createProfileApi<ProjectEntry[]>('projects');
+const projectsProfileApi = createProfileApi<ProjectEntry[]>('projects');
+export const projectsApi = {
+    get: () => projectsProfileApi.get().then(normalizeProjects),
+    save: (data: ProjectEntry[]) => projectsProfileApi.save(data).then(normalizeProjects),
+};
 export const skillsApi = createProfileApi<SkillEntry[]>('skills');
 
 
@@ -240,7 +249,7 @@ export const resumeApi = {
         body: JSON.stringify(request)
     }),
     get: (id:string) : Promise<Resume> => fetchApi<ResumeResponse>(`/resume/${id}`).then(data => {
-        const resumeData = addBulletIds(data.resumeData);
+        const resumeData = addBulletIds(normalizeResumeLinks(data.resumeData));
         return {filename: data.filename, layout:data.layout, resumeData: resumeData, jobDescription:data.jobDescription, styling: data.styling}
     }),
     update: async (id: string, input: Resume): Promise<Resume> => {
@@ -249,7 +258,7 @@ export const resumeApi = {
             method: "PUT",
             body: JSON.stringify({...input, resumeData: rawResumeData})
         }).then((data) => {
-            const resumeData = addBulletIds(data.resumeData)
+            const resumeData = addBulletIds(normalizeResumeLinks(data.resumeData))
             return {...data, resumeData: resumeData}
         })
     },
@@ -259,7 +268,7 @@ export const resumeApi = {
             method: "PUT",
             body: JSON.stringify(rawData)
         }).then((data) => {
-            const resumeData = addBulletIds(data.resumeData);
+            const resumeData = addBulletIds(normalizeResumeLinks(data.resumeData));
             return { ...data, resumeData: resumeData }
         });
     },
@@ -268,7 +277,7 @@ export const resumeApi = {
             method: "PUT",
             body: JSON.stringify({ "layout": input })
         }).then((data) => {
-            const resumeData = addBulletIds(data.resumeData);
+            const resumeData = addBulletIds(normalizeResumeLinks(data.resumeData));
             return { ...data, resumeData: resumeData }
         });
     },

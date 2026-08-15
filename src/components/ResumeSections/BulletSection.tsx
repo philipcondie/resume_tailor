@@ -11,7 +11,7 @@ type BulletSectionType = {
 
 type BulletSectionProps<T extends BulletSectionType> = {
     items: T[],
-    renderHeader: (item:T, updateItemField: (key: keyof T, value: string) => void) => ReactNode,
+    renderHeader: (item:T, updateItemField: <K extends keyof T>(key: K, value: T[K]) => void) => ReactNode,
     onItemsChange: (items:T[]) => void,
 }
 export function BulletSection<T extends BulletSectionType>({items,renderHeader,onItemsChange}:BulletSectionProps<T>) {
@@ -48,7 +48,7 @@ export function BulletSection<T extends BulletSectionType>({items,renderHeader,o
                     i.id === item.id ? {...i, bullets: reordered} : i
                 ));
             };
-            const updateItemField = (key: keyof T, value: string) => {
+            const updateItemField = <K extends keyof T>(key: K, value: T[K]) => {
                 onItemsChange(items.map(i => i.id === item.id ? {...i, [key]: value} : i));
             };
             return (
