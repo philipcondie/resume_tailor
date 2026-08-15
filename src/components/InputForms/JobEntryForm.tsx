@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { JobEntry } from "../../types/resume";
 import { EditableTextArea } from "../utils/EditableFields";
 import { useSortable } from '@dnd-kit/react/sortable';
@@ -6,12 +6,16 @@ import { useSortable } from '@dnd-kit/react/sortable';
 type JobEntryProps = {
     job: JobEntry,
     index: number,
-    handleUpdate: (id: string, updatedJob: JobEntry) => void,
-    handleDelete: (id: string) => void,
+    handleUpdate: (id: string, updatedJob: JobEntry) => Promise<void>,
+    handleDelete: (id: string) => Promise<void>,
+    isMutating: boolean,
 }
 
-export function JobEntryForm({job, index, handleUpdate, handleDelete} : JobEntryProps) {
+export function JobEntryForm({job, index, handleUpdate, handleDelete, isMutating} : JobEntryProps) {
     const [draft, setDraft] = useState<JobEntry>(job);
+    const [error, setError] = useState<string | null>(null);
+    const [isSavingThis, setIsSavingThis] = useState(false);
+    const saveInFlight = useRef(false);
     
     const id: string = job.id;
     const { ref, handleRef } = useSortable({id, index})
@@ -44,8 +48,19 @@ export function JobEntryForm({job, index, handleUpdate, handleDelete} : JobEntry
         setDraft(prev => ({...prev, [field]: value}))
     }
 
-    const onSave = () => {
-        handleUpdate(job.id, draft);
+    const onSave = async () => {
+        if (saveInFlight.current || isMutating) return;
+        saveInFlight.current = true;
+        setIsSavingThis(true);
+        try {
+            await handleUpdate(job.id, draft);
+            setError(null);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Unable to save job');
+        } finally {
+            saveInFlight.current = false;
+            setIsSavingThis(false);
+        }
     }
 
     return (
@@ -82,6 +97,7 @@ export function JobEntryForm({job, index, handleUpdate, handleDelete} : JobEntry
                     />
                 </div>
             </div>
+            {error && <p className="text-xs text-red-600">{error}</p>}
             <div className="flex flex-col gap-2">
                 <label className="text-xs font-medium uppercase tracking-wide text-gray-600">Bullets</label>
                 {draft.bullets.map((bullet, index) => (
@@ -100,13 +116,14 @@ export function JobEntryForm({job, index, handleUpdate, handleDelete} : JobEntry
                 <button
                     className="px-4 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
                     onClick={() => handleDelete(job.id)}
+                    disabled={isMutating}
                 >Delete</button>
                 <button
                     className="ml-auto px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     onClick={onSave}
-                    disabled={!isEditing}
-                >Save</button>
-                <button ref={handleRef} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+                    disabled={!isEditing || isMutating || isSavingThis}
+                >{isSavingThis ? 'Saving…' : 'Save'}</button>
+                <button ref={handleRef} disabled={isMutating} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30">
                     ⠿
                 </button>
             </div>
