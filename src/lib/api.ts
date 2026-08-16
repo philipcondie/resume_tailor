@@ -258,7 +258,7 @@ export const resumeApi = {
             method: "PUT",
             body: JSON.stringify({...input, resumeData: rawResumeData})
         }).then((data) => {
-            const resumeData = addBulletIds(normalizeResumeLinks(data.resumeData))
+            const resumeData = addBulletIds(normalizeResumeLinks(data.resumeData));
             return {...data, resumeData: resumeData}
         })
     },

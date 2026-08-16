@@ -33,7 +33,10 @@ export type EducationEntry = z.infer<typeof EducationEntrySchema>;
 
 export const ProjectEntrySchema = z.object({
     id: z.string(),
-    title: LinkableTextSchema,
+    title: z.string(),
+    description: z.string().optional(),
+    websiteUrl: z.string().nullable().optional(),
+    githubUrl: z.string().nullable().optional(),
     bullets: z.array(z.string()),
 });
 

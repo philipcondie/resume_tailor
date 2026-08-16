@@ -46,8 +46,11 @@ type LegacyPersonalInfo = Omit<PersonalInfoEntry, 'extras'> & {
     extras?: Array<LinkableText | string>;
 };
 
-type LegacyProject = Omit<ProjectEntry, 'title'> & {
+type LegacyProject = Omit<ProjectEntry, 'title' | 'description' | 'websiteUrl' | 'githubUrl'> & {
     title: LinkableText | string;
+    description?: string;
+    websiteUrl?: string | null;
+    githubUrl?: string | null;
 };
 
 type LegacyResumeData = Omit<ResumeDataRaw, 'personalInfo' | 'projects'> & {
@@ -63,10 +66,16 @@ export function normalizePersonalInfo(info: LegacyPersonalInfo): PersonalInfoEnt
 }
 
 export function normalizeProjects(projects: LegacyProject[]): ProjectEntry[] {
-    return projects.map((project) => ({
-        ...project,
-        title: normalizeLinkableText(project.title),
-    }));
+    return projects.map((project) => {
+        const legacyTitle = normalizeLinkableText(project.title);
+        return {
+            ...project,
+            title: legacyTitle.text,
+            description: project.description ?? '',
+            websiteUrl: project.websiteUrl ?? legacyTitle.url,
+            githubUrl: project.githubUrl ?? null,
+        };
+    });
 }
 
 export function normalizeResumeLinks(data: LegacyResumeData): ResumeDataRaw {

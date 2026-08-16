@@ -9,7 +9,7 @@ and summary to match, then renders a print-ready resume you can fine-tune and ex
 ## Features
 
 - **Profile builder** — forms for personal info, work history, education, projects, and skills, with drag-and-drop reordering.
-- **Linkable resume fields** — add optional web links to project titles and extra contact fields (for example, a portfolio or LinkedIn profile). Addresses without a scheme are saved as HTTPS links; only HTTP and HTTPS URLs are accepted.
+- **Linkable resume fields** — add separate website and GitHub links to projects, plus optional links to extra contact fields. Addresses without a scheme are saved as HTTPS links; only HTTP and HTTPS URLs are accepted.
 - **Tailored generation** — paste a job description (plus optional instructions) and toggle individual jobs/bullets on or off before generating.
 - **Live preview & print** — edit the generated resume inline, add or change field links, undo/redo changes, reorder sections, and print to a clean one-page layout with an overflow warning.
 - **Saved resumes** — list, revisit, and re-edit previously generated resumes.

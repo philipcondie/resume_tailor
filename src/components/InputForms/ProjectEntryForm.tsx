@@ -43,19 +43,21 @@ export function ProjectEntryForm({project, index, handleUpdate, handleDelete, is
         }))
     };
 
-    const updateTitle = (field: 'text' | 'url', value: string) => {
-        if (field === 'url') setError(null);
-        setDraft(prev => ({
-            ...prev, title: {...prev.title, [field]: value}
-        }))
-    }
+    const updateGithubUrl = (value: string) => {
+        setError(null);
+        setDraft(prev => ({...prev, githubUrl: value}));
+    };
 
     const onSave = async () => {
         if (saveInFlight.current || isMutating) return;
         saveInFlight.current = true;
         setIsSavingThis(true);
         try {
-            const normalized = {...draft, title: {...draft.title, url: normalizeWebUrl(draft.title.url)}};
+            const normalized = {
+                ...draft,
+                websiteUrl: normalizeWebUrl(draft.websiteUrl),
+                githubUrl: normalizeWebUrl(draft.githubUrl),
+            };
             await handleUpdate(project.id, normalized);
             setDraft(normalized);
             setError(null);
@@ -70,18 +72,32 @@ export function ProjectEntryForm({project, index, handleUpdate, handleDelete, is
     return (
         <div ref={ref} className="bg-white border border-gray-200 rounded-xl p-6 flex flex-col gap-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <label className="flex flex-col gap-1">
+                <label className="flex flex-col gap-1 sm:col-span-2">
                     <span className="text-xs font-medium uppercase tracking-wide text-gray-600">Title</span>
                     <input
                         className="border-b border-gray-400 bg-transparent px-0 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-gray-900 transition-colors"
-                        type='text' value={draft.title.text} onChange={e => updateTitle('text', e.target.value)}
+                        type='text' value={draft.title} onChange={e => setDraft(prev => ({...prev, title: e.target.value}))}
+                    />
+                </label>
+                <label className="flex flex-col gap-1 sm:col-span-2">
+                    <span className="text-xs font-medium uppercase tracking-wide text-gray-600">Title description</span>
+                    <input
+                        className="border-b border-gray-400 bg-transparent px-0 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-gray-900 transition-colors"
+                        type='text' placeholder="Project description..." value={draft.description ?? ''} onChange={e => setDraft(prev => ({...prev, description: e.target.value}))}
                     />
                 </label>
                 <label className="flex flex-col gap-1">
-                    <span className="text-xs font-medium uppercase tracking-wide text-gray-600">Optional URL</span>
+                    <span className="text-xs font-medium uppercase tracking-wide text-gray-600">Project website</span>
                     <input
                         className="border-b border-gray-400 bg-transparent px-0 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-gray-900 transition-colors"
-                        type='url' placeholder="example.com" value={draft.title.url ?? ''} onChange={e => updateTitle('url', e.target.value)}
+                        type='url' placeholder="example.com" value={draft.websiteUrl ?? ''} onChange={e => { setError(null); setDraft(prev => ({...prev, websiteUrl: e.target.value})); }}
+                    />
+                </label>
+                <label className="flex flex-col gap-1">
+                    <span className="text-xs font-medium uppercase tracking-wide text-gray-600">GitHub repository</span>
+                    <input
+                        className="border-b border-gray-400 bg-transparent px-0 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-gray-900 transition-colors"
+                        type='url' placeholder="github.com/owner/repo" value={draft.githubUrl ?? ''} onChange={e => updateGithubUrl(e.target.value)}
                     />
                 </label>
             </div>

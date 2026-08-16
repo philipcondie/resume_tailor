@@ -180,6 +180,12 @@ html {
     .page textarea.editable:hover {
         border: none;
     }
+    .project-link-control {
+        opacity: 0;
+    }
+    .project-link-control.has-url {
+        opacity: 0.82;
+    }
 }
 
 /* ── Header ── */
@@ -264,6 +270,63 @@ html {
 .linkable-editor:hover .linkable-editor-control,
 .linkable-editor:focus-within .linkable-editor-control {
     opacity: 1;
+}
+
+.project-title-editor,
+.project-title-primary,
+.project-title-description,
+.project-link-controls {
+    display: inline-flex;
+}
+
+.project-title-editor {
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.04in;
+}
+
+.project-title-primary,
+.project-link-controls {
+    align-items: center;
+}
+
+.project-title-primary {
+    gap: 0.025in;
+    white-space: nowrap;
+}
+
+.project-title-description {
+    align-items: baseline;
+    gap: 0.04in;
+    color: var(--color-text);
+    font-weight: 400;
+}
+
+.project-link-controls {
+    gap: 0.025in;
+}
+
+.project-link-control {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 0.16in;
+    height: 0.16in;
+    padding: 0;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--color-accent);
+    cursor: pointer;
+    opacity: 0.82;
+    transition: opacity 120ms ease, background-color 120ms ease;
+}
+
+.project-link-control:hover,
+.project-link-control:focus-visible {
+    opacity: 1;
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    outline: none;
 }
 
 /* ── Section ── */

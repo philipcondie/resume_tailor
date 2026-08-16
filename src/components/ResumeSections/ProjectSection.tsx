@@ -1,6 +1,6 @@
 import { SectionProps } from "../../types/resume";
 import { BulletSection } from "./BulletSection";
-import { EditableLinkableText } from "../utils/EditableLinkableText";
+import { EditableProjectTitle } from "./EditableProjectTitle";
 import { shouldRenderProject } from "../../lib/resumeVisibility";
 
 export function ProjectSection({draft,updateSection}:SectionProps) {
@@ -15,7 +15,18 @@ export function ProjectSection({draft,updateSection}:SectionProps) {
                 onItemsChange={(projects) => updateSection('projects',projects)}
                 renderHeader={(project,updateItemField) => (
                     <div className="section-item-header">
-                        <span className="section-item-primary"><EditableLinkableText value={project.title} handleChange={(title) => updateItemField('title',title)}/></span>
+                        <span className="section-item-primary">
+                            <EditableProjectTitle
+                                title={project.title}
+                                description={project.description}
+                                websiteUrl={project.websiteUrl}
+                                githubUrl={project.githubUrl}
+                                onTitleChange={(title) => updateItemField('title', title)}
+                                onDescriptionChange={(description) => updateItemField('description', description)}
+                                onWebsiteUrlChange={(websiteUrl) => updateItemField('websiteUrl', websiteUrl)}
+                                onGithubUrlChange={(githubUrl) => updateItemField('githubUrl', githubUrl)}
+                            />
+                        </span>
                     </div>
                 )}
             />

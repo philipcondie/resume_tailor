@@ -34,7 +34,10 @@ export function ProjectEntryContainer() {
         setMutationError(null);
         const blank: ProjectEntry = {
             id: crypto.randomUUID(),
-            title: {text: '', url: null},
+            title: '',
+            description: '',
+            websiteUrl: null,
+            githubUrl: null,
             bullets: [],
         }
         try {

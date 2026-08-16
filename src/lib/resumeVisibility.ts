@@ -19,7 +19,8 @@ export const shouldRenderEducation = (education: ResumeData['education'][number]
     || hasBulletText(education);
 
 export const shouldRenderProject = (project: ResumeData['projects'][number]) =>
-    hasText(project.title.text)
+    hasText(project.title)
+    || hasText(project.description)
     || hasBulletText(project);
 
 export const shouldRenderSkill = (skill: NonNullable<ResumeData['skills']>[number]) =>
