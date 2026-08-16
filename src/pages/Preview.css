@@ -332,6 +332,10 @@ html {
     margin-bottom: 0.12in;
 }
 
+.section:last-child {
+    margin-bottom: 0;
+}
+
 .section-title {
     font-family: var(--font-main);
     font-size: 0.68rem;
@@ -536,8 +540,8 @@ html {
 
 .layout-multipanel > .main-panel {
     border-bottom: 1px solid var(--color-accent);
-    padding-bottom: 0.15in;
-    margin-bottom: 0.15in;
+    padding-bottom: 0.06in;
+    margin-bottom: 0.09in;
 }
 
 .layout-multipanel .left-panel {
