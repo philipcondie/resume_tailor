@@ -298,8 +298,6 @@ html {
 .project-title-description {
     align-items: baseline;
     gap: 0.04in;
-    color: var(--color-text);
-    font-weight: 400;
 }
 
 .project-link-controls {
