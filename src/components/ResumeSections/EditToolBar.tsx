@@ -70,12 +70,12 @@ export function EditToolBar({ filename, isOverflowing, isEditing, canUndo, onUnd
             <button
                 className="px-2 py-1.5 text-xs font-medium border border-gray-300 text-gray-600 bg-white rounded hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 onClick={onDownload}
-                disabled={isEditing || isOverflowing}
+                disabled={isEditing}
             >Download</button>
             <button
                 className="px-4 py-1.5 text-xs font-medium border border-gray-300 text-gray-600 bg-white rounded hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 onClick={() => window.print()}
-                disabled={isEditing || isOverflowing}
+                disabled={isEditing}
             >Print</button>
             <button
                 className="px-4 py-1.5 text-xs font-medium text-white bg-slate-700 rounded hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
