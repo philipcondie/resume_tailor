@@ -44,7 +44,7 @@ export type ProjectEntry = z.infer<typeof ProjectEntrySchema>;
 
 export const SkillEntrySchema = z.object({
     id: z.string(),
-    title: z.string(),
+    title: z.string().default(''),
     text: z.string(),
 });
 

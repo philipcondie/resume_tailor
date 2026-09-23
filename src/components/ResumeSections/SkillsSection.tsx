@@ -28,7 +28,9 @@ export function SkillSection({draft, updateSection}:SectionProps) {
                 {visibleSkills.map((skill) => (
                     <div className="skill-line section-item" key={skill.id}>
                         <button className='bullet-controls bullet-delete' onClick={() => deleteSkill(skill.id)}>×</button>
-                        <span className="skill-category"><EditableInline content={skill.title} handleChange={(text)=>updateSkillField(skill.id,'title',text)}/>: </span>
+                        {skill.title.trim() && (
+                            <span className="skill-category"><EditableInline content={skill.title} handleChange={(text)=>updateSkillField(skill.id,'title',text)}/>: </span>
+                        )}
                         <span className="skill-values"><EditableInline content={skill.text} handleChange={(text)=>updateSkillField(skill.id,'text',text)}/></span>
                     </div>
                 ))}
